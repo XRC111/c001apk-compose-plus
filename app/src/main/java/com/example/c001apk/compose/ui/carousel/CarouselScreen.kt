@@ -42,7 +42,7 @@ import com.example.c001apk.compose.util.ReportType
 import com.example.c001apk.compose.util.decode
 import com.example.c001apk.compose.util.makeToast
 import kotlinx.coroutines.launch
-import top.yukonga.miuix.kmp.basic.TabRow
+import com.example.c001apk.compose.ui.component.MiuixTextTabRow
 
 /**
  * Created by bggRGjQaUbCoE on 2024/6/11

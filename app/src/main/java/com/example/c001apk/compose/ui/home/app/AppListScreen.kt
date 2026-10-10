@@ -38,6 +38,7 @@ import com.example.c001apk.compose.util.isScrollingUp
 import com.example.c001apk.compose.util.longVersionCodeCompat
 import top.yukonga.miuix.kmp.theme.MiuixTheme
 import top.yukonga.miuix.kmp.basic.BasicComponent
+import top.yukonga.miuix.kmp.basic.Card
 
 /**
  * Created by bggRGjQaUbCoE on 2024/6/9
@@ -89,24 +90,26 @@ fun AppListScreen(
                 items = viewModel.appList,
                 key = { it.packageInfo.packageName }
             ) {
-                BasicComponent(
-                    title = it.label,
-                    summary = "${it.packageInfo.packageName}\n${it.packageInfo.versionName}(${it.packageInfo.longVersionCodeCompat})",
-                    startAction = {
-                        AsyncImage(
-                            model = ImageRequest.Builder(context)
-                                .data(it.packageInfo)
-                                .crossfade(true)
-                                .build(),
-                            contentDescription = it.label,
-                            modifier = Modifier
-                                .padding(4.dp)
-                                .width(48.dp)
-                                .height(48.dp)
-                        )
-                    },
-                    onClick = { onViewApp(it.packageInfo.packageName) },
-                )
+                Card {
+                    BasicComponent(
+                        title = it.label,
+                        summary = "${it.packageInfo.packageName}\n${it.packageInfo.versionName}(${it.packageInfo.longVersionCodeCompat})",
+                        startAction = {
+                            AsyncImage(
+                                model = ImageRequest.Builder(context)
+                                    .data(it.packageInfo)
+                                    .crossfade(true)
+                                    .build(),
+                                contentDescription = it.label,
+                                modifier = Modifier
+                                    .padding(4.dp)
+                                    .width(48.dp)
+                                    .height(48.dp)
+                            )
+                        },
+                        onClick = { onViewApp(it.packageInfo.packageName) },
+                    )
+                }
             }
 
         }

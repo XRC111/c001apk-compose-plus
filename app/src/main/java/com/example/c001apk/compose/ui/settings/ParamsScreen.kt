@@ -23,6 +23,7 @@ import com.example.c001apk.compose.ui.component.BackButton
 import com.example.c001apk.compose.ui.component.settings.BasicListItem
 import com.example.c001apk.compose.util.TokenDeviceUtils.encode
 import com.example.c001apk.compose.util.Utils.randomMacAddress
+import top.yukonga.miuix.kmp.basic.Card
 
 /**
  * Created by bggRGjQaUbCoE on 2024/6/1
@@ -54,6 +55,7 @@ fun ParamsScreen(
                 .verticalScroll(rememberScrollState)
         ) {
 
+            Card {
             ParamsItem(
                 title = stringResource(id = R.string.params_version_name),
                 data = prefs.versionName.ifEmpty { null }
@@ -161,6 +163,7 @@ fun ParamsScreen(
                 headlineText = stringResource(id = R.string.params_regenerate)
             ) {
                 viewModel.regenerateParams()
+            }
             }
 
         }

@@ -34,6 +34,7 @@ import com.example.c001apk.compose.ui.component.BackButton
 import com.example.c001apk.compose.ui.component.settings.BasicListItem
 import com.example.c001apk.compose.util.openInBrowser
 import com.google.accompanist.drawablepainter.rememberDrawablePainter
+import top.yukonga.miuix.kmp.basic.Card
 
 /**
  * Created by bggRGjQaUbCoE on 2024/6/2
@@ -82,6 +83,7 @@ fun AboutScreen(
                 )
             }
             HorizontalDivider()
+            Card {
             BasicListItem(
                 leadingImageVector = Icons.Outlined.AllInclusive,
                 headlineText = stringResource(id = R.string.app_name),
@@ -111,6 +113,7 @@ fun AboutScreen(
                 headlineText = "开源许可证"
             ) {
                 onLicenseClick()
+            }
             }
 
         }

@@ -65,10 +65,11 @@ import com.example.c001apk.compose.ui.home.topic.HomeTopicScreen
 import com.example.c001apk.compose.util.CookieUtil.isLogin
 import com.example.c001apk.compose.util.ReportType
 import kotlinx.coroutines.launch
-import top.yukonga.miuix.kmp.basic.TabRow
+import com.example.c001apk.compose.ui.component.MiuixTextTabRow
 import androidx.compose.ui.state.ToggleableState
 import top.yukonga.miuix.kmp.basic.BasicComponent
 import top.yukonga.miuix.kmp.basic.TextButton
+import top.yukonga.miuix.kmp.basic.Card
 
 /**
  * Created by bggRGjQaUbCoE on 2024/6/5
@@ -129,24 +130,26 @@ private fun HomeTabEditorDialog(
                     items(TabType.entries, key = TabType::name) { type ->
                         val checked = type in selectedTabs
                         val canToggle = !checked || selectedTabs.size > 1
-                        BasicComponent(
-                            title = tabTitle(type),
-                            endActions = {
-                                Checkbox(
-                                    state = if (checked) ToggleableState.On else ToggleableState.Off,
-                                    onClick = null,
-                                    enabled = canToggle,
-                                )
-                            },
-                            onClick = {
-                                selectedTabs = if (checked) {
-                                    selectedTabs - type
-                                } else {
-                                    selectedTabs + type
-                                }
-                            },
-                            enabled = canToggle,
-                        )
+                        Card {
+                            BasicComponent(
+                                title = tabTitle(type),
+                                endActions = {
+                                    Checkbox(
+                                        state = if (checked) ToggleableState.On else ToggleableState.Off,
+                                        onClick = null,
+                                        enabled = canToggle,
+                                    )
+                                },
+                                onClick = {
+                                    selectedTabs = if (checked) {
+                                        selectedTabs - type
+                                    } else {
+                                        selectedTabs + type
+                                    }
+                                },
+                                enabled = canToggle,
+                            )
+                        }
                     }
                 }
             }

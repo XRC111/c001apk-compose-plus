@@ -13,7 +13,7 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import top.yukonga.miuix.kmp.basic.HorizontalDivider
 import top.yukonga.miuix.kmp.basic.Scaffold
-import top.yukonga.miuix.kmp.basic.TabRow
+import com.example.c001apk.compose.ui.component.MiuixTextTabRow
 import androidx.compose.material3.Text
 import top.yukonga.miuix.kmp.basic.TopAppBar
 import com.example.c001apk.compose.ui.component.rememberHapticClick

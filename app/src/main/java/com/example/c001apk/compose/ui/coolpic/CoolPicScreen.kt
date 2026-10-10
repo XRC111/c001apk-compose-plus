@@ -29,7 +29,7 @@ import androidx.compose.ui.unit.dp
 import com.example.c001apk.compose.ui.component.BackButton
 import com.example.c001apk.compose.util.ReportType
 import kotlinx.coroutines.launch
-import top.yukonga.miuix.kmp.basic.TabRow
+import com.example.c001apk.compose.ui.component.MiuixTextTabRow
 
 /**
  * Created by bggRGjQaUbCoE on 2024/6/12

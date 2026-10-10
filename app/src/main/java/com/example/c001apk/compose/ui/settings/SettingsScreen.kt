@@ -186,6 +186,7 @@ fun SettingsScreen(
         ) {
 
             BasicListItem(leadingText = stringResource(id = R.string.app_name))
+            Card {
             BasicListItem(
                 leadingImageVector = Icons.Outlined.Smartphone,
                 headlineText = "数字联盟ID",
@@ -200,7 +201,10 @@ fun SettingsScreen(
                 onParamsClick()
             }
 
+            }
+
             BasicListItem(leadingText = "主题")
+            Card {
             SwitchListItem(
                 value = prefs.materialYou,
                 leadingImageVector = Icons.Outlined.Palette,
@@ -259,7 +263,10 @@ fun SettingsScreen(
                 viewModel.setPureBlack(it)
             }
 
+            }
+
             BasicListItem(leadingText = "显示")
+            Card {
             BasicListItem(
                 leadingImageVector = Icons.Outlined.Block,
                 headlineText = "用户黑名单",
@@ -365,7 +372,10 @@ fun SettingsScreen(
                 viewModel.setCheckCount(it)
             }*/
 
+            }
+
             BasicListItem(leadingText = "其他")
+            Card {
             SwitchListItem(
                 value = prefs.hapticFeedback,
                 leadingImageVector = Icons.Outlined.TouchApp,
@@ -413,6 +423,7 @@ fun SettingsScreen(
             ) {
                 cacheSize = getTotalCacheSize(context)
                 showCleanCacheDialog = true
+            }
             }
 
         }
