@@ -11,11 +11,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ExpandMore
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
+import top.yukonga.miuix.kmp.basic.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -40,6 +37,11 @@ import com.example.c001apk.compose.util.ReportType
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.jsoup.select.Elements
+import top.yukonga.miuix.kmp.theme.MiuixTheme
+import com.example.c001apk.compose.ui.theme.MiuixShapes
+import top.yukonga.miuix.kmp.menu.OverlayIconDropdownMenu
+import top.yukonga.miuix.kmp.basic.DropdownEntry
+import top.yukonga.miuix.kmp.basic.DropdownItem
 
 /**
  * Created by bggRGjQaUbCoE on 2024/6/11
@@ -55,14 +57,13 @@ fun NotificationCard(
     onDeleteNotice: ((String) -> Unit)? = null,
 ) {
 
-    var dropdownMenuExpanded by remember { mutableStateOf(false) }
     val isFollow by lazy { data.type == "contacts_follow" }
 
     ConstraintLayout(
         modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = 10.dp)
-            .clip(MaterialTheme.shapes.medium)
+            .clip(MiuixShapes.medium)
             .background(cardBg())
             .combinedClickable(
                 onClick = {
@@ -115,7 +116,7 @@ fun NotificationCard(
                 },
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
-            style = MaterialTheme.typography.titleSmall,
+            style = MiuixTheme.textStyles.title3,
         )
 
         LinkText(
@@ -140,48 +141,38 @@ fun NotificationCard(
                     start.linkTo(avatar.end)
                     top.linkTo(message.bottom)
                 },
-            style = MaterialTheme.typography.bodySmall.copy(fontSize = 14.sp),
-            color = MaterialTheme.colorScheme.outline
+            style = MiuixTheme.textStyles.body2.copy(fontSize = 14.sp),
+            color = MiuixTheme.colorScheme.outline
         )
 
-        Box(
+        OverlayIconDropdownMenu(
             modifier = Modifier
                 .constrainAs(expand) {
                     top.linkTo(parent.top)
                     end.linkTo(parent.end)
-                }) {
-
-            IconButton(
-                onClick = {
-                    dropdownMenuExpanded = true
-                }
-            ) {
-                Icon(
-                    imageVector = Icons.Default.ExpandMore,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.outline
-                )
-            }
-
-            DropdownMenu(
-                expanded = dropdownMenuExpanded,
-                onDismissRequest = {
-                    dropdownMenuExpanded = false
                 },
-            ) {
-                listOf("拉黑", stringResource(id = R.string.menu_report)).forEachIndexed { index, menu ->
-                    DropdownMenuItem(
-                        text = { Text(menu) },
-                        onClick = {
-                            dropdownMenuExpanded = false
-                            when (index) {
-                                1 -> onReport?.let { it(data.fromuid.orEmpty(), ReportType.USER) }
-                            }
-                        }
+            entries = listOf(
+                DropdownEntry(
+                    items = listOf(
+                        DropdownItem(
+                            text = "拉黑",
+                            onClick = { /* 原实现即为空操作，保持一致 */ },
+                        ),
+                        DropdownItem(
+                            text = stringResource(id = R.string.menu_report),
+                            onClick = {
+                                onReport?.let { it(data.fromuid.orEmpty(), ReportType.USER) }
+                            },
+                        ),
                     )
-                }
-            }
-
+                )
+            ),
+        ) {
+            Icon(
+                imageVector = Icons.Default.ExpandMore,
+                contentDescription = null,
+                tint = MiuixTheme.colorScheme.outline
+            )
         }
 
     }

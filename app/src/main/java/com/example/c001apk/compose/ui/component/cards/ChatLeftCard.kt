@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -25,6 +24,7 @@ import com.example.c001apk.compose.ui.component.LinkText
 import com.example.c001apk.compose.ui.theme.cardBg
 import com.example.c001apk.compose.util.ImageShowUtil
 import com.example.c001apk.compose.util.longClick
+import com.example.c001apk.compose.ui.theme.MiuixShapes
 
 /**
  * Created by bggRGjQaUbCoE on 2024/6/19
@@ -103,7 +103,7 @@ fun ChatLeftCard(
                     isChat = true,
                     modifier = Modifier
                         .padding(start = 10.dp)
-                        .clip(MaterialTheme.shapes.medium)
+                        .clip(MiuixShapes.medium)
                         .background(cardBg())
                         .width(maxWidth / 2f)
                         .height(imageHeight),

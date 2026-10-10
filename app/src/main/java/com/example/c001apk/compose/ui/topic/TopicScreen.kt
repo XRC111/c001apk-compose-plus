@@ -24,22 +24,14 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowRight
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.HorizontalDivider
+import top.yukonga.miuix.kmp.basic.FloatingActionButton
+import top.yukonga.miuix.kmp.basic.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.RadioButton
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SecondaryScrollableTabRow
-import androidx.compose.material3.Tab
-import androidx.compose.material3.TabRowDefaults
+import top.yukonga.miuix.kmp.basic.IconButton
+import top.yukonga.miuix.kmp.basic.RadioButton
+import top.yukonga.miuix.kmp.basic.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
+import top.yukonga.miuix.kmp.basic.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -72,7 +64,12 @@ import com.example.c001apk.compose.util.ReportType
 import com.example.c001apk.compose.util.makeToast
 import com.google.accompanist.drawablepainter.rememberDrawablePainter
 import kotlinx.coroutines.launch
-import com.example.c001apk.compose.ui.component.MoreMenuButton
+import top.yukonga.miuix.kmp.theme.MiuixTheme
+import top.yukonga.miuix.kmp.basic.TabRow
+import top.yukonga.miuix.kmp.menu.OverlayIconCascadingDropdownMenu
+import top.yukonga.miuix.kmp.basic.DropdownEntry
+import top.yukonga.miuix.kmp.basic.DropdownItem
+import androidx.compose.material.icons.filled.MoreVert
 
 /**
  * Created by bggRGjQaUbCoE on 2024/6/9
@@ -82,7 +79,6 @@ enum class ProductSortType {
     REPLY, HOT, DATELINE
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TopicScreen(
     onBackClick: () -> Unit,
@@ -110,9 +106,6 @@ fun TopicScreen(
 
     val context = LocalContext.current
     val layoutDirection = LocalLayoutDirection.current
-    val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
-    var dropdownMenuExpanded by remember { mutableStateOf(false) }
-    var sortMenuExpanded by remember { mutableStateOf(false) }
     var pagerState: PagerState = rememberPagerState(pageCount = { 0 })
     val scope = rememberCoroutineScope()
     var refreshState by remember { mutableStateOf(false) }
@@ -123,19 +116,10 @@ fun TopicScreen(
         modifier = Modifier.fillMaxSize(),
         topBar = {
             TopAppBar(
-                windowInsets = WindowInsets.systemBars
-                    .only(WindowInsetsSides.Start + WindowInsetsSides.Top),
                 navigationIcon = {
                     BackButton { onBackClick() }
                 },
-                title = {
-                    Text(
-                        text = (viewModel.topicState as? LoadingState.Success)?.response?.title
-                            ?: EMPTY_STRING,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                },
+                title = (viewModel.topicState as? LoadingState.Success)?.response?.title ?: EMPTY_STRING,
                 actions = {
                     if (viewModel.topicState is LoadingState.Success) {
                         Row(Modifier.wrapContentSize(Alignment.TopEnd)) {
@@ -150,108 +134,72 @@ fun TopicScreen(
                             ) {
                                 Icon(Icons.Default.Search, contentDescription = null)
                             }
-                            Box {
-                                MoreMenuButton { dropdownMenuExpanded = true }
-                                DropdownMenu(
-                                    expanded = dropdownMenuExpanded,
-                                    onDismissRequest = { dropdownMenuExpanded = false }
-                                ) {
-                                    if (viewModel.entityType == "product"
-                                        && viewModel.tabList?.getOrNull(pagerState.currentPage)?.title == "讨论"
-                                    ) {
-                                        DropdownMenuItem(
-                                            text = { Text(stringResource(id = R.string.menu_sort)) },
-                                            onClick = {
-                                                dropdownMenuExpanded = false
-                                                sortMenuExpanded = true
-                                            },
-                                            trailingIcon = {
-                                                Icon(
-                                                    imageVector = Icons.AutoMirrored.Filled.ArrowRight,
-                                                    contentDescription = null
+                            OverlayIconCascadingDropdownMenu(
+                                entries = listOf(
+                                    DropdownEntry(
+                                        items = buildList {
+                                            if (viewModel.entityType == "product"
+                                                && viewModel.tabList?.getOrNull(pagerState.currentPage)?.title == "讨论"
+                                            ) {
+                                                add(
+                                                    DropdownItem(
+                                                        text = stringResource(id = R.string.menu_sort),
+                                                        children = ProductSortType.entries.map { sort ->
+                                                            DropdownItem(
+                                                                text = stringResource(
+                                                                    id = when (sort) {
+                                                                        ProductSortType.REPLY -> R.string.sort_reply
+                                                                        ProductSortType.HOT -> R.string.sort_hot
+                                                                        ProductSortType.DATELINE -> R.string.sort_dateline
+                                                                    }
+                                                                ),
+                                                                selected = sort == sortType,
+                                                                onClick = { sortType = sort },
+                                                            )
+                                                        },
+                                                    )
                                                 )
                                             }
-                                        )
-                                    }
-                                    if (isLogin) {
-                                        DropdownMenuItem(
-                                            text = {
-                                                Text(
-                                                    if (viewModel.isFollowed) {
-                                                        stringResource(id = R.string.menu_unfollow)
+                                            if (isLogin) {
+                                                add(
+                                                    DropdownItem(
+                                                        text = if (viewModel.isFollowed) {
+                                                            stringResource(id = R.string.menu_unfollow)
+                                                        } else {
+                                                            stringResource(id = R.string.menu_follow)
+                                                        },
+                                                        onClick = {
+                                                            if (viewModel.entityType == "topic")
+                                                                viewModel.onGetFollow()
+                                                            else
+                                                                viewModel.onPostFollow()
+                                                        },
+                                                    )
+                                                )
+                                            }
+                                            add(
+                                                DropdownItem(
+                                                    text = if (viewModel.isBlocked) {
+                                                        stringResource(id = R.string.menu_unblock)
                                                     } else {
-                                                        stringResource(id = R.string.menu_follow)
-                                                    }
+                                                        stringResource(id = R.string.menu_block)
+                                                    },
+                                                    onClick = { viewModel.blockTopic() },
                                                 )
-                                            },
-                                            onClick = {
-                                                dropdownMenuExpanded = false
-                                                if (viewModel.entityType == "topic")
-                                                    viewModel.onGetFollow()
-                                                else
-                                                    viewModel.onPostFollow()
-                                            }
-                                        )
-                                    }
-                                    DropdownMenuItem(
-                                        text = {
-                                            Text(
-                                                if (viewModel.isBlocked) {
-                                                    stringResource(id = R.string.menu_unblock)
-                                                } else {
-                                                    stringResource(id = R.string.menu_block)
-                                                }
                                             )
-                                        },
-                                        onClick = {
-                                            dropdownMenuExpanded = false
-                                            viewModel.blockTopic()
                                         }
                                     )
-                                }
-                                DropdownMenu(
-                                    expanded = sortMenuExpanded,
-                                    onDismissRequest = { sortMenuExpanded = false }
-                                ) {
-                                    ProductSortType.entries.forEach { sort ->
-                                        Row(
-                                            modifier = Modifier
-                                                .clickable {
-                                                    sortMenuExpanded = false
-                                                    sortType = sort
-                                                },
-                                            verticalAlignment = Alignment.CenterVertically
-                                        ) {
-                                            RadioButton(
-                                                selected = sort == sortType,
-                                                onClick = {
-                                                    sortMenuExpanded = false
-                                                    sortType = sort
-                                                }
-                                            )
-                                            Text(
-                                                text = stringResource(
-                                                    id = when (sort) {
-                                                        ProductSortType.REPLY -> R.string.sort_reply
-                                                        ProductSortType.HOT -> R.string.sort_hot
-                                                        ProductSortType.DATELINE -> R.string.sort_dateline
-                                                    }
-                                                ),
-                                                style = MaterialTheme.typography.bodyMedium,
-                                                modifier = Modifier
-                                                    .fillMaxWidth()
-                                                    .padding(end = 16.dp)
-                                            )
-                                        }
-                                    }
-                                }
+                                ),
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.MoreVert,
+                                    contentDescription = null,
+                                )
                             }
 
                         }
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent),
-                scrollBehavior = scrollBehavior
             )
         },
         floatingActionButton = {
@@ -324,36 +272,19 @@ fun TopicScreen(
                             pageCount = { tabList.size }
                         )
 
-                        SecondaryScrollableTabRow(
+                        TabRow(
                             modifier = Modifier.padding(
                                 start = paddingValues.calculateLeftPadding(layoutDirection),
                             ),
+                            tabs = tabList.map { it.title.orEmpty() },
                             selectedTabIndex = pagerState.currentPage,
-                            indicator = {
-                                TabRowDefaults.SecondaryIndicator(
-                                    Modifier
-                                        .tabIndicatorOffset(
-                                            pagerState.currentPage,
-                                            matchContentSize = true
-                                        )
-                                        .clip(RoundedCornerShape(topStart = 3.dp, topEnd = 3.dp))
-                                )
+                            onTabSelected = { index ->
+                                if (pagerState.currentPage == index) {
+                                    refreshState = true
+                                }
+                                scope.launch { pagerState.animateScrollToPage(index) }
                             },
-                            divider = {}
-                        ) {
-                            tabList.forEachIndexed { index, tab ->
-                                Tab(
-                                    selected = pagerState.currentPage == index,
-                                    onClick = rememberHapticClick {
-                                        if (pagerState.currentPage == index) {
-                                            refreshState = true
-                                        }
-                                        scope.launch { pagerState.animateScrollToPage(index) }
-                                    },
-                                    text = { Text(text = tab.title.orEmpty()) }
-                                )
-                            }
-                        }
+                        )
 
                         HorizontalDivider()
 

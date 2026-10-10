@@ -10,13 +10,13 @@ import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.icons.outlined.History
 import androidx.compose.material.icons.outlined.MyLocation
 import androidx.compose.material.icons.outlined.StarOutline
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import com.example.c001apk.compose.ui.ffflist.FFFListType
 import com.example.c001apk.compose.ui.theme.cardBg
 import com.example.c001apk.compose.util.CookieUtil
+import com.example.c001apk.compose.ui.theme.MiuixShapes
 
 /**
  * Created by bggRGjQaUbCoE on 2024/6/10
@@ -30,7 +30,7 @@ fun MessageWidgetCard(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .clip(MaterialTheme.shapes.medium)
+            .clip(MiuixShapes.medium)
             .background(cardBg())
 
     ) {

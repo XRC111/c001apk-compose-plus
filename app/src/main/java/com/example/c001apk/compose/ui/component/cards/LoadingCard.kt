@@ -5,8 +5,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.MaterialTheme
+import top.yukonga.miuix.kmp.basic.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -21,6 +20,8 @@ import com.example.c001apk.compose.R
 import com.example.c001apk.compose.logic.state.FooterState
 import com.example.c001apk.compose.logic.state.LoadingState
 import com.example.c001apk.compose.logic.state.State
+import top.yukonga.miuix.kmp.theme.MiuixTheme
+import com.example.c001apk.compose.ui.theme.MiuixShapes
 
 /**
  * Created by bggRGjQaUbCoE on 2024/6/5
@@ -57,7 +58,7 @@ fun LoadingCard(
             .height(if (type.first == Type.NONE) 0.dp else 80.dp)
             .clip(
                 if (isFeed) RectangleShape
-                else MaterialTheme.shapes.medium
+                else MiuixShapes.medium
             )
             .clickable(
                 enabled = onClick != null,
@@ -71,7 +72,7 @@ fun LoadingCard(
                     .align(Alignment.Center),
                 text = type.second ?: stringResource(id = R.string.loading_empty),
                 textAlign = TextAlign.Center,
-                color = MaterialTheme.colorScheme.outline,
+                color = MiuixTheme.colorScheme.outline,
             )
 
             Type.INDICATOR -> androidx.compose.animation.AnimatedVisibility(
@@ -81,7 +82,6 @@ fun LoadingCard(
                 modifier = Modifier.align(Alignment.Center)
             ) {
                 CircularProgressIndicator(
-                    strokeCap = StrokeCap.Round
                 )
             }
 

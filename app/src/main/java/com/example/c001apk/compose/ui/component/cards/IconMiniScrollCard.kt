@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -24,6 +23,7 @@ import androidx.constraintlayout.compose.Dimension
 import com.example.c001apk.compose.logic.model.HomeFeedResponse
 import com.example.c001apk.compose.ui.component.CoilLoader
 import com.example.c001apk.compose.ui.theme.cardBg
+import top.yukonga.miuix.kmp.theme.MiuixTheme
 
 /**
  * Created by bggRGjQaUbCoE on 2024/6/6
@@ -83,7 +83,7 @@ fun IconMiniScrollCardItem(
             .clip(if (isGridCard) RectangleShape else RoundedCornerShape(8.dp))
             .background(
                 if (isFeedContent) cardBg()
-                else MaterialTheme.colorScheme.surface
+                else MiuixTheme.colorScheme.surface
             )
             .clickable {
                 onOpenLink(linkUrl, titleText)
@@ -108,7 +108,7 @@ fun IconMiniScrollCardItem(
 
         Text(
             text = titleText,
-            style = MaterialTheme.typography.bodySmall.copy(fontSize = 13.sp),
+            style = MiuixTheme.textStyles.body2.copy(fontSize = 13.sp),
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(start = 5.dp)

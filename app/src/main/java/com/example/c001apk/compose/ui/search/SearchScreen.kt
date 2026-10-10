@@ -21,18 +21,17 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.ClearAll
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
+import top.yukonga.miuix.kmp.basic.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
+import top.yukonga.miuix.kmp.basic.IconButton
 import androidx.compose.material3.LocalTextStyle
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
+import top.yukonga.miuix.kmp.basic.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
+import top.yukonga.miuix.kmp.basic.TextButton
+import top.yukonga.miuix.kmp.overlay.OverlayDialog
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -60,6 +59,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.c001apk.compose.R
 import com.example.c001apk.compose.ui.component.BackButton
 import com.example.c001apk.compose.ui.component.cards.SearchHistoryCard
+import top.yukonga.miuix.kmp.theme.MiuixTheme
 
 /**
  * Created by bggRGjQaUbCoE on 2024/6/6
@@ -104,8 +104,6 @@ fun SearchScreen(
         modifier = Modifier.fillMaxSize(),
         topBar = {
             TopAppBar(
-                windowInsets = WindowInsets.systemBars
-                    .only(WindowInsetsSides.Start + WindowInsetsSides.Top),
                 navigationIcon = {
                     BackButton { onBackClick() }
                 },
@@ -199,7 +197,7 @@ fun SearchScreen(
                         text = "搜索历史", modifier = Modifier
                             .weight(1f)
                             .padding(start = 10.dp),
-                        style = MaterialTheme.typography.titleSmall.copy(
+                        style = MiuixTheme.textStyles.title3.copy(
                             fontSize = 15.sp,
                             fontWeight = FontWeight.Bold,
                         )
@@ -240,32 +238,30 @@ fun SearchScreen(
 
     when {
         showClearDialog -> {
-            AlertDialog(
+            OverlayDialog(
+                show = true,
+                title = stringResource(id = R.string.search_clear_history_confirm),
                 onDismissRequest = { showClearDialog = false },
-                confirmButton = {
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceEvenly,
+                ) {
                     TextButton(
+                        text = stringResource(id = android.R.string.cancel),
+                        onClick = {
+                            showClearDialog = false
+                        },
+                    )
+                    TextButton(
+                        text = stringResource(id = android.R.string.ok),
                         onClick = {
                             showClearDialog = false
                             viewModel.clearAll()
-                        }) {
-                        Text(text = stringResource(id = android.R.string.ok))
-                    }
-                },
-                dismissButton = {
-                    TextButton(
-                        onClick = {
-                            showClearDialog = false
-                        }) {
-                        Text(text = stringResource(id = android.R.string.cancel))
-                    }
-                },
-                title = {
-                    Text(
-                        text = stringResource(id = R.string.search_clear_history_confirm),
-                        modifier = Modifier.fillMaxWidth()
+                        },
                     )
                 }
-            )
+            }
         }
     }
 

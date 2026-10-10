@@ -2,6 +2,7 @@ package com.example.c001apk.compose.ui.user
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
@@ -16,18 +17,13 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
+import top.yukonga.miuix.kmp.basic.IconButton
+import top.yukonga.miuix.kmp.basic.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
+import top.yukonga.miuix.kmp.basic.TextButton
+import top.yukonga.miuix.kmp.overlay.OverlayDialog
+import top.yukonga.miuix.kmp.basic.TopAppBar
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
@@ -63,12 +59,15 @@ import com.example.c001apk.compose.util.copyText
 import com.example.c001apk.compose.util.getShareText
 import com.example.c001apk.compose.util.makeToast
 import com.example.c001apk.compose.util.shareText
-import com.example.c001apk.compose.ui.component.MoreMenuButton
+import top.yukonga.miuix.kmp.theme.MiuixTheme
+import top.yukonga.miuix.kmp.menu.OverlayIconDropdownMenu
+import top.yukonga.miuix.kmp.basic.DropdownEntry
+import top.yukonga.miuix.kmp.basic.DropdownItem
+import androidx.compose.material.icons.filled.MoreVert
 
 /**
  * Created by bggRGjQaUbCoE on 2024/6/4
  */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UserScreen(
     uid: String,
@@ -87,13 +86,11 @@ fun UserScreen(
 
     val context = LocalContext.current
     val state = rememberPullToRefreshState()
-    val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     val viewModel =
         hiltViewModel<UserViewModel, UserViewModel.ViewModelFactory>(key = uid) { factory ->
             factory.create(uid)
         }
     var showUserInfoDialog by remember { mutableStateOf(false) }
-    var dropdownMenuExpanded by remember { mutableStateOf(false) }
     val lazyListState = rememberLazyListState()
     val firstVisibleItemIndex by remember { derivedStateOf { lazyListState.firstVisibleItemIndex } }
 
@@ -101,21 +98,10 @@ fun UserScreen(
         modifier = Modifier.fillMaxSize(),
         topBar = {
             TopAppBar(
-                windowInsets = WindowInsets.systemBars
-                    .only(WindowInsetsSides.Start + WindowInsetsSides.Top),
                 navigationIcon = {
                     BackButton { onBackClick() }
                 },
-                title = {
-                    Text(
-                        text = if (firstVisibleItemIndex > 0)
-                            (viewModel.userState as? LoadingState.Success)?.response?.username
-                                ?: uid
-                        else EMPTY_STRING,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                },
+                title = if (firstVisibleItemIndex > 0) (viewModel.userState as? LoadingState.Success)?.response?.username ?: uid else EMPTY_STRING,
                 actions = {
                     if (viewModel.userState is LoadingState.Success) {
                         Row(Modifier.wrapContentSize(Alignment.TopEnd)) {
@@ -126,64 +112,69 @@ fun UserScreen(
                             ) {
                                 Icon(Icons.Default.Search, contentDescription = null)
                             }
-                            Box {
-                                MoreMenuButton { dropdownMenuExpanded = true }
-                                DropdownMenu(
-                                    expanded = dropdownMenuExpanded,
-                                    onDismissRequest = { dropdownMenuExpanded = false }
-                                ) {
-                                    listOf("复制", "分享", "用户信息")
-                                        .forEachIndexed { index, menu ->
-                                            DropdownMenuItem(
-                                                text = { Text(menu) },
-                                                onClick = {
-                                                    dropdownMenuExpanded = false
-                                                    when (index) {
-                                                        0 -> context.copyText(
+                            OverlayIconDropdownMenu(
+                                entries = listOf(
+                                    DropdownEntry(
+                                        items = buildList {
+                                            add(
+                                                DropdownItem(
+                                                    text = "复制",
+                                                    onClick = {
+                                                        context.copyText(
                                                             getShareText(ShareType.USER, uid)
                                                         )
-
-                                                        1 -> context.shareText(
+                                                    },
+                                                )
+                                            )
+                                            add(
+                                                DropdownItem(
+                                                    text = "分享",
+                                                    onClick = {
+                                                        context.shareText(
                                                             getShareText(ShareType.USER, uid)
                                                         )
-
-                                                        2 -> showUserInfoDialog = true
-                                                    }
-                                                }
+                                                    },
+                                                )
                                             )
-                                        }
-                                    DropdownMenuItem(
-                                        text = {
-                                            Text(
-                                                if (viewModel.isBlocked) {
-                                                    stringResource(id = R.string.menu_unblock)
-                                                } else {
-                                                    "拉黑"
-                                                }
+                                            add(
+                                                DropdownItem(
+                                                    text = "用户信息",
+                                                    onClick = { showUserInfoDialog = true },
+                                                )
                                             )
-                                        },
-                                        onClick = {
-                                            dropdownMenuExpanded = false
-                                            viewModel.onBlockUser(viewModel.uid)
+                                            add(
+                                                DropdownItem(
+                                                    text = if (viewModel.isBlocked) {
+                                                        stringResource(id = R.string.menu_unblock)
+                                                    } else {
+                                                        "拉黑"
+                                                    },
+                                                    onClick = {
+                                                        viewModel.onBlockUser(viewModel.uid)
+                                                    },
+                                                )
+                                            )
+                                            if (isLogin) {
+                                                add(
+                                                    DropdownItem(
+                                                        text = stringResource(id = R.string.menu_report),
+                                                        onClick = { onReport(uid, ReportType.USER) },
+                                                    )
+                                                )
+                                            }
                                         }
                                     )
-                                    if (isLogin) {
-                                        DropdownMenuItem(
-                                            text = { Text(stringResource(id = R.string.menu_report)) },
-                                            onClick = {
-                                                dropdownMenuExpanded = false
-                                                onReport(uid, ReportType.USER)
-                                            }
-                                        )
-                                    }
-                                }
+                                ),
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.MoreVert,
+                                    contentDescription = null,
+                                )
                             }
 
                         }
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent),
-                scrollBehavior = scrollBehavior
             )
         }
     ) { paddingValues ->
@@ -203,14 +194,13 @@ fun UserScreen(
                     modifier = Modifier.align(Alignment.TopCenter),
                     isRefreshing = viewModel.isRefreshing,
                     state = state,
-                    color = MaterialTheme.colorScheme.primary,
+                    color = MiuixTheme.colorScheme.primary,
                 )
             }
         ) {
             LazyColumn(
                 modifier = Modifier
-                    .fillMaxSize()
-                    .nestedScroll(scrollBehavior.nestedScrollConnection),
+                    .fillMaxSize(),
                 contentPadding = PaddingValues(bottom = 10.dp + paddingValues.calculateBottomPadding()),
                 verticalArrangement = Arrangement.spacedBy(10.dp),
                 state = lazyListState
@@ -284,21 +274,12 @@ fun UserScreen(
     when {
         showUserInfoDialog -> {
             val data = (viewModel.userState as LoadingState.Success).response
-            AlertDialog(
+            OverlayDialog(
+                show = true,
+                title = data.username.orEmpty(),
                 onDismissRequest = { showUserInfoDialog = false },
-                confirmButton = {
-                    TextButton(
-                        onClick = { showUserInfoDialog = false }) {
-                        Text(text = stringResource(id = android.R.string.ok))
-                    }
-                },
-                title = {
-                    Text(
-                        modifier = Modifier.fillMaxWidth(),
-                        text = data.username.orEmpty(),
-                    )
-                },
-                text = {
+            ) {
+                Column(modifier = Modifier.fillMaxWidth()) {
                     Text(
                         text = """
                                 UID: ${data.uid}
@@ -312,8 +293,17 @@ fun UserScreen(
                                 注册时间: ${timeStamp2Date(data.regdate ?: 0)}
                             """.trimIndent()
                     )
-                },
-            )
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceEvenly,
+                    ) {
+                        TextButton(
+                            text = stringResource(id = android.R.string.ok),
+                            onClick = { showUserInfoDialog = false },
+                        )
+                    }
+                }
+            }
         }
     }
 

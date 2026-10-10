@@ -5,10 +5,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Scaffold
+import top.yukonga.miuix.kmp.basic.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
+import top.yukonga.miuix.kmp.basic.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -20,7 +19,6 @@ import com.example.c001apk.compose.util.openInBrowser
 /**
  * Created by bggRGjQaUbCoE on 2024/6/2
  */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LicenseScreen(
     onBackClick: () -> Unit
@@ -35,9 +33,7 @@ fun LicenseScreen(
                 navigationIcon = {
                     BackButton(onBackClick)
                 },
-                title = {
-                    Text(text = "Open Source License")
-                },
+                title = "Open Source License",
             )
         }
     ) { paddingValues ->

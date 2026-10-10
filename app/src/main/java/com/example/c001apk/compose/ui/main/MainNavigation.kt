@@ -13,8 +13,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AllInclusive
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -89,6 +87,7 @@ import com.example.c001apk.compose.util.makeToast
 import com.example.c001apk.compose.util.openInBrowser
 import kotlin.math.max
 import kotlin.math.min
+import top.yukonga.miuix.kmp.theme.MiuixTheme
 
 /**
  * Created by bggRGjQaUbCoE on 2024/5/30
@@ -710,14 +709,14 @@ fun MainNavigation(
                         .weight(1f)
                         .fillMaxSize()
                         .background(
-                            MaterialTheme.colorScheme.surfaceColorAtElevation(1.dp)
+                            MiuixTheme.colorScheme.surfaceContainerHigh
                         ),
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
                         imageVector = Icons.Default.AllInclusive,
                         contentDescription = null,
-                        tint = MaterialTheme.colorScheme.outline,
+                        tint = MiuixTheme.colorScheme.outline,
                         modifier = Modifier.size(55.dp)
                     )
                 }

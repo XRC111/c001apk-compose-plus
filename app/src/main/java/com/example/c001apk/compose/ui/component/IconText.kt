@@ -3,7 +3,6 @@ package com.example.c001apk.compose.ui.component
 import androidx.compose.foundation.text.InlineTextContent
 import androidx.compose.foundation.text.appendInlineContent
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -14,6 +13,7 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.sp
 import com.example.c001apk.compose.util.noRippleClickable
+import top.yukonga.miuix.kmp.theme.MiuixTheme
 
 /**
  * Created by bggRGjQaUbCoE on 2024/6/9
@@ -31,8 +31,8 @@ fun IconText(
     val hapticClick = rememberHapticClick {
         onClick?.invoke()
     }
-    val color = if (isLike) MaterialTheme.colorScheme.primary
-    else MaterialTheme.colorScheme.outline
+    val color = if (isLike) MiuixTheme.colorScheme.primary
+    else MiuixTheme.colorScheme.outline
 
     val id = "0"
     val text1 = buildAnnotatedString {

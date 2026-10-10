@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.FilledTonalButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -30,6 +29,8 @@ import com.example.c001apk.compose.ui.theme.cardBg
 import com.example.c001apk.compose.util.DateUtils.fromToday
 import com.example.c001apk.compose.util.Utils.getAppVersion
 import com.example.c001apk.compose.util.noRippleClickable
+import top.yukonga.miuix.kmp.theme.MiuixTheme
+import com.example.c001apk.compose.ui.theme.MiuixShapes
 
 /**
  * Created by bggRGjQaUbCoE on 2024/6/12
@@ -48,7 +49,7 @@ fun AppUpdateCard(
     ConstraintLayout(
         modifier = modifier
             .fillMaxWidth()
-            .clip(MaterialTheme.shapes.medium)
+            .clip(MiuixShapes.medium)
             .background(cardBg())
             .clickable {
                 onViewApp(data.packageName.orEmpty())
@@ -92,8 +93,8 @@ fun AppUpdateCard(
                     bottom.linkTo(title.bottom)
                     top.linkTo(title.top)
                 },
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.outline
+            style = MiuixTheme.textStyles.body1,
+            color = MiuixTheme.colorScheme.outline
         )
 
         Text(
@@ -113,8 +114,8 @@ fun AppUpdateCard(
                     end.linkTo(download.start)
                     width = Dimension.fillToConstraints
                 },
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.outline
+            style = MiuixTheme.textStyles.body1,
+            color = MiuixTheme.colorScheme.outline
         )
 
         Text(
@@ -125,8 +126,8 @@ fun AppUpdateCard(
                     start.linkTo(icon.end)
                     top.linkTo(version.bottom)
                 },
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.outline
+            style = MiuixTheme.textStyles.body1,
+            color = MiuixTheme.colorScheme.outline
         )
 
         Text(
@@ -137,8 +138,8 @@ fun AppUpdateCard(
                     start.linkTo(time.end)
                     top.linkTo(version.bottom)
                 },
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.outline
+            style = MiuixTheme.textStyles.body1,
+            color = MiuixTheme.colorScheme.outline
         )
 
         Text(
@@ -154,8 +155,8 @@ fun AppUpdateCard(
                 .noRippleClickable {
                     expanded = !expanded
                 },
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.outline,
+            style = MiuixTheme.textStyles.body1,
+            color = MiuixTheme.colorScheme.outline,
             maxLines = if (expanded) Int.MAX_VALUE else 2,
             overflow = TextOverflow.Ellipsis,
         )

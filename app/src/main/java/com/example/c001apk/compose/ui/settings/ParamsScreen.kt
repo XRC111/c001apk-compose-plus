@@ -5,10 +5,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Scaffold
+import top.yukonga.miuix.kmp.basic.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
+import top.yukonga.miuix.kmp.basic.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -28,7 +27,6 @@ import com.example.c001apk.compose.util.Utils.randomMacAddress
 /**
  * Created by bggRGjQaUbCoE on 2024/6/1
  */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ParamsScreen(
     viewModel: SettingsViewModel = hiltViewModel(),
@@ -45,7 +43,7 @@ fun ParamsScreen(
                 navigationIcon = {
                     BackButton { onBackClick() }
                 },
-                title = { Text(text = stringResource(id = R.string.params_title)) },
+                title = stringResource(id = R.string.params_title),
             )
         }
     ) { paddingValues ->

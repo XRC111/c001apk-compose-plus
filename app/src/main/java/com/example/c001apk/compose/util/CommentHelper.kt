@@ -118,18 +118,14 @@ object FastDeleteAtUserKeyListener : View.OnKeyListener {
             val lastIndexOfAt = lastIndexOfAt(text, selectionStart)
             val lastIndexOfTopicStart = lastIndexOfTopicStart(text, selectionStart)
             if (lastIndexOfAt >= 0 && lastIndexOfAt > lastIndexOfTopicStart) {
-                val cArr = CharArray(selectionStart - lastIndexOfAt)
-                text.getChars(lastIndexOfAt, selectionStart, cArr, 0)
-                if (!AT_PATTERN.matcher(String(cArr)).matches()) {
+                if (!AT_PATTERN.matcher(text.subSequence(lastIndexOfAt, selectionStart).toString()).matches()) {
                     return false
                 }
                 text.delete(lastIndexOfAt, selectionStart)
                 return true
             }
             if (lastIndexOfTopicStart >= 0 && lastIndexOfTopicStart > lastIndexOfAt) {
-                val cArr2 = CharArray(selectionStart - lastIndexOfTopicStart)
-                text.getChars(lastIndexOfTopicStart, selectionStart, cArr2, 0)
-                if (TAG_PATTERN.matcher(String(cArr2)).matches()) {
+                if (TAG_PATTERN.matcher(text.subSequence(lastIndexOfTopicStart, selectionStart).toString()).matches()) {
                     text.delete(lastIndexOfTopicStart, selectionStart)
                     return true
                 }

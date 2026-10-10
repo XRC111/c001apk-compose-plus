@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -21,6 +20,8 @@ import androidx.compose.ui.unit.sp
 import com.example.c001apk.compose.logic.model.HomeFeedResponse
 import com.example.c001apk.compose.ui.component.CoilLoader
 import com.example.c001apk.compose.ui.theme.cardBg
+import top.yukonga.miuix.kmp.theme.MiuixTheme
+import com.example.c001apk.compose.ui.theme.MiuixShapes
 
 /**
  * Created by bggRGjQaUbCoE on 2024/6/5
@@ -37,7 +38,7 @@ fun IconLinkGridCard(
         Column(
             modifier = modifier
                 .fillMaxWidth()
-                .clip(MaterialTheme.shapes.medium)
+                .clip(MiuixShapes.medium)
                 .background(cardBg())
         ) {
             HorizontalPager(
@@ -66,7 +67,7 @@ fun IconLinkGridCard(
                     dimension = 5.dp,
                     defWidth = 1.5f,
                     selectedWidth = 2f,
-                    defColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.4f),
+                    defColor = MiuixTheme.colorScheme.primary.copy(alpha = 0.4f),
                     pagerState = pagerState,
                 )
             }

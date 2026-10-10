@@ -11,14 +11,11 @@ import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SecondaryTabRow
-import androidx.compose.material3.Tab
-import androidx.compose.material3.TabRowDefaults
+import top.yukonga.miuix.kmp.basic.HorizontalDivider
+import top.yukonga.miuix.kmp.basic.Scaffold
+import top.yukonga.miuix.kmp.basic.TabRow
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
+import top.yukonga.miuix.kmp.basic.TopAppBar
 import com.example.c001apk.compose.ui.component.rememberHapticClick
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -37,7 +34,6 @@ import kotlinx.coroutines.launch
 /**
  * Created by bggRGjQaUbCoE on 2024/6/12
  */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DyhScreen(
     onBackClick: () -> Unit,
@@ -63,12 +59,10 @@ fun DyhScreen(
         modifier = Modifier.fillMaxSize(),
         topBar = {
             TopAppBar(
-                windowInsets = WindowInsets.systemBars
-                    .only(WindowInsetsSides.Start + WindowInsetsSides.Top),
                 navigationIcon = {
                     BackButton { onBackClick() }
                 },
-                title = { Text(text = title) },
+                title = title,
             )
         }
     ) { paddingValues ->
@@ -78,34 +72,20 @@ fun DyhScreen(
                 .fillMaxSize()
                 .padding(top = paddingValues.calculateTopPadding())
         ) {
-            SecondaryTabRow(
+            TabRow(
                 modifier = Modifier
                     .padding(
                         start = paddingValues.calculateLeftPadding(layoutDirection),
                     ),
+                tabs = tabList,
                 selectedTabIndex = pagerState.currentPage,
-                indicator = {
-                    TabRowDefaults.SecondaryIndicator(
-                        Modifier
-                            .tabIndicatorOffset(pagerState.currentPage, matchContentSize = true)
-                            .clip(RoundedCornerShape(topStart = 3.dp, topEnd = 3.dp))
-                    )
+                onTabSelected = { index ->
+                    if (pagerState.currentPage == index) {
+                        refreshState = true
+                    }
+                    scope.launch { pagerState.animateScrollToPage(index) }
                 },
-                divider = {}
-            ) {
-                tabList.forEachIndexed { index, tab ->
-                    Tab(
-                        selected = pagerState.currentPage == index,
-                        onClick = rememberHapticClick {
-                            if (pagerState.currentPage == index) {
-                                refreshState = true
-                            }
-                            scope.launch { pagerState.animateScrollToPage(index) }
-                        },
-                        text = { Text(text = tab) }
-                    )
-                }
-            }
+            )
 
             HorizontalDivider()
 

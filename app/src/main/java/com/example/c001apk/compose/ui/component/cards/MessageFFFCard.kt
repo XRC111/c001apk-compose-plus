@@ -9,9 +9,8 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.VerticalDivider
+import top.yukonga.miuix.kmp.basic.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -29,6 +28,8 @@ import com.example.c001apk.compose.ui.ffflist.FFFListType
 import com.example.c001apk.compose.ui.history.HistoryType
 import com.example.c001apk.compose.ui.theme.cardBg
 import com.example.c001apk.compose.util.CookieUtil
+import top.yukonga.miuix.kmp.theme.MiuixTheme
+import com.example.c001apk.compose.ui.theme.MiuixShapes
 
 /**
  * Created by bggRGjQaUbCoE on 2024/6/10
@@ -49,7 +50,7 @@ fun MessageFFFCard(
 ) {
     FFFCardRow(
         modifier = modifier
-            .clip(MaterialTheme.shapes.medium)
+            .clip(MiuixShapes.medium)
             .background(cardBg()),
         dataList = listOf(
             FFFCardItem(
@@ -139,7 +140,7 @@ fun FFFCardItem(
         if (imageVector == null) {
             Text(
                 text = value ?: EMPTY_STRING,
-                style = MaterialTheme.typography.titleMedium.copy(
+                style = MiuixTheme.textStyles.title2.copy(
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
                     fontFamily = FontFamily.Monospace
@@ -151,13 +152,13 @@ fun FFFCardItem(
             Image(
                 imageVector = imageVector,
                 contentDescription = null,
-                colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurfaceVariant)
+                colorFilter = ColorFilter.tint(MiuixTheme.colorScheme.onSurfaceVariantSummary)
             )
         }
 
         Text(
             text = title,
-            style = MaterialTheme.typography.bodyMedium,
+            style = MiuixTheme.textStyles.body1,
             modifier = Modifier.alpha(if (value.isNullOrEmpty() && imageVector == null) 0f else 1f),
             maxLines = 1,
             overflow = TextOverflow.Ellipsis

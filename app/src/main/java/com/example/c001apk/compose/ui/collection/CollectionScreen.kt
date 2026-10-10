@@ -18,11 +18,9 @@ import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
+import top.yukonga.miuix.kmp.basic.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
+import top.yukonga.miuix.kmp.basic.TopAppBar
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
@@ -48,11 +46,11 @@ import com.example.c001apk.compose.ui.component.ItemCard
 import com.example.c001apk.compose.ui.component.cards.LoadingCard
 import com.example.c001apk.compose.util.DateUtils.fromToday
 import com.example.c001apk.compose.util.ReportType
+import top.yukonga.miuix.kmp.theme.MiuixTheme
 
 /**
  * Created by bggRGjQaUbCoE on 2024/6/21
  */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CollectionScreen(
     onBackClick: () -> Unit,
@@ -79,25 +77,12 @@ fun CollectionScreen(
         modifier = Modifier.fillMaxSize(),
         topBar = {
             TopAppBar(
-                windowInsets = WindowInsets.systemBars
-                    .only(WindowInsetsSides.Start + WindowInsetsSides.Top),
                 navigationIcon = {
                     BackButton {
                         onBackClick()
                     }
                 },
-                title = {
-                    AnimatedContent(
-                        shouldShowTitle,
-                        label = EMPTY_STRING,
-                    ) {
-                        if (it) {
-                            Text(text = viewModel.title)
-                        } else {
-                            Text(text = "收藏单")
-                        }
-                    }
-                }
+                title = if (shouldShowTitle) viewModel.title else "收藏单"
             )
         }
     ) { paddingValues ->
@@ -118,7 +103,7 @@ fun CollectionScreen(
                     modifier = Modifier.align(Alignment.TopCenter),
                     isRefreshing = viewModel.isRefreshing,
                     state = state,
-                    color = MaterialTheme.colorScheme.primary,
+                    color = MiuixTheme.colorScheme.primary,
                 )
             }
         ) {
@@ -150,7 +135,7 @@ fun CollectionScreen(
                         item(key = "title") {
                             Text(
                                 text = viewModel.title,
-                                style = MaterialTheme.typography.titleLarge.copy(
+                                style = MiuixTheme.textStyles.title1.copy(
                                     fontWeight = FontWeight.SemiBold,
                                     fontSize = 20.sp
                                 ),
@@ -178,16 +163,16 @@ fun CollectionScreen(
                                     )
                                     Text(
                                         text = response.username.orEmpty(),
-                                        color = MaterialTheme.colorScheme.outline,
-                                        style = MaterialTheme.typography.bodyMedium.copy(fontSize = 16.sp),
+                                        color = MiuixTheme.colorScheme.outline,
+                                        style = MiuixTheme.textStyles.body1.copy(fontSize = 16.sp),
                                         maxLines = 1,
                                         overflow = TextOverflow.Ellipsis,
                                         modifier = Modifier.padding(start = 10.dp),
                                     )
                                     Text(
                                         text = "${fromToday(response.lastupdate ?: 0)}更新",
-                                        color = MaterialTheme.colorScheme.outline,
-                                        style = MaterialTheme.typography.bodyMedium,
+                                        color = MiuixTheme.colorScheme.outline,
+                                        style = MiuixTheme.textStyles.body1,
                                         modifier = Modifier
                                             .weight(1f)
                                             .padding(start = 10.dp),
@@ -196,8 +181,8 @@ fun CollectionScreen(
                                     )
                                     Text(
                                         text = response.followNum.toString() + "人关注",
-                                        color = MaterialTheme.colorScheme.outline,
-                                        style = MaterialTheme.typography.bodyMedium,
+                                        color = MiuixTheme.colorScheme.outline,
+                                        style = MiuixTheme.textStyles.body1,
                                         maxLines = 1,
                                         overflow = TextOverflow.Ellipsis,
                                     )
@@ -205,7 +190,7 @@ fun CollectionScreen(
                                 response.description?.let {
                                     Text(
                                         text = it,
-                                        style = MaterialTheme.typography.titleSmall,
+                                        style = MiuixTheme.textStyles.title3,
                                         modifier = Modifier.padding(top = 10.dp)
                                     )
                                 }

@@ -22,19 +22,12 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.HorizontalDivider
+import top.yukonga.miuix.kmp.basic.FloatingActionButton
+import top.yukonga.miuix.kmp.basic.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.SecondaryTabRow
-import androidx.compose.material3.Tab
-import androidx.compose.material3.TabRowDefaults
+import top.yukonga.miuix.kmp.basic.IconButton
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
+import top.yukonga.miuix.kmp.basic.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -72,12 +65,16 @@ import me.onebone.toolbar.CollapsingToolbarScaffold
 import me.onebone.toolbar.ExperimentalToolbarApi
 import me.onebone.toolbar.ScrollStrategy
 import me.onebone.toolbar.rememberCollapsingToolbarScaffoldState
-import com.example.c001apk.compose.ui.component.MoreMenuButton
+import top.yukonga.miuix.kmp.basic.TabRow
+import top.yukonga.miuix.kmp.menu.OverlayIconDropdownMenu
+import top.yukonga.miuix.kmp.basic.DropdownEntry
+import top.yukonga.miuix.kmp.basic.DropdownItem
+import androidx.compose.material.icons.filled.MoreVert
 
 /**
  * Created by bggRGjQaUbCoE on 2024/6/10
  */
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalToolbarApi::class)
+@OptIn(ExperimentalToolbarApi::class)
 @Composable
 fun AppScreen(
     onBackClick: () -> Unit,
@@ -98,7 +95,6 @@ fun AppScreen(
     val context = LocalContext.current
 
     val tabList by lazy { listOf("最近回复", "最新发布", "热度排序") }
-    var dropdownMenuExpanded by remember { mutableStateOf(false) }
 
     val pagerState = rememberPagerState(
         initialPage = 0,
@@ -120,22 +116,10 @@ fun AppScreen(
         modifier = Modifier.fillMaxSize(),
         toolbar = {
             TopAppBar(
-                windowInsets = WindowInsets.systemBars
-                    .only(WindowInsetsSides.Start + WindowInsetsSides.Top),
                 navigationIcon = {
                     BackButton { onBackClick() }
                 },
-                title = {
-                    Text(
-                        modifier = Modifier
-                            .graphicsLayer {
-                                alpha = if (state.toolbarState.progress == 0f) 1f else 0f
-                            },
-                        text = viewModel.title,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                },
+                title = viewModel.title,
                 actions = {
                     if (viewModel.appState is LoadingState.Success) {
                         Row(Modifier.wrapContentSize(Alignment.TopEnd)) {
@@ -146,51 +130,45 @@ fun AppScreen(
                             ) {
                                 Icon(Icons.Default.Search, contentDescription = null)
                             }
-                            Box {
-                                MoreMenuButton { dropdownMenuExpanded = true }
-                                DropdownMenu(
-                                    expanded = dropdownMenuExpanded,
-                                    onDismissRequest = { dropdownMenuExpanded = false }
-                                ) {
-                                    if (isLogin) {
-                                        DropdownMenuItem(
-                                            text = {
-                                            Text(
-                                                if (viewModel.isFollowed) {
-                                                    stringResource(id = R.string.menu_unfollow)
-                                                } else {
-                                                    stringResource(id = R.string.menu_follow)
-                                                }
-                                            )
-                                        },
-                                            onClick = {
-                                                dropdownMenuExpanded = false
-                                                viewModel.onGetFollowApk()
+                            OverlayIconDropdownMenu(
+                                entries = listOf(
+                                    DropdownEntry(
+                                        items = buildList {
+                                            if (isLogin) {
+                                                add(
+                                                    DropdownItem(
+                                                        text = if (viewModel.isFollowed) {
+                                                            stringResource(id = R.string.menu_unfollow)
+                                                        } else {
+                                                            stringResource(id = R.string.menu_follow)
+                                                        },
+                                                        onClick = { viewModel.onGetFollowApk() },
+                                                    )
+                                                )
                                             }
-                                        )
-                                    }
-                                    DropdownMenuItem(
-                                        text = {
-                                            Text(
-                                                if (viewModel.isBlocked) {
-                                                    stringResource(id = R.string.menu_unblock)
-                                                } else {
-                                                    "拉黑"
-                                                }
+                                            add(
+                                                DropdownItem(
+                                                    text = if (viewModel.isBlocked) {
+                                                        stringResource(id = R.string.menu_unblock)
+                                                    } else {
+                                                        "拉黑"
+                                                    },
+                                                    onClick = { viewModel.blockApp() },
+                                                )
                                             )
-                                        },
-                                        onClick = {
-                                            dropdownMenuExpanded = false
-                                            viewModel.blockApp()
                                         }
                                     )
-                                }
+                                ),
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.MoreVert,
+                                    contentDescription = null,
+                                )
                             }
 
                         }
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent),
             )
             if (viewModel.appState !is LoadingState.Error) {
                 AppInfoCard(
@@ -227,36 +205,19 @@ fun AppScreen(
 
                     if (viewModel.commentStatus == 1) {
 
-                        SecondaryTabRow(
+                        TabRow(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .windowInsetsPadding(windowInsets.only(WindowInsetsSides.Start)),
+                            tabs = tabList,
                             selectedTabIndex = pagerState.currentPage,
-                            indicator = {
-                                TabRowDefaults.SecondaryIndicator(
-                                    Modifier
-                                        .tabIndicatorOffset(
-                                            pagerState.currentPage,
-                                            matchContentSize = true
-                                        )
-                                        .clip(RoundedCornerShape(topStart = 3.dp, topEnd = 3.dp))
-                                )
+                            onTabSelected = { index ->
+                                if (pagerState.currentPage == index) {
+                                    refreshState = true
+                                }
+                                scope.launch { pagerState.animateScrollToPage(index) }
                             },
-                            divider = {}
-                        ) {
-                            tabList.forEachIndexed { index, tab ->
-                                Tab(
-                                    selected = pagerState.currentPage == index,
-                                    onClick = rememberHapticClick {
-                                        if (pagerState.currentPage == index) {
-                                            refreshState = true
-                                        }
-                                        scope.launch { pagerState.animateScrollToPage(index) }
-                                    },
-                                    text = { Text(text = tab) }
-                                )
-                            }
-                        }
+                        )
 
                         HorizontalDivider()
 

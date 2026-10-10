@@ -1,4 +1,3 @@
-import com.android.build.gradle.internal.api.ApkVariantOutputImpl
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.konan.properties.Properties
 
@@ -7,7 +6,8 @@ plugins {
     alias(libs.plugins.google.dagger.hilt.android)
     alias(libs.plugins.google.devtools.ksp)
     alias(libs.plugins.google.protobuf)
-    alias(libs.plugins.jetbrains.kotlin.android)
+    alias(libs.plugins.jetbrains.compose)
+    // alias(libs.plugins.jetbrains.kotlin.android) // AGP 9.0+ 内置 Kotlin 支持，不再需要
     alias(libs.plugins.jetbrains.kotlin.plugin.compose)
     alias(libs.plugins.kotlin.parcelize)
 }
@@ -21,8 +21,8 @@ val gitCommitHash = providers.exec {
 
 android {
     namespace = "com.example.c001apk.compose"
-    compileSdk = 35
-    buildToolsVersion = "36.0.0"
+    compileSdk = 37
+    buildToolsVersion = "37.0.0"
 
     defaultConfig {
         applicationId = "com.example.c001apk.compose"
@@ -88,29 +88,19 @@ android {
         buildConfig = true
     }
 
-    composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.15"
+    packaging {
+        resources.excludes += setOf(
+            "META-INF/**",
+            "okhttp3/**",
+            "kotlin/**",
+            "org/**",
+            "**.properties",
+            "**.bin",
+            "**/*.proto"
+        )
     }
-
-    packagingOptions.resources.excludes += setOf(
-        "META-INF/**",
-        "okhttp3/**",
-        "kotlin/**",
-        "org/**",
-        "**.properties",
-        "**.bin",
-        "**/*.proto"
-    )
 
     dependenciesInfo.includeInApk = false
-
-    applicationVariants.configureEach {
-        outputs.configureEach {
-            if (baseName == "release")
-                (this as? ApkVariantOutputImpl)?.outputFileName =
-                    "c001apk-compose_$versionName($versionCode).apk"
-        }
-    }
 }
 
 ksp {
@@ -193,6 +183,12 @@ dependencies {
     implementation(libs.toolbar.compose)
     implementation(libs.oss.android.sdk)
     implementation(libs.material.kolor)
+
+    // MIUIX (Compose Multiplatform UI library)
+    implementation(libs.miuix.ui)
+    implementation(libs.miuix.preference)
+    // miuix-icons / miuix-nav / miuix-blur 均未使用；
+    // miuix-blur 额外要求 minSdk 33，会阻塞本工程 minSdk 24，故移除
 
     implementation(project(":mojito"))
     implementation(project(":SketchImageViewLoader"))

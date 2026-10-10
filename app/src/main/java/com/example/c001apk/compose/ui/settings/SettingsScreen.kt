@@ -3,6 +3,7 @@ package com.example.c001apk.compose.ui.settings
 import android.os.Build
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -40,20 +41,16 @@ import androidx.compose.material.icons.outlined.SystemUpdate
 import androidx.compose.material.icons.outlined.TextFields
 import androidx.compose.material.icons.outlined.TouchApp
 import androidx.compose.material.icons.outlined.TravelExplore
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ElevatedCard
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.RadioButton
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Slider
+import top.yukonga.miuix.kmp.basic.Card
+import top.yukonga.miuix.kmp.basic.CardDefaults
+import top.yukonga.miuix.kmp.basic.RadioButton
+import top.yukonga.miuix.kmp.basic.Scaffold
+import top.yukonga.miuix.kmp.basic.Slider
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
+import top.yukonga.miuix.kmp.basic.TextButton
+import top.yukonga.miuix.kmp.overlay.OverlayDialog
+import top.yukonga.miuix.kmp.basic.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -87,7 +84,6 @@ import com.example.c001apk.compose.logic.model.HapticStrength
 import com.example.c001apk.compose.logic.providable.LocalUserPreferences
 import com.example.c001apk.compose.ui.blacklist.BlackListType
 import com.example.c001apk.compose.ui.component.HtmlText
-import com.example.c001apk.compose.ui.component.MoreMenuButton
 import com.example.c001apk.compose.ui.component.rememberHapticClick
 import com.example.c001apk.compose.ui.component.icons.Swatch
 import com.example.c001apk.compose.ui.component.settings.BasicListItem
@@ -103,11 +99,16 @@ import com.example.c001apk.compose.util.openInBrowser
 import com.google.accompanist.drawablepainter.rememberDrawablePainter
 import com.materialkolor.PaletteStyle
 import java.util.Formatter
+import top.yukonga.miuix.kmp.theme.MiuixTheme
+import top.yukonga.miuix.kmp.menu.OverlayIconDropdownMenu
+import top.yukonga.miuix.kmp.basic.DropdownEntry
+import top.yukonga.miuix.kmp.basic.DropdownItem
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material3.Icon
 
 /**
  * Created by bggRGjQaUbCoE on 2024/5/30
  */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
     viewModel: SettingsViewModel = hiltViewModel(),
@@ -126,7 +127,6 @@ fun SettingsScreen(
     val followList by lazy { listOf("全部", "好友", "话题", "数码", "应用") }
     val hapticStrengthList by lazy { HapticStrength.options.map { it.label } }
 
-    var dropdownMenuExpanded by remember { mutableStateOf(false) }
     var showAboutDialog by remember { mutableStateOf(false) }
     var showSZLMIDDialog by remember { mutableStateOf(false) }
     var showFontScaleDialog by remember { mutableStateOf(false) }
@@ -144,32 +144,31 @@ fun SettingsScreen(
         modifier = Modifier.fillMaxSize(),
         topBar = {
             TopAppBar(
-                title = { Text(text = "设置") },
+                title = "设置",
                 actions = {
-                    Box(Modifier.wrapContentSize(Alignment.TopEnd)) {
-                        MoreMenuButton { dropdownMenuExpanded = true }
-
-                        DropdownMenu(
-                            expanded = dropdownMenuExpanded,
-                            onDismissRequest = { dropdownMenuExpanded = false }
-                        ) {
-                            listOf(
-                                stringResource(id = R.string.menu_feedback),
-                                stringResource(id = R.string.menu_about)
-                            ).forEachIndexed { index, menu ->
-                                DropdownMenuItem(
-                                    text = { Text(menu) },
-                                    onClick = {
-                                        dropdownMenuExpanded = false
-                                        when (index) {
-                                            0 -> context.openInBrowser("$URL_SOURCE_CODE_FORK/issues")
-
-                                            1 -> showAboutDialog = true
-                                        }
-                                    }
+                    OverlayIconDropdownMenu(
+                        modifier = Modifier.wrapContentSize(Alignment.TopEnd),
+                        entries = listOf(
+                            DropdownEntry(
+                                items = listOf(
+                                    DropdownItem(
+                                        text = stringResource(id = R.string.menu_feedback),
+                                        onClick = {
+                                            context.openInBrowser("$URL_SOURCE_CODE_FORK/issues")
+                                        },
+                                    ),
+                                    DropdownItem(
+                                        text = stringResource(id = R.string.menu_about),
+                                        onClick = { showAboutDialog = true },
+                                    ),
                                 )
-                            }
-                        }
+                            )
+                        ),
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.MoreVert,
+                            contentDescription = null,
+                        )
                     }
                 },
             )
@@ -539,37 +538,33 @@ fun CleanCacheDialog(
     onDismiss: () -> Unit,
     onClean: () -> Unit
 ) {
-    AlertDialog(
+    OverlayDialog(
+        show = true,
+        title = "清理缓存",
         onDismissRequest = { onDismiss() },
-        dismissButton = {
-            TextButton(
-                onClick = {
-                    onDismiss()
-                }) {
-                Text(text = stringResource(id = android.R.string.cancel))
-            }
-        },
-        confirmButton = {
-            TextButton(
-                onClick = {
-                    onDismiss()
-                    onClean()
-                }
-            ) {
-                Text(text = stringResource(id = android.R.string.ok))
-            }
-        },
-        text = {
+    ) {
+        Column(modifier = Modifier.fillMaxWidth()) {
             Text(text = "当前缓存大小: " + cacheSize)
-        },
-        title = {
-            Text(
+            Row(
                 modifier = Modifier.fillMaxWidth(),
-                text = "清理缓存",
-                textAlign = TextAlign.Center
-            )
+                horizontalArrangement = Arrangement.SpaceEvenly,
+            ) {
+                TextButton(
+                    text = stringResource(id = android.R.string.cancel),
+                    onClick = {
+                        onDismiss()
+                    },
+                )
+                TextButton(
+                    text = stringResource(id = android.R.string.ok),
+                    onClick = {
+                        onDismiss()
+                        onClean()
+                    },
+                )
+            }
         }
-    )
+    }
 }
 
 @Composable
@@ -581,30 +576,23 @@ fun ListItemDialog(
     hapticStrengthForIndex: ((Int) -> HapticStrength)? = null,
     setData: (Int) -> Unit
 ) {
-    AlertDialog(
+    OverlayDialog(
+        show = true,
+        title = title,
         onDismissRequest = { onDismiss() },
-        confirmButton = {},
-        title = {
-            Text(
-                modifier = Modifier.fillMaxWidth(),
-                text = title,
-                textAlign = TextAlign.Center
-            )
-        },
-        text = {
-            LazyColumn {
-                itemsIndexed(list) { index, title ->
-                    ListItemDialogItem(
-                        title = title,
-                        selected = selected == index,
-                        hapticStrength = hapticStrengthForIndex?.invoke(index),
-                    ) {
-                        setData(index)
-                    }
+    ) {
+        LazyColumn {
+            itemsIndexed(list) { index, title ->
+                ListItemDialogItem(
+                    title = title,
+                    selected = selected == index,
+                    hapticStrength = hapticStrengthForIndex?.invoke(index),
+                ) {
+                    setData(index)
                 }
             }
-        },
-    )
+        }
+    }
 }
 
 @Composable
@@ -655,33 +643,12 @@ fun EditTextDialog(
             e.printStackTrace()
         }
     }
-    AlertDialog(
+    OverlayDialog(
+        show = true,
+        title = title,
         onDismissRequest = { onDismiss() },
-        dismissButton = {
-            TextButton(
-                onClick = {
-                    onDismiss()
-                }) {
-                Text(text = stringResource(id = android.R.string.cancel))
-            }
-        },
-        confirmButton = {
-            TextButton(
-                onClick = {
-                    onDismiss()
-                    setData(text.text)
-                }) {
-                Text(text = stringResource(id = android.R.string.ok))
-            }
-        },
-        title = {
-            Text(
-                modifier = Modifier.fillMaxWidth(),
-                text = title,
-                textAlign = TextAlign.Center
-            )
-        },
-        text = {
+    ) {
+        Column(modifier = Modifier.fillMaxWidth()) {
             OutlinedTextField(
                 modifier = Modifier.focusRequester(focusRequest),
                 value = text,
@@ -699,8 +666,26 @@ fun EditTextDialog(
                     }
                 }
             )
-        },
-    )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceEvenly,
+            ) {
+                TextButton(
+                    text = stringResource(id = android.R.string.cancel),
+                    onClick = {
+                        onDismiss()
+                    },
+                )
+                TextButton(
+                    text = stringResource(id = android.R.string.ok),
+                    onClick = {
+                        onDismiss()
+                        setData(text.text)
+                    },
+                )
+            }
+        }
+    }
 }
 
 @Composable
@@ -712,66 +697,62 @@ fun SliderDialog(
     setData: (Float) -> Unit
 ) {
     var progress by remember { mutableFloatStateOf(data) }
-    AlertDialog(
+    OverlayDialog(
+        show = true,
+        title = title,
         onDismissRequest = {
             onDismiss()
         },
-        dismissButton = {
-            TextButton(
-                onClick = {
-                    onDismiss()
-                    setData(1.0f)
-                }) {
-                Text(text = stringResource(id = R.string.menu_reset))
-            }
-        },
-        confirmButton = {
-            TextButton(
-                onClick = {
-                    onDismiss()
-                    setData(progress)
-                }) {
-                Text(text = stringResource(id = android.R.string.ok))
-            }
-        },
-        title = {
+    ) {
+        Column(
+            Modifier.fillMaxWidth()
+        ) {
+            Slider(
+                value = progress,
+                onValueChange = {
+                    progress = it
+                },
+                valueRange = 0.8f..1.3f
+            )
             Text(
+                text = "$hint: ${Formatter().format("%.2f", progress)}",
                 modifier = Modifier.fillMaxWidth(),
-                text = title,
+                fontSize = 15.sp * progress,
                 textAlign = TextAlign.Center
             )
-        },
-        text = {
-            Column(
-                Modifier.fillMaxWidth()
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceEvenly,
             ) {
-                Slider(
-                    value = progress,
-                    onValueChange = {
-                        progress = it
+                TextButton(
+                    text = stringResource(id = R.string.menu_reset),
+                    onClick = {
+                        onDismiss()
+                        setData(1.0f)
                     },
-                    valueRange = 0.8f..1.3f
                 )
-                Text(
-                    text = "$hint: ${Formatter().format("%.2f", progress)}",
-                    modifier = Modifier.fillMaxWidth(),
-                    fontSize = 15.sp * progress,
-                    textAlign = TextAlign.Center
+                TextButton(
+                    text = stringResource(id = android.R.string.ok),
+                    onClick = {
+                        onDismiss()
+                        setData(progress)
+                    },
                 )
             }
         }
-    )
+    }
 }
 
 @Composable
 fun AboutDialog(onDismiss: () -> Unit) {
     val context = LocalContext.current
     Dialog(onDismissRequest = { onDismiss() }) {
-        ElevatedCard(
+        Card(
             modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(28.dp),
-            colors = CardDefaults.elevatedCardColors()
-                .copy(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh)
+            cornerRadius = 28.dp,
+            colors = CardDefaults.defaultColors(
+                color = MiuixTheme.colorScheme.surfaceContainerHigh
+            )
         ) {
             Row(
                 modifier = Modifier
@@ -795,12 +776,12 @@ fun AboutDialog(onDismiss: () -> Unit) {
 
                     Text(
                         stringResource(id = R.string.app_name),
-                        style = MaterialTheme.typography.titleSmall,
+                        style = MiuixTheme.textStyles.title3,
                         fontSize = 18.sp
                     )
                     Text(
                         text = "${BuildConfig.VERSION_NAME}(${BuildConfig.VERSION_CODE})",
-                        style = MaterialTheme.typography.bodySmall,
+                        style = MiuixTheme.textStyles.body2,
                         fontSize = 14.sp
                     )
                     Spacer(modifier = Modifier.height(8.dp))

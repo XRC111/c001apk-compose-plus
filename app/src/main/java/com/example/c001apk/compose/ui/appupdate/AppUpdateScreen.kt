@@ -7,11 +7,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import top.yukonga.miuix.kmp.basic.Scaffold
+import top.yukonga.miuix.kmp.basic.TopAppBar
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -39,7 +38,6 @@ import org.json.JSONObject
 /**
  * Created by bggRGjQaUbCoE on 2024/6/12
  */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppUpdateScreen(
     onBackClick: () -> Unit,
@@ -78,14 +76,7 @@ fun AppUpdateScreen(
                 navigationIcon = {
                     BackButton { onBackClick() }
                 },
-                title = {
-                    val title = if (count == 0) {
-                        stringResource(id = R.string.update_title)
-                    } else {
-                        stringResource(id = R.string.update_title_with_count, count)
-                    }
-                    Text(text = title)
-                },
+                title = if (count == 0) stringResource(id = R.string.update_title) else stringResource(id = R.string.update_title_with_count, count),
             )
         }
     ) { paddingValues ->

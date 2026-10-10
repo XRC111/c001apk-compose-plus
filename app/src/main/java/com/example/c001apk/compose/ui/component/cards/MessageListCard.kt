@@ -15,8 +15,7 @@ import androidx.compose.material.icons.filled.AlternateEmail
 import androidx.compose.material.icons.outlined.Mail
 import androidx.compose.material.icons.outlined.PersonAdd
 import androidx.compose.material.icons.outlined.ThumbUp
-import androidx.compose.material3.Badge
-import androidx.compose.material3.MaterialTheme
+import top.yukonga.miuix.kmp.basic.Badge
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -30,6 +29,8 @@ import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import com.example.c001apk.compose.ui.theme.cardBg
 import com.example.c001apk.compose.util.CookieUtil
+import top.yukonga.miuix.kmp.theme.MiuixTheme
+import com.example.c001apk.compose.ui.theme.MiuixShapes
 
 /**
  * Created by bggRGjQaUbCoE on 2024/6/10
@@ -58,7 +59,7 @@ fun MessageListCard(
     ConstraintLayout(
         modifier = modifier
             .fillMaxWidth()
-            .clip(MaterialTheme.shapes.medium)
+            .clip(MiuixShapes.medium)
             .background(cardBg())
             .clickable {
                 if (CookieUtil.isLogin) {
@@ -83,7 +84,7 @@ fun MessageListCard(
 
         Text(
             text = title,
-            style = MaterialTheme.typography.titleMedium.copy(fontSize = 14.sp),
+            style = MiuixTheme.textStyles.title2.copy(fontSize = 14.sp),
             modifier = Modifier
                 .padding(start = 10.dp)
                 .constrainAs(name) {
@@ -112,7 +113,7 @@ fun MessageListCard(
         Image(
             imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
             contentDescription = null,
-            colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.outline),
+            colorFilter = ColorFilter.tint(MiuixTheme.colorScheme.outline),
             modifier = Modifier
                 .constrainAs(arrow) {
                     end.linkTo(parent.end)

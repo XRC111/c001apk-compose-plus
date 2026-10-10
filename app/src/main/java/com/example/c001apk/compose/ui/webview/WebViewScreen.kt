@@ -12,17 +12,14 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBars
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.LinearProgressIndicator
+import top.yukonga.miuix.kmp.basic.LinearProgressIndicator
 import androidx.compose.material3.ProgressIndicatorDefaults
-import androidx.compose.material3.Scaffold
+import top.yukonga.miuix.kmp.basic.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
+import top.yukonga.miuix.kmp.basic.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -45,8 +42,13 @@ import com.example.c001apk.compose.ui.component.WebView
 import com.example.c001apk.compose.util.decode
 import com.example.c001apk.compose.util.makeToast
 import com.example.c001apk.compose.util.openInBrowser
-import com.example.c001apk.compose.ui.component.MoreMenuButton
 import kotlinx.coroutines.launch
+import top.yukonga.miuix.kmp.menu.OverlayIconDropdownMenu
+import top.yukonga.miuix.kmp.basic.DropdownEntry
+import top.yukonga.miuix.kmp.basic.DropdownItem
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material3.Icon
+import androidx.compose.material.icons.Icons
 
 /**
  * Created by bggRGjQaUbCoE on 2024/6/9
@@ -56,7 +58,6 @@ enum class ActionType {
     REFRESH, COPY, OPEN, CLEAN, NONE
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WebViewScreen(
     onBackClick: () -> Unit,
@@ -69,7 +70,6 @@ fun WebViewScreen(
     val context = LocalContext.current
     val layoutDirection = LocalLayoutDirection.current
     var title by remember { mutableStateOf(EMPTY_STRING) }
-    var dropdownMenuExpanded by remember { mutableStateOf(false) }
 
     var progress by remember { mutableFloatStateOf(0.0f) }
     val animatedProgress by animateFloatAsState(
@@ -86,48 +86,39 @@ fun WebViewScreen(
         modifier = Modifier.fillMaxSize(),
         topBar = {
             TopAppBar(
-                windowInsets = WindowInsets.systemBars
-                    .only(WindowInsetsSides.Start + WindowInsetsSides.Top),
                 navigationIcon = {
                     BackButton { onBackClick() }
                 },
-                title = {
-                    Text(
-                        text = title,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                },
+                title = title,
                 actions = {
-                    Box {
-                        MoreMenuButton { dropdownMenuExpanded = true }
-                        DropdownMenu(
-                            expanded = dropdownMenuExpanded,
-                            onDismissRequest = { dropdownMenuExpanded = false }
-                        ) {
-                            listOf(
-                                stringResource(id = R.string.menu_refresh),
-                                "复制",
-                                stringResource(id = R.string.menu_open_in_browser),
-                                stringResource(id = R.string.menu_clean_caches)
+                    OverlayIconDropdownMenu(
+                        entries = listOf(
+                            DropdownEntry(
+                                items = listOf(
+                                    DropdownItem(
+                                        text = stringResource(id = R.string.menu_refresh),
+                                        onClick = { actionType = ActionType.REFRESH },
+                                    ),
+                                    DropdownItem(
+                                        text = "复制",
+                                        onClick = { actionType = ActionType.COPY },
+                                    ),
+                                    DropdownItem(
+                                        text = stringResource(id = R.string.menu_open_in_browser),
+                                        onClick = { actionType = ActionType.OPEN },
+                                    ),
+                                    DropdownItem(
+                                        text = stringResource(id = R.string.menu_clean_caches),
+                                        onClick = { actionType = ActionType.CLEAN },
+                                    ),
+                                )
                             )
-                                .forEachIndexed { index, menu ->
-                                    DropdownMenuItem(
-                                        text = { Text(menu) },
-                                        onClick = {
-                                            dropdownMenuExpanded = false
-                                            actionType = when (index) {
-                                                0 -> ActionType.REFRESH
-                                                1 -> ActionType.COPY
-                                                2 -> ActionType.OPEN
-                                                3 -> ActionType.CLEAN
-                                                else -> ActionType.NONE
-                                            }
-                                        }
-                                    )
-                                }
-
-                        }
+                        ),
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.MoreVert,
+                            contentDescription = null,
+                        )
                     }
                 },
             )
@@ -147,7 +138,7 @@ fun WebViewScreen(
             AnimatedVisibility(visible = progress != 1.0f) {
                 LinearProgressIndicator(
                     modifier = Modifier.fillMaxWidth(),
-                    progress = { animatedProgress }
+                    progress = animatedProgress
                 )
             }
 

@@ -4,7 +4,6 @@ import android.graphics.Typeface
 import android.text.TextUtils
 import android.widget.TextView
 import androidx.compose.material3.LocalContentColor
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.toArgb
@@ -14,6 +13,7 @@ import androidx.core.text.method.LinkMovementMethodCompat
 import com.example.c001apk.compose.logic.providable.LocalUserPreferences
 import com.example.c001apk.compose.util.ImageShowUtil
 import com.example.c001apk.compose.view.LinkTextView
+import top.yukonga.miuix.kmp.theme.MiuixTheme
 
 /**
  * Created by bggRGjQaUbCoE on 2024/6/2
@@ -36,7 +36,7 @@ fun LinkText(
     val contentColor = LocalContentColor.current
     val userPreference = LocalUserPreferences.current
 
-    val primary = MaterialTheme.colorScheme.primary.toArgb()
+    val primary = MiuixTheme.colorScheme.primary.toArgb()
     AndroidView(
         modifier = modifier,
         factory = { context ->
@@ -82,7 +82,7 @@ fun LinkText(
 @Composable
 fun HtmlText(html: String, modifier: Modifier = Modifier) {
     val contentColor = LocalContentColor.current.toArgb()
-    val primary = MaterialTheme.colorScheme.primary.toArgb()
+    val primary = MiuixTheme.colorScheme.primary.toArgb()
     AndroidView(
         modifier = modifier,
         factory = { context ->

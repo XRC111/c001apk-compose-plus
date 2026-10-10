@@ -15,13 +15,11 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Scaffold
+import top.yukonga.miuix.kmp.basic.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
+import top.yukonga.miuix.kmp.basic.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -47,6 +45,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import androidx.hilt.navigation.compose.hiltViewModel
 import android.util.Log
 import com.example.c001apk.compose.BuildConfig
+import top.yukonga.miuix.kmp.theme.MiuixTheme
 
 @AndroidEntryPoint
 class AtTopicActivity : ComponentActivity() {
@@ -78,7 +77,6 @@ class AtTopicActivity : ComponentActivity() {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun AtTopicScreen(
     type: String,
@@ -94,13 +92,7 @@ private fun AtTopicScreen(
         topBar = {
             TopAppBar(
                 navigationIcon = { BackButton { onBack() } },
-                title = {
-                    Text(
-                        text = title,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                }
+                title = title
             )
         }
     ) { padding ->
@@ -130,7 +122,7 @@ private fun AtTopicScreen(
                     Text(
                         text = if (isTopic) "热门话题" else "关注用户",
                         modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp),
-                        style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Medium)
+                        style = MiuixTheme.textStyles.title3.copy(fontWeight = FontWeight.Medium)
                     )
                     if (isTopic) {
                         HotTopicList(onSelect = onSelect)

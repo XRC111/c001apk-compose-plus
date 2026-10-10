@@ -1,6 +1,5 @@
 package com.example.c001apk.compose.ui.component
 
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.toArgb
@@ -10,6 +9,7 @@ import com.example.c001apk.compose.logic.providable.LocalUserPreferences
 import com.example.c001apk.compose.util.ImageShowUtil.getImageLp
 import com.example.c001apk.compose.util.isGifUrl
 import com.example.c001apk.compose.view.NineGridImageView
+import top.yukonga.miuix.kmp.theme.MiuixTheme
 
 /**
  * Created by bggRGjQaUbCoE on 2024/6/5
@@ -24,8 +24,8 @@ fun NineImageView(
 ) {
     val prefs = LocalUserPreferences.current
 
-    val primaryContainer = MaterialTheme.colorScheme.primaryContainer.toArgb()
-    val onPrimaryContainer = MaterialTheme.colorScheme.onPrimaryContainer.toArgb()
+    val primaryContainer = MiuixTheme.colorScheme.primaryContainer.toArgb()
+    val onPrimaryContainer = MiuixTheme.colorScheme.onPrimaryContainer.toArgb()
 
     AndroidView(
         modifier = modifier,

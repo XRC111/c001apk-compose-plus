@@ -11,7 +11,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Mail
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedIconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -35,6 +34,8 @@ import com.example.c001apk.compose.util.DateUtils.fromToday
 import com.example.c001apk.compose.util.copyText
 import com.example.c001apk.compose.util.makeToast
 import com.example.c001apk.compose.util.noRippleClickable
+import top.yukonga.miuix.kmp.theme.MiuixTheme
+import com.example.c001apk.compose.ui.theme.MiuixShapes
 
 /**
  * Created by bggRGjQaUbCoE on 2024/6/4
@@ -111,7 +112,7 @@ fun UserInfoCard(
                     top.linkTo(parent.top)
                 }
                 .clip(CircleShape)
-                .border(4.dp, MaterialTheme.colorScheme.surface, CircleShape)
+                .border(4.dp, MiuixTheme.colorScheme.surface, CircleShape)
         )*/
 
         ImageView(
@@ -126,13 +127,13 @@ fun UserInfoCard(
             url = data.userAvatar.orEmpty(),
             isRound = true,
             borderWidth = 4f,
-            borderColor = MaterialTheme.colorScheme.surface.toArgb()
+            borderColor = MiuixTheme.colorScheme.surface.toArgb()
         )
 
         Text(
             text = data.username.orEmpty(),
             textAlign = TextAlign.Start,
-            style = MaterialTheme.typography.titleMedium.copy(
+            style = MiuixTheme.textStyles.title2.copy(
                 fontSize = 15.sp,
                 fontWeight = FontWeight.Bold
             ),
@@ -162,7 +163,7 @@ fun UserInfoCard(
             Text(
                 text = "UID: ${data.uid}",
                 textAlign = TextAlign.Center,
-                style = MaterialTheme.typography.bodyMedium,
+                style = MiuixTheme.textStyles.body1,
                 modifier = Modifier
                     .align(Alignment.CenterVertically)
                     .noRippleClickable {
@@ -173,15 +174,15 @@ fun UserInfoCard(
             Text(
                 modifier = Modifier
                     .padding(start = 10.dp)
-                    .clip(MaterialTheme.shapes.medium)
-                    .background(MaterialTheme.colorScheme.secondaryContainer)
+                    .clip(MiuixShapes.medium)
+                    .background(MiuixTheme.colorScheme.secondaryContainer)
                     .align(Alignment.CenterVertically)
                     .padding(horizontal = 6.dp),
                 text = "Lv.${data.level}",
                 textAlign = TextAlign.Center,
-                style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Bold),
+                style = MiuixTheme.textStyles.body2.copy(fontWeight = FontWeight.Bold),
                 fontStyle = FontStyle.Italic,
-                color = MaterialTheme.colorScheme.onSecondaryContainer
+                color = MiuixTheme.colorScheme.onSecondaryContainer
             )
         }
 
@@ -189,7 +190,7 @@ fun UserInfoCard(
             Text(
                 text = data.bio,
                 textAlign = TextAlign.Start,
-                style = MaterialTheme.typography.bodyMedium,
+                style = MiuixTheme.textStyles.body1,
                 modifier = Modifier
                     .padding(top = 5.dp)
                     .fillMaxWidth()
@@ -215,7 +216,7 @@ fun UserInfoCard(
         ) {
             Text(
                 text = (data.feed?.id ?: 0).toString() + "动态",
-                style = MaterialTheme.typography.bodyMedium,
+                style = MiuixTheme.textStyles.body1,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
@@ -223,7 +224,7 @@ fun UserInfoCard(
             Text(
                 modifier = Modifier.padding(start = 10.dp),
                 text = data.beLikeNum.toString() + "赞",
-                style = MaterialTheme.typography.bodyMedium,
+                style = MiuixTheme.textStyles.body1,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
@@ -235,7 +236,7 @@ fun UserInfoCard(
                         onViewFFFList(data.uid.orEmpty(), FFFListType.USER_FOLLOW.name)
                     },
                 text = data.follow.toString() + "关注",
-                style = MaterialTheme.typography.bodyMedium,
+                style = MiuixTheme.textStyles.body1,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
@@ -247,7 +248,7 @@ fun UserInfoCard(
                         onViewFFFList(data.uid.orEmpty(), FFFListType.FAN.name)
                     },
                 text = "${data.fans}粉丝",
-                style = MaterialTheme.typography.bodyMedium,
+                style = MiuixTheme.textStyles.body1,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
@@ -256,7 +257,7 @@ fun UserInfoCard(
         Text(
             text = "${fromToday(data.logintime ?: 0)}活跃",
             textAlign = TextAlign.Start,
-            style = MaterialTheme.typography.bodyMedium,
+            style = MiuixTheme.textStyles.body1,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
             modifier = Modifier
@@ -299,7 +300,7 @@ fun UserInfoCard(
                     bottom.linkTo(followBtn.bottom)
                     end.linkTo(followBtn.start)
                 },
-            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
+            border = BorderStroke(1.dp, MiuixTheme.colorScheme.outline)
         ) {
             Icon(
                 imageVector = Icons.Outlined.Mail,

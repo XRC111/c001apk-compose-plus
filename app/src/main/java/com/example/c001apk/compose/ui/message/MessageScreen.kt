@@ -3,17 +3,15 @@ package com.example.c001apk.compose.ui.message
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
+import top.yukonga.miuix.kmp.basic.HorizontalDivider
+import top.yukonga.miuix.kmp.basic.Scaffold
+import top.yukonga.miuix.kmp.basic.TextButton
+import top.yukonga.miuix.kmp.overlay.OverlayDialog
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
@@ -43,11 +41,11 @@ import com.example.c001apk.compose.ui.component.cards.titleList
 import com.example.c001apk.compose.ui.notification.NoticeType
 import com.example.c001apk.compose.util.ReportType
 import com.example.c001apk.compose.util.makeToast
+import top.yukonga.miuix.kmp.theme.MiuixTheme
 
 /**
  * Created by bggRGjQaUbCoE on 2024/6/2
  */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MessageScreen(
     onLogin: () -> Unit,
@@ -117,7 +115,7 @@ fun MessageScreen(
                         modifier = Modifier.align(Alignment.TopCenter),
                         isRefreshing = viewModel.isRefreshing,
                         state = state,
-                        color = MaterialTheme.colorScheme.primary,
+                        color = MiuixTheme.colorScheme.primary,
                     )
                 }
             ) {
@@ -190,55 +188,53 @@ fun MessageScreen(
 
     when {
         showLogoutDialog -> {
-            AlertDialog(
+            OverlayDialog(
+                show = true,
+                title = "确定退出登录？",
                 onDismissRequest = { showLogoutDialog = false },
-                confirmButton = {
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceEvenly,
+                ) {
                     TextButton(
+                        text = stringResource(id = android.R.string.cancel),
+                        onClick = { showLogoutDialog = false },
+                    )
+                    TextButton(
+                        text = stringResource(id = android.R.string.ok),
                         onClick = {
                             viewModel.onLogout()
                             showLogoutDialog = false
-                        })
-                    {
-                        Text(text = stringResource(id = android.R.string.ok))
-                    }
-                },
-                dismissButton = {
-                    TextButton(
-                        onClick = { showLogoutDialog = false })
-                    {
-                        Text(text = stringResource(id = android.R.string.cancel))
-                    }
-                },
-                title = {
-                    Text(text = "确定退出登录？", modifier = Modifier.fillMaxWidth())
+                        },
+                    )
                 }
-            )
+            }
         }
 
         showDeleteDialog -> {
-            AlertDialog(
+            OverlayDialog(
+                show = true,
+                title = "确定删除此条消息？",
                 onDismissRequest = { showDeleteDialog = false },
-                confirmButton = {
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceEvenly,
+                ) {
                     TextButton(
+                        text = stringResource(id = android.R.string.cancel),
+                        onClick = { showDeleteDialog = false },
+                    )
+                    TextButton(
+                        text = stringResource(id = android.R.string.ok),
                         onClick = {
                             viewModel.onPostDelete()
                             showDeleteDialog = false
-                        })
-                    {
-                        Text(text = stringResource(id = android.R.string.ok))
-                    }
-                },
-                dismissButton = {
-                    TextButton(
-                        onClick = { showDeleteDialog = false })
-                    {
-                        Text(text = stringResource(id = android.R.string.cancel))
-                    }
-                },
-                title = {
-                    Text(text = "确定删除此条消息？", modifier = Modifier.fillMaxWidth())
+                        },
+                    )
                 }
-            )
+            }
         }
     }
 

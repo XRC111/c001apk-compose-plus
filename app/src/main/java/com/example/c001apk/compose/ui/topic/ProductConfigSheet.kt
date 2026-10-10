@@ -23,19 +23,14 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Share
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
+import top.yukonga.miuix.kmp.basic.CircularProgressIndicator
+import top.yukonga.miuix.kmp.basic.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Switch
+import top.yukonga.miuix.kmp.basic.IconButton
+import top.yukonga.miuix.kmp.basic.Surface
+import top.yukonga.miuix.kmp.basic.Switch
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.VerticalDivider
-import androidx.compose.material3.rememberModalBottomSheetState
+import top.yukonga.miuix.kmp.basic.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -55,8 +50,11 @@ import androidx.compose.ui.window.DialogProperties
 import com.example.c001apk.compose.logic.model.ProductSpecSection
 import com.example.c001apk.compose.logic.model.ProductSpecItem
 import com.example.c001apk.compose.ui.component.CoilLoader
+import top.yukonga.miuix.kmp.theme.MiuixTheme
+import top.yukonga.miuix.kmp.overlay.OverlayBottomSheet
+import top.yukonga.miuix.kmp.basic.TextButton
+import top.yukonga.miuix.kmp.basic.Button
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProductConfigSheet(
     state: ProductConfigSheetState,
@@ -75,7 +73,7 @@ fun ProductConfigSheet(
         ) {
             Surface(
                 modifier = Modifier.fillMaxSize(),
-                color = MaterialTheme.colorScheme.background,
+                color = MiuixTheme.colorScheme.background,
             ) {
                 ComparisonContent(
                     state = state,
@@ -87,9 +85,9 @@ fun ProductConfigSheet(
         return
     }
 
-    ModalBottomSheet(
+    OverlayBottomSheet(
+        show = true,
         onDismissRequest = onDismiss,
-        sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
         modifier = Modifier.padding(top = topPadding),
     ) {
         when (state) {
@@ -107,7 +105,7 @@ private fun SheetTitle(title: String) {
     Text(
         text = title,
         modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
-        style = MaterialTheme.typography.titleLarge,
+        style = MiuixTheme.textStyles.title1,
         fontWeight = FontWeight.SemiBold,
         maxLines = 2,
         overflow = TextOverflow.Ellipsis,
@@ -133,15 +131,15 @@ private fun ErrorContent(message: String, onDismiss: () -> Unit) {
         modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 12.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Text("加载失败", style = MaterialTheme.typography.titleLarge)
+        Text("加载失败", style = MiuixTheme.textStyles.title1)
         Spacer(Modifier.height(12.dp))
         Text(
             text = message,
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            style = MiuixTheme.textStyles.body1,
+            color = MiuixTheme.colorScheme.onSurfaceVariantSummary,
         )
         Spacer(Modifier.height(12.dp))
-        TextButton(onClick = onDismiss) { Text("关闭") }
+        TextButton(text = "关闭", onClick = onDismiss)
     }
 }
 
@@ -152,7 +150,7 @@ private fun DetailsContent(title: String, sections: List<ProductSpecSection>) {
         HorizontalDivider()
         if (sections.isEmpty()) {
             Box(modifier = Modifier.fillMaxWidth().weight(1f), contentAlignment = Alignment.Center) {
-                Text("暂无参数", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text("暂无参数", color = MiuixTheme.colorScheme.onSurfaceVariantSummary)
             }
         } else {
             LazyColumn(modifier = Modifier.fillMaxWidth().weight(1f)) {
@@ -215,7 +213,7 @@ private fun ComparisonContent(
             Text(
                 text = state.title,
                 modifier = Modifier.weight(1f),
-                style = MaterialTheme.typography.titleLarge,
+                style = MiuixTheme.textStyles.title1,
                 fontWeight = FontWeight.SemiBold,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
@@ -307,19 +305,19 @@ private fun ComparisonHeader(
             Spacer(Modifier.height(6.dp))
             Text(
                 text = "隐藏相同配置",
-                style = MaterialTheme.typography.bodyMedium,
+                style = MiuixTheme.textStyles.body1,
                 textAlign = TextAlign.Center,
             )
             Spacer(Modifier.height(8.dp))
             Text(
                 text = "${state.columns.size}款配置对比",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                style = MiuixTheme.textStyles.body2,
+                color = MiuixTheme.colorScheme.onSurfaceVariantSummary,
             )
         }
         VerticalDivider(
             modifier = Modifier.fillMaxHeight().width(1.dp),
-            color = MaterialTheme.colorScheme.outlineVariant,
+            color = MiuixTheme.colorScheme.outline,
         )
         Row(modifier = Modifier.horizontalScroll(horizontalState)) {
             state.columns.forEach { column ->
@@ -339,7 +337,7 @@ private fun ComparisonHeader(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center,
                 ) {
-                    TextButton(onClick = onAddComparison) {
+                    Button(onClick = onAddComparison) {
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(36.dp))
                             Text("添加对比")
@@ -380,7 +378,7 @@ private fun ProductComparisonHeaderColumn(
         }
         Text(
             text = column.selection.displayTitle(mode),
-            style = MaterialTheme.typography.titleSmall,
+            style = MiuixTheme.textStyles.title3,
             fontWeight = FontWeight.SemiBold,
             textAlign = TextAlign.Center,
             maxLines = 2,
@@ -389,17 +387,17 @@ private fun ProductComparisonHeaderColumn(
         if (mode == ProductComparisonMode.CROSS_PRODUCT) {
             Text(
                 text = config.title.orEmpty(),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                style = MiuixTheme.textStyles.body2,
+                color = MiuixTheme.colorScheme.onSurfaceVariantSummary,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )
         }
         Text(
             text = config.price.asComparisonPrice(),
-            style = MaterialTheme.typography.titleSmall,
-            color = if (config.price.isPositivePrice()) MaterialTheme.colorScheme.error
-            else MaterialTheme.colorScheme.onSurfaceVariant,
+            style = MiuixTheme.textStyles.title3,
+            color = if (config.price.isPositivePrice()) MiuixTheme.colorScheme.error
+            else MiuixTheme.colorScheme.onSurfaceVariantSummary,
         )
     }
 }
@@ -420,8 +418,8 @@ private fun ComparisonSpecRow(
         ) {
             Text(
                 text = item.name,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                style = MiuixTheme.textStyles.body1,
+                color = MiuixTheme.colorScheme.onSurfaceVariantSummary,
             )
         }
         Row(modifier = Modifier.horizontalScroll(horizontalState)) {
@@ -433,7 +431,7 @@ private fun ComparisonSpecRow(
                         .padding(horizontal = 12.dp, vertical = 12.dp),
                     contentAlignment = Alignment.CenterStart,
                 ) {
-                    Text(text = value, style = MaterialTheme.typography.bodyMedium)
+                    Text(text = value, style = MiuixTheme.textStyles.body1)
                 }
             }
             if (includeAddColumn) {
@@ -460,7 +458,7 @@ private fun ComparisonGroupHeader(
         ) {
             Text(
                 text = title,
-                style = MaterialTheme.typography.labelLarge,
+                style = MiuixTheme.textStyles.button,
                 fontWeight = FontWeight.SemiBold,
             )
         }
@@ -480,9 +478,9 @@ private fun SectionHeader(title: String) {
     Text(
         text = title,
         modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp),
-        style = MaterialTheme.typography.titleMedium,
+        style = MiuixTheme.textStyles.title2,
         fontWeight = FontWeight.SemiBold,
-        color = MaterialTheme.colorScheme.primary,
+        color = MiuixTheme.colorScheme.primary,
     )
 }
 
@@ -491,9 +489,9 @@ private fun SpecGroupHeader(title: String) {
     Text(
         text = title,
         modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 8.dp),
-        style = MaterialTheme.typography.labelLarge,
+        style = MiuixTheme.textStyles.button,
         fontWeight = FontWeight.SemiBold,
-        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        color = MiuixTheme.colorScheme.onSurfaceVariantSummary,
     )
 }
 
@@ -506,10 +504,10 @@ private fun SpecRow(name: String, value: String) {
         Text(
             text = name,
             modifier = Modifier.weight(0.38f),
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            style = MiuixTheme.textStyles.body1,
+            color = MiuixTheme.colorScheme.onSurfaceVariantSummary,
         )
-        Text(text = value, modifier = Modifier.weight(0.62f), style = MaterialTheme.typography.bodyMedium)
+        Text(text = value, modifier = Modifier.weight(0.62f), style = MiuixTheme.textStyles.body1)
     }
     HorizontalDivider(modifier = Modifier.padding(horizontal = 20.dp))
 }

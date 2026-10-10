@@ -18,9 +18,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.VerticalPager
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -37,6 +35,7 @@ import com.example.c001apk.compose.ui.component.cards.LoadingCard
 import com.example.c001apk.compose.ui.home.TabType
 import com.example.c001apk.compose.ui.theme.cardBg
 import kotlinx.coroutines.launch
+import top.yukonga.miuix.kmp.theme.MiuixTheme
 
 /**
  * Created by bggRGjQaUbCoE on 2024/6/11
@@ -137,8 +136,8 @@ fun HomeTopicScreen(
                                             .fillMaxHeight()
                                             .width(3.dp)
                                             .background(
-                                                if (index == pageState.currentPage) MaterialTheme.colorScheme.primary
-                                                else MaterialTheme.colorScheme.surface
+                                                if (index == pageState.currentPage) MiuixTheme.colorScheme.primary
+                                                else MiuixTheme.colorScheme.surface
                                             )
                                     )
                                     Text(
@@ -147,17 +146,15 @@ fun HomeTopicScreen(
                                             .weight(1f)
                                             .background(
                                                 if (index == pageState.currentPage)
-                                                    MaterialTheme.colorScheme.surfaceColorAtElevation(
-                                                        3.dp
-                                                    )
-                                                else MaterialTheme.colorScheme.surface
+                                                    MiuixTheme.colorScheme.surfaceContainerHigh
+                                                else MiuixTheme.colorScheme.surface
                                             )
                                             .padding(8.dp)
                                             .align(Alignment.CenterVertically),
                                         textAlign = TextAlign.Center,
                                         fontSize = 14.sp,
-                                        color = if (index == pageState.currentPage) MaterialTheme.colorScheme.primary
-                                        else MaterialTheme.colorScheme.onSurface
+                                        color = if (index == pageState.currentPage) MiuixTheme.colorScheme.primary
+                                        else MiuixTheme.colorScheme.onSurface
                                     )
                                 }
                             }

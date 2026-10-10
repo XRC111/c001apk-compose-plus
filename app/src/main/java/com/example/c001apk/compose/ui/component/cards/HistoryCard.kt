@@ -14,11 +14,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.Smartphone
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
+import top.yukonga.miuix.kmp.basic.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -47,6 +44,11 @@ import com.example.c001apk.compose.util.ShareType
 import com.example.c001apk.compose.util.Utils.richToString
 import com.example.c001apk.compose.util.copyText
 import com.example.c001apk.compose.util.getShareText
+import top.yukonga.miuix.kmp.theme.MiuixTheme
+import com.example.c001apk.compose.ui.theme.MiuixShapes
+import top.yukonga.miuix.kmp.menu.OverlayIconDropdownMenu
+import top.yukonga.miuix.kmp.basic.DropdownEntry
+import top.yukonga.miuix.kmp.basic.DropdownItem
 
 /**
  * Created by bggRGjQaUbCoE on 2024/6/17
@@ -68,7 +70,7 @@ fun HistoryCard(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .clip(MaterialTheme.shapes.medium)
+            .clip(MiuixShapes.medium)
             .background(cardBg())
             .combinedClickable(
                 onClick = {
@@ -111,7 +113,6 @@ fun HistoryHeader(
     onBlockUser: (String) -> Unit,
 ) {
 
-    var dropdownMenuExpanded by remember { mutableStateOf(false) }
     val context = LocalContext.current
 
     ConstraintLayout(
@@ -148,7 +149,7 @@ fun HistoryHeader(
                     width = Dimension.fillToConstraints
                 },
             text = data.uname,
-            style = MaterialTheme.typography.titleSmall,
+            style = MiuixTheme.textStyles.title3,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
         )
@@ -161,8 +162,8 @@ fun HistoryHeader(
                     start.linkTo(avatar.end)
                     top.linkTo(username.bottom)
                 },
-            style = MaterialTheme.typography.bodySmall.copy(fontSize = 13.sp),
-            color = MaterialTheme.colorScheme.outline,
+            style = MiuixTheme.textStyles.body2.copy(fontSize = 13.sp),
+            color = MiuixTheme.colorScheme.outline,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
         )
@@ -181,7 +182,7 @@ fun HistoryHeader(
             textSize = 13f,
         )
 
-        Box(
+        OverlayIconDropdownMenu(
             modifier = Modifier
                 .aspectRatio(1f, false)
                 .constrainAs(expand) {
@@ -189,56 +190,47 @@ fun HistoryHeader(
                     end.linkTo(parent.end)
                     bottom.linkTo(device.bottom)
                     height = Dimension.fillToConstraints
-                }) {
-
-            IconButton(
-                onClick = {
-                    dropdownMenuExpanded = true
-                }
-            ) {
-                Icon(
-                    imageVector = Icons.Default.ExpandMore,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.outline
-                )
-            }
-
-            DropdownMenu(
-                expanded = dropdownMenuExpanded,
-                onDismissRequest = {
-                    dropdownMenuExpanded = false
                 },
-            ) {
-                listOf("复制", "拉黑").forEachIndexed { index, menu ->
-                    DropdownMenuItem(
-                        text = { Text(menu) },
-                        onClick = {
-                            dropdownMenuExpanded = false
-                            when (index) {
-                                0 -> context.copyText(getShareText(ShareType.FEED, data.id))
-
-                                1 -> onBlockUser(data.uid)
-                            }
+            entries = listOf(
+                DropdownEntry(
+                    items = buildList {
+                        add(
+                            DropdownItem(
+                                text = "复制",
+                                onClick = {
+                                    context.copyText(getShareText(ShareType.FEED, data.id))
+                                },
+                            )
+                        )
+                        add(
+                            DropdownItem(
+                                text = "拉黑",
+                                onClick = { onBlockUser(data.uid) },
+                            )
+                        )
+                        if (isLogin) {
+                            add(
+                                DropdownItem(
+                                    text = stringResource(id = R.string.menu_report),
+                                    onClick = { onReport(data.id, ReportType.FEED) },
+                                )
+                            )
                         }
-                    )
-                }
-                if (isLogin) {
-                    DropdownMenuItem(
-                        text = { Text(stringResource(id = R.string.menu_report)) },
-                        onClick = {
-                            dropdownMenuExpanded = false
-                            onReport(data.id, ReportType.FEED)
-                        }
-                    )
-                }
-                DropdownMenuItem(
-                    text = { Text(stringResource(id = R.string.menu_delete)) },
-                    onClick = {
-                        dropdownMenuExpanded = false
-                        onDelete(data.id)
+                        add(
+                            DropdownItem(
+                                text = stringResource(id = R.string.menu_delete),
+                                onClick = { onDelete(data.id) },
+                            )
+                        )
                     }
                 )
-            }
+            ),
+        ) {
+            Icon(
+                imageVector = Icons.Default.ExpandMore,
+                contentDescription = null,
+                tint = MiuixTheme.colorScheme.outline
+            )
         }
     }
 

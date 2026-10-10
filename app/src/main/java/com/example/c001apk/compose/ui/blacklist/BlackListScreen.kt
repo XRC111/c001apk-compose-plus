@@ -23,18 +23,17 @@ import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.ClearAll
 import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.Upload
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
+import top.yukonga.miuix.kmp.basic.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
+import top.yukonga.miuix.kmp.basic.IconButton
 import androidx.compose.material3.LocalTextStyle
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
+import top.yukonga.miuix.kmp.basic.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
+import top.yukonga.miuix.kmp.basic.TextButton
+import top.yukonga.miuix.kmp.overlay.OverlayDialog
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -71,6 +70,7 @@ import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import top.yukonga.miuix.kmp.theme.MiuixTheme
 
 /**
  * Created by bggRGjQaUbCoE on 2024/6/16
@@ -294,7 +294,7 @@ fun BlackListScreen(
                         modifier = Modifier
                             .weight(1f)
                             .padding(start = 10.dp),
-                        style = MaterialTheme.typography.titleSmall.copy(
+                        style = MiuixTheme.textStyles.title3.copy(
                             fontWeight = FontWeight.Bold,
                         )
                     )
@@ -345,29 +345,30 @@ fun BlackListScreen(
 
     when {
         showClearDialog -> {
-            AlertDialog(
+            OverlayDialog(
+                show = true,
+                title = "确定清除全部黑名单？",
                 onDismissRequest = { showClearDialog = false },
-                confirmButton = {
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceEvenly,
+                ) {
                     TextButton(
+                        text = stringResource(id = android.R.string.cancel),
+                        onClick = {
+                            showClearDialog = false
+                        },
+                    )
+                    TextButton(
+                        text = stringResource(id = android.R.string.ok),
                         onClick = {
                             showClearDialog = false
                             viewModel.clearAll()
-                        }) {
-                        Text(text = stringResource(id = android.R.string.ok))
-                    }
-                },
-                dismissButton = {
-                    TextButton(
-                        onClick = {
-                            showClearDialog = false
-                        }) {
-                        Text(text = stringResource(id = android.R.string.cancel))
-                    }
-                },
-                title = {
-                    Text(text = "确定清除全部黑名单？", modifier = Modifier.fillMaxWidth())
+                        },
+                    )
                 }
-            )
+            }
         }
     }
 

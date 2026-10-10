@@ -1,6 +1,6 @@
 package com.example.c001apk.compose.ui.component.settings
 
-import androidx.compose.material3.Switch
+import top.yukonga.miuix.kmp.basic.Switch
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.example.c001apk.compose.ui.component.rememberHapticClick

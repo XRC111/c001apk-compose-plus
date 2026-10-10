@@ -27,6 +27,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.layout.displayCutout
+import androidx.compose.foundation.layout.union
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -41,22 +43,17 @@ import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.automirrored.outlined.Backspace
 import androidx.compose.material.icons.outlined.AddPhotoAlternate
 import androidx.compose.material.icons.outlined.EmojiEmotions
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ElevatedCard
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
+import top.yukonga.miuix.kmp.basic.Card
+import top.yukonga.miuix.kmp.basic.CardDefaults
+import top.yukonga.miuix.kmp.basic.CircularProgressIndicator
+import top.yukonga.miuix.kmp.basic.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.ScaffoldDefaults
-import androidx.compose.material3.Surface
+import top.yukonga.miuix.kmp.basic.IconButton
+import top.yukonga.miuix.kmp.basic.Scaffold
+import top.yukonga.miuix.kmp.basic.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.VerticalDivider
+import top.yukonga.miuix.kmp.basic.TopAppBar
+import top.yukonga.miuix.kmp.basic.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -106,12 +103,15 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.UUID
-import com.example.c001apk.compose.ui.component.MoreMenuButton
+import top.yukonga.miuix.kmp.theme.MiuixTheme
+import top.yukonga.miuix.kmp.menu.OverlayIconDropdownMenu
+import top.yukonga.miuix.kmp.basic.DropdownEntry
+import top.yukonga.miuix.kmp.basic.DropdownItem
+import androidx.compose.material.icons.filled.MoreVert
 
 /**
  * Created by bggRGjQaUbCoE on 2024/6/19
  */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChatScreen(
     onBackClick: () -> Unit,
@@ -129,7 +129,6 @@ fun ChatScreen(
         }
 
     val context = LocalContext.current
-    var dropdownMenuExpanded by remember { mutableStateOf(false) }
     var showDialog by remember { mutableStateOf(false) }
     val lazyListState = rememberLazyListState()
     val scope = rememberCoroutineScope()
@@ -198,52 +197,50 @@ fun ChatScreen(
         modifier = Modifier.fillMaxSize(),
         topBar = {
             TopAppBar(
-                windowInsets = WindowInsets.systemBars
-                    .only(WindowInsetsSides.Start + WindowInsetsSides.Top),
                 navigationIcon = {
                     BackButton {
                         clearFocus = true
                         onBackClick()
                     }
                 },
-                title = { Text(text = username) },
+                title = username,
                 actions = {
-                    Box {
-                        MoreMenuButton { dropdownMenuExpanded = true }
-                        DropdownMenu(
-                            expanded = dropdownMenuExpanded,
-                            onDismissRequest = { dropdownMenuExpanded = false }) {
-                            listOf(
-                                stringResource(id = R.string.menu_check),
-                                "拉黑",
-                                stringResource(id = R.string.menu_report)
-                            ).forEachIndexed { index, menu ->
-                                DropdownMenuItem(
-                                    text = { Text(text = menu) },
-                                    onClick = {
-                                        dropdownMenuExpanded = false
-                                        when (index) {
-                                            0 -> {
-                                                onClearFocus()
-                                                onViewUser(uid)
-                                            }
-
-                                            1 -> viewModel.onBlockUser(uid)
-                                            2 -> {
-                                                onClearFocus()
-                                                onReport(uid, ReportType.USER)
-                                            }
-                                        }
-                                    }
+                    OverlayIconDropdownMenu(
+                        entries = listOf(
+                            DropdownEntry(
+                                items = listOf(
+                                    DropdownItem(
+                                        text = stringResource(id = R.string.menu_check),
+                                        onClick = {
+                                            onClearFocus()
+                                            onViewUser(uid)
+                                        },
+                                    ),
+                                    DropdownItem(
+                                        text = "拉黑",
+                                        onClick = { viewModel.onBlockUser(uid) },
+                                    ),
+                                    DropdownItem(
+                                        text = stringResource(id = R.string.menu_report),
+                                        onClick = {
+                                            onClearFocus()
+                                            onReport(uid, ReportType.USER)
+                                        },
+                                    ),
                                 )
-                            }
-                        }
+                            )
+                        ),
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.MoreVert,
+                            contentDescription = null,
+                        )
                     }
                 }
             )
         },
-        contentWindowInsets = ScaffoldDefaults
-            .contentWindowInsets
+        contentWindowInsets = WindowInsets.systemBars
+            .union(WindowInsets.displayCutout)
             .exclude(WindowInsets.navigationBars)
             .exclude(WindowInsets.ime),
     ) { paddingValues ->
@@ -386,11 +383,12 @@ fun ChatScreen(
 
         showDialog -> {
             Dialog(onDismissRequest = { showDialog = false }) {
-                ElevatedCard(
+                Card(
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(28.dp),
-                    colors = CardDefaults.elevatedCardColors()
-                        .copy(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh)
+                    cornerRadius = 28.dp,
+                    colors = CardDefaults.defaultColors(
+                        color = MiuixTheme.colorScheme.surfaceContainerHigh
+                    )
                 ) {
                     Column(
                         modifier = Modifier
@@ -406,7 +404,7 @@ fun ChatScreen(
                                     viewModel.onDeleteMsg()
                                 }
                                 .padding(horizontal = 24.dp, vertical = 14.dp),
-                            style = MaterialTheme.typography.titleSmall
+                            style = MiuixTheme.textStyles.title3
                         )
                         if (viewModel.pic.isEmpty()) {
                             Text(
@@ -418,7 +416,7 @@ fun ChatScreen(
                                         context.copyText(viewModel.message)
                                     }
                                     .padding(horizontal = 24.dp, vertical = 14.dp),
-                                style = MaterialTheme.typography.titleSmall
+                                style = MiuixTheme.textStyles.title3
                             )
                         }
                     }
@@ -497,7 +495,7 @@ fun ChatBottom(
                 Image(
                     imageVector = Icons.Outlined.EmojiEmotions,
                     contentDescription = null,
-                    colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurfaceVariant)
+                    colorFilter = ColorFilter.tint(MiuixTheme.colorScheme.onSurfaceVariantSummary)
                 )
             }
             ChatEditText(
@@ -505,7 +503,7 @@ fun ChatBottom(
                     .weight(1f)
                     .padding(vertical = 6.dp)
                     .clip(RoundedCornerShape(4.dp))
-                    .background(MaterialTheme.colorScheme.surface)
+                    .background(MiuixTheme.colorScheme.surface)
                     .padding(horizontal = 6.dp),
                 showSendBtn = { shouldShowSendBtn = it },
                 updateInputText = {
@@ -536,7 +534,7 @@ fun ChatBottom(
                         Image(
                             imageVector = Icons.Outlined.AddPhotoAlternate,
                             contentDescription = null,
-                            colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurfaceVariant)
+                            colorFilter = ColorFilter.tint(MiuixTheme.colorScheme.onSurfaceVariantSummary)
                         )
                     }
                     Box(
@@ -552,7 +550,7 @@ fun ChatBottom(
                                 id = R.drawable.outline_note_alt_24
                             ),
                             contentDescription = null,
-                            colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurfaceVariant)
+                            colorFilter = ColorFilter.tint(MiuixTheme.colorScheme.onSurfaceVariantSummary)
                         )
                     }
                 }
@@ -568,7 +566,7 @@ fun ChatBottom(
                     Image(
                         imageVector = Icons.AutoMirrored.Default.Send,
                         contentDescription = null,
-                        colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurfaceVariant)
+                        colorFilter = ColorFilter.tint(MiuixTheme.colorScheme.onSurfaceVariantSummary)
                     )
                 }
             }
@@ -665,7 +663,7 @@ fun ChatBottom(
                             .align(Alignment.CenterHorizontally)
                             .padding(top = 10.dp),
                         pagerState = pagerState1,
-                        defColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.3f),
+                        defColor = MiuixTheme.colorScheme.primary.copy(alpha = 0.3f),
                     )
                 }
             }
@@ -711,7 +709,7 @@ fun RowScope.TextIndicator(
             .weight(1f)
             .background(
                 if (pagerState.currentPage == index)
-                    MaterialTheme.colorScheme.primary
+                    MiuixTheme.colorScheme.primary
                 else
                     Color.Transparent
             )
@@ -722,12 +720,12 @@ fun RowScope.TextIndicator(
             }
             .padding(vertical = 10.dp),
         color = if (pagerState.currentPage == index)
-            MaterialTheme.colorScheme.onPrimary
+            MiuixTheme.colorScheme.onPrimary
         else
-            MaterialTheme.colorScheme.onSurfaceVariant,
+            MiuixTheme.colorScheme.onSurfaceVariantSummary,
         maxLines = 1,
         overflow = TextOverflow.Ellipsis,
-        style = MaterialTheme.typography.titleSmall,
+        style = MiuixTheme.textStyles.title3,
         textAlign = TextAlign.Center,
     )
 }

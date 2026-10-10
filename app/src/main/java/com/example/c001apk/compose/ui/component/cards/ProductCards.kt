@@ -17,13 +17,11 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Tune
-import androidx.compose.material3.HorizontalDivider
+import top.yukonga.miuix.kmp.basic.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.Surface
+import top.yukonga.miuix.kmp.basic.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -34,6 +32,8 @@ import androidx.compose.ui.unit.dp
 import com.example.c001apk.compose.logic.model.HomeFeedResponse
 import com.example.c001apk.compose.ui.component.CoilLoader
 import com.example.c001apk.compose.ui.theme.cardBg
+import top.yukonga.miuix.kmp.theme.MiuixTheme
+import top.yukonga.miuix.kmp.basic.Button
 
 @Composable
 fun ProductConfigListCard(
@@ -59,10 +59,10 @@ fun ProductConfigListCard(
                 Text(
                     text = data.title.orEmpty(),
                     modifier = Modifier.weight(1f),
-                    style = MaterialTheme.typography.titleMedium,
+                    style = MiuixTheme.textStyles.title2,
                     fontWeight = FontWeight.SemiBold,
                 )
-                TextButton(onClick = onShowComparison) {
+                Button(onClick = onShowComparison) {
                     Text("配置对比")
                     Icon(
                         imageVector = Icons.Default.ChevronRight,
@@ -84,7 +84,7 @@ fun ProductConfigListCard(
                 )
             }
             HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
-            TextButton(
+            Button(
                 onClick = onShowGlobalComparison,
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp),
             ) {
@@ -115,18 +115,18 @@ private fun ProductConfigRow(
         Column(modifier = Modifier.weight(1f)) {
             Text(
                 text = config.title.orEmpty(),
-                style = MaterialTheme.typography.titleMedium,
+                style = MiuixTheme.textStyles.title2,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )
             Spacer(Modifier.height(3.dp))
             Text(
                 text = config.price.asPrice(),
-                style = MaterialTheme.typography.bodyLarge,
+                style = MiuixTheme.textStyles.body1,
                 color = if (config.price.isPositivePrice()) {
-                    MaterialTheme.colorScheme.error
+                    MiuixTheme.colorScheme.error
                 } else {
-                    MaterialTheme.colorScheme.onSurfaceVariant
+                    MiuixTheme.colorScheme.onSurfaceVariantSummary
                 },
             )
         }
@@ -140,7 +140,7 @@ private fun ProductConfigRow(
                 ) {
                     Icon(Icons.Default.Tune, contentDescription = null, modifier = Modifier.size(16.dp))
                     Spacer(Modifier.width(4.dp))
-                    Text("参数", style = MaterialTheme.typography.labelMedium)
+                    Text("参数", style = MiuixTheme.textStyles.footnote1)
                 }
             }
             if (!config.id.isNullOrBlank()) {
@@ -157,7 +157,7 @@ private fun ProductConfigRow(
                     Spacer(Modifier.width(4.dp))
                     Text(
                         if (selectedForCompare) "已添加" else "对比",
-                        style = MaterialTheme.typography.labelMedium,
+                        style = MiuixTheme.textStyles.footnote1,
                     )
                 }
             }
@@ -234,7 +234,7 @@ private fun ProductListRow(
         Column(modifier = Modifier.padding(start = 12.dp).weight(1f)) {
             Text(
                 text = product.title.orEmpty(),
-                style = MaterialTheme.typography.titleSmall,
+                style = MiuixTheme.textStyles.title3,
                 fontWeight = FontWeight.Medium,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
@@ -243,8 +243,8 @@ private fun ProductListRow(
                 Spacer(Modifier.height(3.dp))
                 Text(
                     text = description,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    style = MiuixTheme.textStyles.body2,
+                    color = MiuixTheme.colorScheme.onSurfaceVariantSummary,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                 )
@@ -254,11 +254,11 @@ private fun ProductListRow(
                 Text(
                     text = price,
                     modifier = Modifier.weight(1f),
-                    style = MaterialTheme.typography.bodyMedium,
+                    style = MiuixTheme.textStyles.body1,
                     color = if (price == "暂无价格") {
-                        MaterialTheme.colorScheme.onSurfaceVariant
+                        MiuixTheme.colorScheme.onSurfaceVariantSummary
                     } else {
-                        MaterialTheme.colorScheme.error
+                        MiuixTheme.colorScheme.error
                     },
                 )
                 if (!product.configId.isNullOrBlank()) {

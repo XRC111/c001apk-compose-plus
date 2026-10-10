@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -23,6 +22,8 @@ import androidx.compose.ui.unit.dp
 import com.example.c001apk.compose.logic.model.HomeFeedResponse
 import com.example.c001apk.compose.ui.component.CoilLoader
 import com.example.c001apk.compose.ui.theme.cardBg
+import top.yukonga.miuix.kmp.theme.MiuixTheme
+import com.example.c001apk.compose.ui.theme.MiuixShapes
 
 /**
  * Created by bggRGjQaUbCoE on 2024/6/6
@@ -89,7 +90,7 @@ fun ImageTextScrollCardItem(
     Column(
         modifier = modifier
             .width(itemWidth)
-            .clip(MaterialTheme.shapes.medium)
+            .clip(MiuixShapes.medium)
             .clickable {
                 onOpenLink(url, title)
             }
@@ -106,7 +107,7 @@ fun ImageTextScrollCardItem(
             maxLines = 2,
             minLines = 2,
             overflow = TextOverflow.Ellipsis,
-            style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
+            style = MiuixTheme.textStyles.body1.copy(fontWeight = FontWeight.Bold),
             modifier = Modifier
                 .fillMaxWidth()
                 .background(cardBg())

@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -18,6 +17,8 @@ import androidx.compose.ui.unit.dp
 import com.example.c001apk.compose.logic.model.HomeFeedResponse
 import com.example.c001apk.compose.ui.component.CoilLoader
 import com.example.c001apk.compose.ui.theme.cardBg
+import top.yukonga.miuix.kmp.theme.MiuixTheme
+import com.example.c001apk.compose.ui.theme.MiuixShapes
 
 @Composable
 fun ImageTextGridCard(
@@ -35,7 +36,7 @@ fun ImageTextGridCard(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clip(MaterialTheme.shapes.medium)
+                    .clip(MiuixShapes.medium)
                     .clickable {
                         onOpenLink(item.url.orEmpty(), item.title)
                     }
@@ -50,7 +51,7 @@ fun ImageTextGridCard(
                     text = item.title.orEmpty(),
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
-                    style = MaterialTheme.typography.bodyMedium.copy(
+                    style = MiuixTheme.textStyles.body1.copy(
                         fontWeight = FontWeight.Bold
                     ),
                     modifier = Modifier

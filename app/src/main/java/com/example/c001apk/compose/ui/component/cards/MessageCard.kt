@@ -8,8 +8,7 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.Badge
-import androidx.compose.material3.MaterialTheme
+import top.yukonga.miuix.kmp.basic.Badge
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -24,6 +23,8 @@ import com.example.c001apk.compose.ui.component.CoilLoader
 import com.example.c001apk.compose.ui.component.LinkText
 import com.example.c001apk.compose.ui.theme.cardBg
 import com.example.c001apk.compose.util.DateUtils.fromToday
+import top.yukonga.miuix.kmp.theme.MiuixTheme
+import com.example.c001apk.compose.ui.theme.MiuixShapes
 
 /**
  * Created by bggRGjQaUbCoE on 2024/6/13
@@ -42,9 +43,9 @@ fun MessageCard(
     ConstraintLayout(
         modifier = modifier
             .fillMaxWidth()
-            .clip(MaterialTheme.shapes.medium)
+            .clip(MiuixShapes.medium)
             .background(
-                if (data.isTop == 1) MaterialTheme.colorScheme.primaryContainer
+                if (data.isTop == 1) MiuixTheme.colorScheme.primaryContainer
                 else cardBg()
             )
             .combinedClickable(
@@ -94,7 +95,7 @@ fun MessageCard(
                 },
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
-            style = MaterialTheme.typography.titleMedium.copy(fontSize = 14.sp)
+            style = MiuixTheme.textStyles.title2.copy(fontSize = 14.sp)
         )
 
         Text(
@@ -104,8 +105,8 @@ fun MessageCard(
                     top.linkTo(parent.top)
                     end.linkTo(parent.end)
                 },
-            color = MaterialTheme.colorScheme.outline,
-            style = MaterialTheme.typography.titleSmall.copy(fontSize = 13.sp)
+            color = MiuixTheme.colorScheme.outline,
+            style = MiuixTheme.textStyles.title3.copy(fontSize = 13.sp)
         )
 
         LinkText(

@@ -27,16 +27,14 @@ import androidx.compose.material.icons.outlined.CardGiftcard
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Schedule
 import androidx.compose.material.icons.outlined.SupervisorAccount
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
+import top.yukonga.miuix.kmp.basic.Button
+import top.yukonga.miuix.kmp.basic.ButtonDefaults
+import top.yukonga.miuix.kmp.basic.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
+import top.yukonga.miuix.kmp.basic.Scaffold
+import top.yukonga.miuix.kmp.basic.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
+import top.yukonga.miuix.kmp.basic.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -54,11 +52,11 @@ import com.example.c001apk.compose.ui.component.rememberHapticClick
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import top.yukonga.miuix.kmp.theme.MiuixTheme
 
 private const val EVENT_RULE_URL = "/page?url=V8_GOODS_ZHONGCE_README"
 private const val EVENT_RULE_TITLE = "酷品-众测规则"
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EventScreen(
     id: String,
@@ -76,10 +74,8 @@ fun EventScreen(
         modifier = Modifier.fillMaxSize(),
         topBar = {
             TopAppBar(
-                windowInsets = WindowInsets.systemBars
-                    .only(WindowInsetsSides.Start + WindowInsetsSides.Top),
                 navigationIcon = { BackButton(onBackClick) },
-                title = { Text("酷安众测") },
+                title = "酷安众测",
             )
         },
     ) { paddingValues ->
@@ -155,7 +151,7 @@ private fun EventContent(
                 ) {
                     Text(
                         text = event.title.orEmpty(),
-                        style = MaterialTheme.typography.titleLarge,
+                        style = MiuixTheme.textStyles.title1,
                         fontWeight = FontWeight.SemiBold,
                     )
                     Row(
@@ -165,13 +161,13 @@ private fun EventContent(
                         Icon(
                             imageVector = Icons.Outlined.Schedule,
                             contentDescription = null,
-                            tint = MaterialTheme.colorScheme.outline,
+                            tint = MiuixTheme.colorScheme.outline,
                             modifier = Modifier.size(20.dp),
                         )
                         Text(
                             text = registrationPeriod(event),
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.outline,
+                            style = MiuixTheme.textStyles.body1,
+                            color = MiuixTheme.colorScheme.outline,
                         )
                     }
                     Button(
@@ -183,10 +179,7 @@ private fun EventContent(
                             event.actionUrl?.let(onRegister)
                         },
                         colors = if (registrationOpen) ButtonDefaults.buttonColors()
-                        else ButtonDefaults.buttonColors(
-                            disabledContainerColor = MaterialTheme.colorScheme.errorContainer,
-                            disabledContentColor = MaterialTheme.colorScheme.onErrorContainer,
-                        ),
+                        else ButtonDefaults.buttonColors(disabledColor = MiuixTheme.colorScheme.errorContainer, disabledContentColor = MiuixTheme.colorScheme.onErrorContainer),
                     ) {
                         Text(statusText)
                     }
@@ -206,13 +199,13 @@ private fun EventContent(
                         Icon(
                             imageVector = Icons.AutoMirrored.Outlined.HelpOutline,
                             contentDescription = null,
-                            tint = MaterialTheme.colorScheme.outline,
+                            tint = MiuixTheme.colorScheme.outline,
                             modifier = Modifier.size(20.dp),
                         )
                         Text(
                             text = "众测须知",
-                            style = MaterialTheme.typography.titleSmall,
-                            color = MaterialTheme.colorScheme.outline,
+                            style = MiuixTheme.textStyles.title3,
+                            color = MiuixTheme.colorScheme.outline,
                         )
                     }
                 }
@@ -224,8 +217,8 @@ private fun EventContent(
                 EventSection(title = "报名须知", icon = Icons.Outlined.Info) {
                     Text(
                         text = notice.trim(),
-                        style = MaterialTheme.typography.bodyLarge,
-                        lineHeight = MaterialTheme.typography.bodyLarge.lineHeight * 1.25f,
+                        style = MiuixTheme.textStyles.body1,
+                        lineHeight = MiuixTheme.textStyles.body1.lineHeight * 1.25f,
                     )
                 }
             }
@@ -272,13 +265,13 @@ private fun EventContent(
                         ) {
                             Text(
                                 text = title,
-                                style = MaterialTheme.typography.titleMedium,
+                                style = MiuixTheme.textStyles.title2,
                                 modifier = Modifier.weight(1f),
                             )
                             Icon(
                                 imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
                                 contentDescription = null,
-                                tint = MaterialTheme.colorScheme.outline,
+                                tint = MiuixTheme.colorScheme.outline,
                             )
                         }
                         if (index != tabs.lastIndex) HorizontalDivider()
@@ -300,7 +293,7 @@ private fun EventSection(
             .fillMaxWidth()
             .padding(horizontal = 12.dp),
         shape = RoundedCornerShape(8.dp),
-        color = MaterialTheme.colorScheme.surfaceContainer,
+        color = MiuixTheme.colorScheme.surfaceContainer,
     ) {
         Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp)) {
             Row(
@@ -311,13 +304,13 @@ private fun EventSection(
                     Icon(
                         imageVector = it,
                         contentDescription = null,
-                        tint = MaterialTheme.colorScheme.primary,
+                        tint = MiuixTheme.colorScheme.primary,
                         modifier = Modifier.size(21.dp),
                     )
                 }
                 Text(
                     text = title,
-                    style = MaterialTheme.typography.titleMedium,
+                    style = MiuixTheme.textStyles.title2,
                     fontWeight = FontWeight.SemiBold,
                 )
             }
@@ -351,7 +344,7 @@ private fun SponsorRow(
         )
         Text(
             text = sponsor.displayUsername.orEmpty(),
-            style = MaterialTheme.typography.titleMedium,
+            style = MiuixTheme.textStyles.title2,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
             modifier = Modifier.weight(1f),
@@ -359,7 +352,7 @@ private fun SponsorRow(
         Icon(
             imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
             contentDescription = null,
-            tint = MaterialTheme.colorScheme.outline,
+            tint = MiuixTheme.colorScheme.outline,
         )
     }
 }
@@ -381,7 +374,7 @@ private fun PrizeRow(prize: EventDetailResponse.SponsorPrize) {
         )
         Text(
             text = prize.title.orEmpty(),
-            style = MaterialTheme.typography.titleMedium,
+            style = MiuixTheme.textStyles.title2,
             maxLines = 2,
             overflow = TextOverflow.Ellipsis,
             modifier = Modifier.weight(1f),

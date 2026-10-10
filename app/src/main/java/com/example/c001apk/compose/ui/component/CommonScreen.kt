@@ -6,8 +6,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
@@ -23,11 +21,11 @@ import com.example.c001apk.compose.ui.base.BaseViewModel
 import com.example.c001apk.compose.logic.model.HomeFeedResponse
 import com.example.c001apk.compose.util.ReportType
 import com.example.c001apk.compose.util.isScrollingUp
+import top.yukonga.miuix.kmp.theme.MiuixTheme
 
 /**
  * Created by bggRGjQaUbCoE on 2024/6/10
  */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CommonScreen(
     viewModel: BaseViewModel,
@@ -89,7 +87,7 @@ fun CommonScreen(
                 modifier = Modifier.align(Alignment.TopCenter),
                 isRefreshing = viewModel.isRefreshing,
                 state = state,
-                color = MaterialTheme.colorScheme.primary,
+                color = MiuixTheme.colorScheme.primary,
             )
         }
     ) {

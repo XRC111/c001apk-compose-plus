@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
@@ -22,6 +21,7 @@ import com.example.c001apk.compose.logic.model.HomeFeedResponse
 import com.example.c001apk.compose.ui.component.CoilLoader
 import com.example.c001apk.compose.ui.theme.cardBg
 import kotlinx.coroutines.delay
+import com.example.c001apk.compose.ui.theme.MiuixShapes
 
 /**
  * Created by bggRGjQaUbCoE on 2024/6/3
@@ -60,7 +60,7 @@ fun CarouselCard(
                 modifier = modifier
                     .fillMaxWidth()
                     .wrapContentHeight()
-                    .clip(MaterialTheme.shapes.medium)
+                    .clip(MiuixShapes.medium)
                     .background(cardBg()),
                 state = pagerState,
                 beyondViewportPageCount = if (it.size > 1) it.size else 0,

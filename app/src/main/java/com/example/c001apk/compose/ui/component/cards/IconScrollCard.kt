@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -24,6 +23,7 @@ import androidx.compose.ui.unit.sp
 import com.example.c001apk.compose.logic.model.HomeFeedResponse
 import com.example.c001apk.compose.ui.component.CoilLoader
 import com.example.c001apk.compose.ui.theme.cardBg
+import com.example.c001apk.compose.ui.theme.MiuixShapes
 
 /**
  * Created by bggRGjQaUbCoE on 2024/6/6
@@ -42,7 +42,7 @@ fun IconScrollCard(
         Column(
             modifier = modifier
                 .fillMaxWidth()
-                .clip(MaterialTheme.shapes.medium)
+                .clip(MiuixShapes.medium)
                 .background(cardBg())
         ) {
 
@@ -93,7 +93,7 @@ fun IconScrollCardItem(
     Column(
         modifier = modifier
             .width(itemWidth)
-            .clip(MaterialTheme.shapes.medium)
+            .clip(MiuixShapes.medium)
             .clickable {
                 onOpenLink(url, null)
             }

@@ -6,8 +6,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
+import top.yukonga.miuix.kmp.basic.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -17,6 +16,7 @@ import androidx.compose.ui.unit.sp
 import com.example.c001apk.compose.util.Utils.richToString
 import com.example.c001apk.compose.util.decode
 import com.example.c001apk.compose.util.getAllLinkAndText
+import top.yukonga.miuix.kmp.theme.MiuixTheme
 
 /**
  * Created by bggRGjQaUbCoE on 2024/6/7
@@ -35,7 +35,7 @@ fun CopyTextScreen(text: String) {
                         .getAllLinkAndText
                         .replace("\n", "<br/>")
                         .richToString(),
-                    style = MaterialTheme.typography.titleLarge.copy(
+                    style = MiuixTheme.textStyles.title1.copy(
                         fontSize = 20.sp,
                         lineHeight = 35.sp
                     ),

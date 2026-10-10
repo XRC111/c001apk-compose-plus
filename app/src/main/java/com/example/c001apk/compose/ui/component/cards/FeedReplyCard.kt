@@ -17,11 +17,8 @@ import androidx.compose.material.icons.automirrored.outlined.Message
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.ThumbUpAlt
 import androidx.compose.material.icons.filled.ThumbUpOffAlt
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
+import top.yukonga.miuix.kmp.basic.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -54,6 +51,13 @@ import com.example.c001apk.compose.util.CookieUtil
 import com.example.c001apk.compose.util.CookieUtil.isLogin
 import com.example.c001apk.compose.util.DateUtils.fromToday
 import com.example.c001apk.compose.util.ReportType
+import top.yukonga.miuix.kmp.theme.MiuixTheme
+import com.example.c001apk.compose.ui.theme.MiuixShapes
+import top.yukonga.miuix.kmp.menu.OverlayIconDropdownMenu
+import top.yukonga.miuix.kmp.popup.OverlayDropdownPopup
+import top.yukonga.miuix.kmp.basic.DropdownEntry
+import top.yukonga.miuix.kmp.basic.DropdownItem
+import top.yukonga.miuix.kmp.basic.DropdownDefaults
 
 /**
  * Created by bggRGjQaUbCoE on 2024/6/6
@@ -89,7 +93,7 @@ fun FeedReplyCard(
         modifier = modifier
             .padding(horizontal = if (isFeedReply) 0.dp else 10.dp)
             .fillMaxWidth()
-            .clip(if (isFeedReply) RectangleShape else MaterialTheme.shapes.medium)
+            .clip(if (isFeedReply) RectangleShape else MiuixShapes.medium)
             .background(
                 if ((isTotalReply && !isTopReply) || !isFeedReply)
                     cardBg()
@@ -212,16 +216,16 @@ fun FeedReplyCard(
                     if (isLikeReply)
                         end.linkTo(parent.end)
                 },
-            style = MaterialTheme.typography.bodySmall.copy(fontSize = 14.sp),
-            color = MaterialTheme.colorScheme.outline
+            style = MiuixTheme.textStyles.body2.copy(fontSize = 14.sp),
+            color = MiuixTheme.colorScheme.outline
         )
 
         if (isLikeReply) {
             ConstraintLayout(
                 modifier = Modifier
                     .padding(top = 10.dp, end = 10.dp)
-                    .clip(MaterialTheme.shapes.medium)
-                    .background(MaterialTheme.colorScheme.surface)
+                    .clip(MiuixShapes.medium)
+                    .background(MiuixTheme.colorScheme.surface)
                     .constrainAs(likeReply) {
                         start.linkTo(parent.start)
                         top.linkTo(message.bottom)
@@ -261,14 +265,14 @@ fun FeedReplyCard(
                         },
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
-                    style = MaterialTheme.typography.bodyMedium.copy(fontSize = 13.sp)
+                    style = MiuixTheme.textStyles.body1.copy(fontSize = 13.sp)
                 )
 
                 LinkText(
                     text = data.message.orEmpty(),
                     onOpenLink = onOpenLink,
                     textSize = 12f,
-                    color = MaterialTheme.colorScheme.outline.toArgb(),
+                    color = MiuixTheme.colorScheme.outline.toArgb(),
                     maxLines = 1,
                     modifier = Modifier
                         .padding(start = if (data.pic.isNullOrEmpty()) 0.dp else 10.dp)
@@ -295,7 +299,7 @@ fun FeedReplyCard(
                             top = 10.dp,
                             end = horizontal
                         )
-                        .clip(MaterialTheme.shapes.medium)
+                        .clip(MiuixShapes.medium)
                         .constrainAs(image) {
                             start.linkTo(if (data.feed != null) parent.start else avatar.end)
                             top.linkTo(message.bottom)
@@ -309,8 +313,8 @@ fun FeedReplyCard(
                 ConstraintLayout(
                     modifier = Modifier
                         .padding(top = 10.dp, end = 10.dp)
-                        .clip(MaterialTheme.shapes.medium)
-                        .background(MaterialTheme.colorScheme.surface)
+                        .clip(MiuixShapes.medium)
+                        .background(MiuixTheme.colorScheme.surface)
                         .constrainAs(feed) {
                             start.linkTo(parent.start)
                             top.linkTo(
@@ -355,14 +359,14 @@ fun FeedReplyCard(
                             },
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
-                        style = MaterialTheme.typography.bodyMedium.copy(fontSize = 13.sp)
+                        style = MiuixTheme.textStyles.body1.copy(fontSize = 13.sp)
                     )
 
                     LinkText(
                         text = data.feed.message.orEmpty(),
                         onOpenLink = onOpenLink,
                         textSize = 12f,
-                        color = MaterialTheme.colorScheme.outline.toArgb(),
+                        color = MiuixTheme.colorScheme.outline.toArgb(),
                         maxLines = 1,
                         modifier = Modifier
                             .padding(start = if (data.feed.pic.isNullOrEmpty()) 0.dp else 10.dp)
@@ -422,72 +426,66 @@ fun FeedReplyCard(
                 isLike = data.userAction?.like == 1,
             )
 
-            Box(
+            OverlayIconDropdownMenu(
                 modifier = Modifier
                     .constrainAs(expand) {
                         top.linkTo(parent.top)
                         end.linkTo(parent.end)
-                    }) {
-
-                IconButton(
-                    onClick = {
-                        dropdownMenuExpanded = true
-                    }
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.ExpandMore,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.outline
-                    )
-                }
-
-                DropdownMenu(
-                    expanded = dropdownMenuExpanded,
-                    onDismissRequest = {
-                        dropdownMenuExpanded = false
                     },
-                ) {
-                    listOf("拉黑", "显示回复").forEachIndexed { index, menu ->
-                        DropdownMenuItem(
-                            text = { Text(menu) },
-                            onClick = {
-                                dropdownMenuExpanded = false
-                                when (index) {
-                                    0 -> onBlockUser(data.uid.orEmpty(), null)
-
-                                    1 -> onShowTotalReply?.let {
-                                        it(
-                                            data.id.orEmpty(),
-                                            data.uid.orEmpty(),
-                                            null,
-                                        )
-                                    }
-                                }
+                entries = listOf(
+                    DropdownEntry(
+                        items = buildList {
+                            add(
+                                DropdownItem(
+                                    text = "拉黑",
+                                    onClick = { onBlockUser(data.uid.orEmpty(), null) },
+                                )
+                            )
+                            add(
+                                DropdownItem(
+                                    text = "显示回复",
+                                    onClick = {
+                                        onShowTotalReply?.let {
+                                            it(
+                                                data.id.orEmpty(),
+                                                data.uid.orEmpty(),
+                                                null,
+                                            )
+                                        }
+                                    },
+                                )
+                            )
+                            if (isLogin) {
+                                add(
+                                    DropdownItem(
+                                        text = stringResource(id = R.string.menu_report),
+                                        onClick = {
+                                            onReport?.let { it(data.id.orEmpty(), ReportType.REPLY) }
+                                        },
+                                    )
+                                )
                             }
-                        )
-                    }
-                    if (isLogin) {
-                        DropdownMenuItem(
-                            text = { Text(stringResource(id = R.string.menu_report)) },
-                            onClick = {
-                                dropdownMenuExpanded = false
-                                onReport?.let { it(data.id.orEmpty(), ReportType.REPLY) }
+                            if (data.uid == CookieUtil.uid) {
+                                add(
+                                    DropdownItem(
+                                        text = stringResource(id = R.string.menu_delete),
+                                        onClick = {
+                                            onDelete?.let {
+                                                it(data.id.orEmpty(), LikeType.REPLY, null)
+                                            }
+                                        },
+                                    )
+                                )
                             }
-                        )
-                    }
-                    if (data.uid == CookieUtil.uid) {
-                        DropdownMenuItem(
-                            text = { Text(stringResource(id = R.string.menu_delete)) },
-                            onClick = {
-                                dropdownMenuExpanded = false
-                                onDelete?.let {
-                                    it(data.id.orEmpty(), LikeType.REPLY, null)
-                                }
-                            }
-                        )
-                    }
-                }
-
+                        }
+                    )
+                ),
+            ) {
+                Icon(
+                    imageVector = Icons.Default.ExpandMore,
+                    contentDescription = null,
+                    tint = MiuixTheme.colorScheme.outline
+                )
             }
 
             if (!isTotalReply
@@ -496,7 +494,7 @@ fun FeedReplyCard(
                 ReplyRows(
                     modifier = Modifier
                         .padding(start = 10.dp, top = 10.dp, end = 16.dp)
-                        .clip(MaterialTheme.shapes.medium)
+                        .clip(MiuixShapes.medium)
                         .background(cardBg())
                         .constrainAs(replyRows) {
                             top.linkTo(dateLine.bottom)
@@ -592,48 +590,62 @@ fun ReplyRows(
                         )
                         .padding(horizontal = 10.dp, vertical = 4.dp)
                 )
-                DropdownMenu(
-                    expanded = dropdownMenuExpanded == index,
-                    onDismissRequest = { dropdownMenuExpanded = -1 }
-                ) {
-                    listOf(
-                        "复制",
-                        "拉黑",
-                        "显示回复"
-                    ).forEachIndexed { index, menu ->
-                        DropdownMenuItem(
-                            text = { Text(menu) },
-                            onClick = {
-                                dropdownMenuExpanded = -1
-                                when (index) {
-                                    0 -> onCopyText(reply.message)
-
-                                    1 -> onBlockUser(reply.uid.orEmpty())
-
-                                    2 -> onShowTotalReply(reply.id.orEmpty())
+                OverlayDropdownPopup(
+                    show = dropdownMenuExpanded == index,
+                    onDismiss = { dropdownMenuExpanded = -1 },
+                    onDismissFinished = {},
+                    maxHeight = null,
+                    dropdownColors = DropdownDefaults.dropdownColors(),
+                    renderInRootScaffold = true,
+                    entries = listOf(
+                        DropdownEntry(
+                            items = buildList {
+                                add(
+                                    DropdownItem(
+                                        text = "复制",
+                                        onClick = { onCopyText(reply.message) },
+                                    )
+                                )
+                                add(
+                                    DropdownItem(
+                                        text = "拉黑",
+                                        onClick = { onBlockUser(reply.uid.orEmpty()) },
+                                    )
+                                )
+                                add(
+                                    DropdownItem(
+                                        text = "显示回复",
+                                        onClick = { onShowTotalReply(reply.id.orEmpty()) },
+                                    )
+                                )
+                                if (isLogin) {
+                                    add(
+                                        DropdownItem(
+                                            text = stringResource(id = R.string.menu_report),
+                                            onClick = {
+                                                onReport?.let {
+                                                    it(reply.id.orEmpty(), ReportType.REPLY)
+                                                }
+                                            },
+                                        )
+                                    )
+                                }
+                                if (reply.uid == CookieUtil.uid) {
+                                    add(
+                                        DropdownItem(
+                                            text = stringResource(id = R.string.menu_delete),
+                                            onClick = {
+                                                onDelete?.let {
+                                                    it(reply.id.orEmpty(), LikeType.REPLY)
+                                                }
+                                            },
+                                        )
+                                    )
                                 }
                             }
                         )
-                    }
-                    if (isLogin) {
-                        DropdownMenuItem(
-                            text = { Text(stringResource(id = R.string.menu_report)) },
-                            onClick = {
-                                dropdownMenuExpanded = -1
-                                onReport?.let { it(reply.id.orEmpty(), ReportType.REPLY) }
-                            }
-                        )
-                    }
-                    if (reply.uid == CookieUtil.uid) {
-                        DropdownMenuItem(
-                            text = { Text(stringResource(id = R.string.menu_delete)) },
-                            onClick = {
-                                dropdownMenuExpanded = -1
-                                onDelete?.let { it(reply.id.orEmpty(), LikeType.REPLY) }
-                            }
-                        )
-                    }
-                }
+                    ),
+                )
             }
 
         }
@@ -646,7 +658,7 @@ fun ReplyRows(
                         onShowTotalReply(null)
                     }
                     .padding(horizontal = 10.dp, vertical = 4.dp),
-                color = MaterialTheme.colorScheme.primary.toArgb(),
+                color = MiuixTheme.colorScheme.primary.toArgb(),
                 textSize = 14f,
                 onOpenLink = onOpenLink,
             )

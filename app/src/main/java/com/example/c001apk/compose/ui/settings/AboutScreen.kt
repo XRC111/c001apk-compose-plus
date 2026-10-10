@@ -15,11 +15,10 @@ import androidx.compose.material.icons.outlined.AllInclusive
 import androidx.compose.material.icons.outlined.Code
 import androidx.compose.material.icons.outlined.ForkRight
 import androidx.compose.material.icons.outlined.Source
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Scaffold
+import top.yukonga.miuix.kmp.basic.HorizontalDivider
+import top.yukonga.miuix.kmp.basic.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
+import top.yukonga.miuix.kmp.basic.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -39,7 +38,6 @@ import com.google.accompanist.drawablepainter.rememberDrawablePainter
 /**
  * Created by bggRGjQaUbCoE on 2024/6/2
  */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AboutScreen(
     onBackClick: () -> Unit,
@@ -56,7 +54,7 @@ fun AboutScreen(
                 navigationIcon = {
                     BackButton { onBackClick() }
                 },
-                title = { Text(text = "关于") },
+                title = "关于",
             )
         }
     ) { paddingValues ->

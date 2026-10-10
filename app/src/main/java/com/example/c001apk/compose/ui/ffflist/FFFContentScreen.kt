@@ -6,9 +6,6 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ElevatedCard
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -24,6 +21,9 @@ import com.example.c001apk.compose.constant.Constants.EMPTY_STRING
 import com.example.c001apk.compose.ui.component.CommonScreen
 import com.example.c001apk.compose.util.ReportType
 import com.example.c001apk.compose.util.makeToast
+import top.yukonga.miuix.kmp.basic.Card
+import top.yukonga.miuix.kmp.basic.CardDefaults
+import top.yukonga.miuix.kmp.theme.MiuixTheme
 
 /**
  * Created by bggRGjQaUbCoE on 2024/6/12
@@ -95,11 +95,12 @@ fun FFFContentScreen(
     when {
         showRecentDialog -> {
             Dialog(onDismissRequest = { showRecentDialog = false }) {
-                ElevatedCard(
+                Card(
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(28.dp),
-                    colors = CardDefaults.elevatedCardColors()
-                        .copy(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh)
+                    cornerRadius = 28.dp,
+                    colors = CardDefaults.defaultColors(
+                        color = MiuixTheme.colorScheme.surfaceContainerHigh
+                    )
                 ) {
                     Column(
                         modifier = Modifier
@@ -115,7 +116,7 @@ fun FFFContentScreen(
                                     viewModel.onHandleRecentHistory(FFFContentViewModel.ActionType.TOP)
                                 }
                                 .padding(horizontal = 24.dp, vertical = 14.dp),
-                            style = MaterialTheme.typography.titleSmall
+                            style = MiuixTheme.textStyles.title3
                         )
                         Text(
                             text = "删除",
@@ -126,7 +127,7 @@ fun FFFContentScreen(
                                     viewModel.onHandleRecentHistory(FFFContentViewModel.ActionType.DELETE)
                                 }
                                 .padding(horizontal = 24.dp, vertical = 14.dp),
-                            style = MaterialTheme.typography.titleSmall
+                            style = MiuixTheme.textStyles.title3
                         )
                         Text(
                             text = "清空全部",
@@ -137,7 +138,7 @@ fun FFFContentScreen(
                                     viewModel.onHandleRecentHistory(FFFContentViewModel.ActionType.DELETE_ALL)
                                 }
                                 .padding(horizontal = 24.dp, vertical = 14.dp),
-                            style = MaterialTheme.typography.titleSmall
+                            style = MiuixTheme.textStyles.title3
                         )
                     }
                 }

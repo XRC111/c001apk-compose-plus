@@ -19,20 +19,13 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowRight
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material.icons.filled.MoreVert
+import top.yukonga.miuix.kmp.basic.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.RadioButton
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SecondaryScrollableTabRow
-import androidx.compose.material3.Tab
-import androidx.compose.material3.TabRowDefaults
+import top.yukonga.miuix.kmp.basic.RadioButton
+import top.yukonga.miuix.kmp.basic.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
+import top.yukonga.miuix.kmp.basic.TopAppBar
 import com.example.c001apk.compose.ui.component.rememberHapticClick
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -53,7 +46,11 @@ import com.example.c001apk.compose.util.ReportType
 import com.example.c001apk.compose.util.decode
 import com.example.c001apk.compose.util.noRippleClickable
 import kotlinx.coroutines.launch
-import com.example.c001apk.compose.ui.component.MoreMenuButton
+import top.yukonga.miuix.kmp.theme.MiuixTheme
+import top.yukonga.miuix.kmp.basic.TabRow
+import top.yukonga.miuix.kmp.menu.OverlayIconCascadingDropdownMenu
+import top.yukonga.miuix.kmp.basic.DropdownEntry
+import top.yukonga.miuix.kmp.basic.DropdownItem
 
 /**
  * Created by bggRGjQaUbCoE on 2024/6/9
@@ -110,7 +107,6 @@ private fun pageTypeTitle(pageType: String?): String? {
     return match?.let { searchTypeTitle(it) } ?: pageType
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchResultScreen(
     onBackClick: () -> Unit,
@@ -129,15 +125,12 @@ fun SearchResultScreen(
 
     val layoutDirection = LocalLayoutDirection.current
     val tabList = SearchType.entries
-    var dropdownMenuExpanded by remember { mutableStateOf(false) }
     val pagerState = rememberPagerState(
         initialPage = initialPage,
         pageCount = { if (pageType.isNullOrEmpty()) tabList.size else 1 }
     )
     var refreshState by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
-    var typeMenuExpanded by remember { mutableStateOf(false) }
-    var orderMenuExpanded by remember { mutableStateOf(false) }
     var feedType by rememberSaveable { mutableStateOf(SearchFeedType.ALL) }
     var orderType by rememberSaveable { mutableStateOf(SearchOrderType.DATELINE) }
 
@@ -145,127 +138,48 @@ fun SearchResultScreen(
         modifier = Modifier.fillMaxSize(),
         topBar = {
             TopAppBar(
-                windowInsets = WindowInsets.systemBars
-                    .only(WindowInsetsSides.Start + WindowInsetsSides.Top),
                 navigationIcon = {
                     BackButton { onBackClick() }
                 },
-                title = {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .noRippleClickable { onBackClick() },
-                        verticalArrangement = Arrangement.Center,
-                    ) {
-                        Text(
-                            text = keyword.decode,
-                            style = MaterialTheme.typography.titleMedium.copy(fontSize = 18.sp),
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                        if (!title.isNullOrEmpty()) {
-                            Text(
-                                text = "${pageTypeTitle(pageType)}: $title",
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis,
-                                style = MaterialTheme.typography.bodySmall.copy(fontSize = 14.sp),
-                            )
-                        }
-                    }
-                },
+                title = keyword.decode,
                 actions = {
                     androidx.compose.animation.AnimatedVisibility(
                         visible = pagerState.currentPage == 0,
                         enter = fadeIn(),
                         exit = fadeOut()
                     ) {
-                        Box {
-                            MoreMenuButton { dropdownMenuExpanded = true }
-                            DropdownMenu(
-                                expanded = dropdownMenuExpanded,
-                                onDismissRequest = { dropdownMenuExpanded = false }
-                            ) {
-                                listOf("类型", "排序")
-                                    .forEachIndexed { index, menu ->
-                                        DropdownMenuItem(
-                                            text = { Text(menu) },
-                                            onClick = {
-                                                dropdownMenuExpanded = false
-                                                when (index) {
-                                                    0 -> typeMenuExpanded = true
-                                                    1 -> orderMenuExpanded = true
-                                                }
-                                            },
-                                            trailingIcon = {
-                                                Icon(
-                                                    imageVector = Icons.AutoMirrored.Filled.ArrowRight,
-                                                    contentDescription = null
+                        OverlayIconCascadingDropdownMenu(
+                            entries = listOf(
+                                DropdownEntry(
+                                    items = listOf(
+                                        DropdownItem(
+                                            text = "类型",
+                                            children = SearchFeedType.entries.map { feed ->
+                                                DropdownItem(
+                                                    text = searchFeedTitle(feed),
+                                                    selected = feedType == feed,
+                                                    onClick = { feedType = feed },
                                                 )
-                                            }
-                                        )
-                                    }
-
-                            }
-                            DropdownMenu(
-                                expanded = typeMenuExpanded,
-                                onDismissRequest = { typeMenuExpanded = false }
-                            ) {
-                                SearchFeedType.entries.forEach { feed ->
-                                    Row(
-                                        modifier = Modifier
-                                            .clickable {
-                                                typeMenuExpanded = false
-                                                feedType = feed
                                             },
-                                        verticalAlignment = Alignment.CenterVertically
-                                    ) {
-                                        RadioButton(
-                                            selected = feedType == feed,
-                                            onClick = {
-                                                typeMenuExpanded = false
-                                                feedType = feed
-                                            }
-                                        )
-                                        Text(
-                                            text = searchFeedTitle(feed),
-                                            style = MaterialTheme.typography.bodyMedium,
-                                            modifier = Modifier
-                                                .fillMaxWidth()
-                                                .padding(end = 16.dp)
-                                        )
-                                    }
-                                }
-                            }
-                            DropdownMenu(
-                                expanded = orderMenuExpanded,
-                                onDismissRequest = { orderMenuExpanded = false }
-                            ) {
-                                SearchOrderType.entries.forEach { order ->
-                                    Row(
-                                        modifier = Modifier
-                                            .clickable {
-                                                orderMenuExpanded = false
-                                                orderType = order
+                                        ),
+                                        DropdownItem(
+                                            text = "排序",
+                                            children = SearchOrderType.entries.map { order ->
+                                                DropdownItem(
+                                                    text = searchOrderTitle(order),
+                                                    selected = orderType == order,
+                                                    onClick = { orderType = order },
+                                                )
                                             },
-                                        verticalAlignment = Alignment.CenterVertically
-                                    ) {
-                                        RadioButton(
-                                            selected = orderType == order,
-                                            onClick = {
-                                                orderMenuExpanded = false
-                                                orderType = order
-                                            }
-                                        )
-                                        Text(
-                                            text = searchOrderTitle(order),
-                                            style = MaterialTheme.typography.bodyMedium,
-                                            modifier = Modifier
-                                                .fillMaxWidth()
-                                                .padding(end = 16.dp)
-                                        )
-                                    }
-                                }
-                            }
+                                        ),
+                                    )
+                                )
+                            ),
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.MoreVert,
+                                contentDescription = null,
+                            )
                         }
                     }
                 },
@@ -280,38 +194,21 @@ fun SearchResultScreen(
         ) {
 
             if (pageType.isNullOrEmpty()) {
-                SecondaryScrollableTabRow(
+                TabRow(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(
                             start = paddingValues.calculateLeftPadding(layoutDirection),
                         ),
+                    tabs = tabList.map { searchTypeTitle(it) },
                     selectedTabIndex = pagerState.currentPage,
-                    indicator = {
-                        TabRowDefaults.SecondaryIndicator(
-                            Modifier
-                                .tabIndicatorOffset(
-                                    pagerState.currentPage,
-                                    matchContentSize = true
-                                )
-                                .clip(RoundedCornerShape(topStart = 3.dp, topEnd = 3.dp))
-                        )
+                    onTabSelected = { index ->
+                        if (pagerState.currentPage == index) {
+                            refreshState = true
+                        }
+                        scope.launch { pagerState.animateScrollToPage(index) }
                     },
-                    divider = {}
-                ) {
-                    tabList.forEachIndexed { index, tab ->
-                        Tab(
-                            selected = pagerState.currentPage == index,
-                            onClick = rememberHapticClick {
-                                if (pagerState.currentPage == index) {
-                                    refreshState = true
-                                }
-                                scope.launch { pagerState.animateScrollToPage(index) }
-                            },
-                            text = { Text(text = searchTypeTitle(tab)) }
-                        )
-                    }
-                }
+                )
             }
 
             HorizontalDivider()

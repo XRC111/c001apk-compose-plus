@@ -10,9 +10,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.LinearProgressIndicator
-import androidx.compose.material3.MaterialTheme
+import top.yukonga.miuix.kmp.basic.IconButton
+import top.yukonga.miuix.kmp.basic.LinearProgressIndicator
 import androidx.compose.material3.ProgressIndicatorDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -30,6 +29,7 @@ import com.example.c001apk.compose.constant.Constants.EMPTY_STRING
 import com.example.c001apk.compose.ui.component.CoilLoader
 import com.example.c001apk.compose.util.CookieUtil
 import com.example.c001apk.compose.util.decode
+import top.yukonga.miuix.kmp.theme.MiuixTheme
 
 /**
  * Created by bggRGjQaUbCoE on 2024/6/10
@@ -99,7 +99,7 @@ fun MessageHeaderCard(
             text = userName.decode,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
-            style = MaterialTheme.typography.titleMedium.copy(
+            style = MiuixTheme.textStyles.title2.copy(
                 fontSize = 15.sp,
                 fontWeight = FontWeight.Bold
             ),
@@ -115,7 +115,7 @@ fun MessageHeaderCard(
 
         Text(
             text = "Lv.${level}",
-            style = MaterialTheme.typography.bodyMedium.copy(
+            style = MiuixTheme.textStyles.body1.copy(
                 fontSize = 12.sp,
             ),
             modifier = Modifier
@@ -129,7 +129,7 @@ fun MessageHeaderCard(
 
         Text(
             text = "${experience}/${nextLevelExperience}",
-            style = MaterialTheme.typography.bodyMedium.copy(
+            style = MiuixTheme.textStyles.body1.copy(
                 fontSize = 12.sp,
             ),
             modifier = Modifier
@@ -141,7 +141,7 @@ fun MessageHeaderCard(
         )
 
         LinearProgressIndicator(
-            progress = { animatedProgress },
+            progress = animatedProgress,
             modifier = Modifier
                 .padding(start = 10.dp)
                 .constrainAs(indicator) {

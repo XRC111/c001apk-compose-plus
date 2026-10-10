@@ -8,10 +8,9 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.MaterialTheme
+import top.yukonga.miuix.kmp.basic.HorizontalDivider
 import androidx.compose.material3.Text
-import androidx.compose.material3.VerticalDivider
+import top.yukonga.miuix.kmp.basic.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -19,6 +18,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.c001apk.compose.ui.component.rememberHapticClick
+import top.yukonga.miuix.kmp.theme.MiuixTheme
 
 /**
  * Created by bggRGjQaUbCoE on 2024/6/12
@@ -35,7 +35,7 @@ fun FeedReplySortCard(
         modifier = modifier
             .fillMaxWidth()
             .height(IntrinsicSize.Min)
-            .background(MaterialTheme.colorScheme.surface),
+            .background(MiuixTheme.colorScheme.surface),
     ) {
         HorizontalDivider()
 
@@ -49,7 +49,7 @@ fun FeedReplySortCard(
                     .weight(1f)
                     .padding(start = 16.dp)
                     .padding(vertical = 2.dp),
-                style = MaterialTheme.typography.titleSmall.copy(fontSize = 13.sp),
+                style = MiuixTheme.textStyles.title3.copy(fontSize = 13.sp),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )
@@ -105,16 +105,16 @@ fun FeedReplySortCardItem(
 ) {
     Text(
         text = title,
-        style = MaterialTheme.typography.titleSmall.copy(fontSize = 13.sp),
+        style = MiuixTheme.textStyles.title3.copy(fontSize = 13.sp),
         maxLines = 1,
         overflow = TextOverflow.Ellipsis,
         modifier = Modifier
             .clickable(onClick = rememberHapticClick { updateSortReply() })
             .background(
                 if (isSelected)
-                    MaterialTheme.colorScheme.secondaryContainer
+                    MiuixTheme.colorScheme.secondaryContainer
                 else
-                    MaterialTheme.colorScheme.surface
+                    MiuixTheme.colorScheme.surface
             )
             .padding(horizontal = 8.dp, vertical = 2.dp),
     )

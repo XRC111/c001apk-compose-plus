@@ -28,21 +28,16 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Reply
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.HorizontalDivider
+import top.yukonga.miuix.kmp.basic.FloatingActionButton
+import top.yukonga.miuix.kmp.basic.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.Scaffold
+import top.yukonga.miuix.kmp.basic.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
@@ -90,7 +85,12 @@ import com.example.c001apk.compose.util.makeToast
 import com.example.c001apk.compose.util.noRippleClickable
 import com.example.c001apk.compose.util.shareText
 import kotlinx.coroutines.launch
-import com.example.c001apk.compose.ui.component.MoreMenuButton
+import top.yukonga.miuix.kmp.theme.MiuixTheme
+import top.yukonga.miuix.kmp.overlay.OverlayBottomSheet
+import top.yukonga.miuix.kmp.menu.OverlayIconDropdownMenu
+import top.yukonga.miuix.kmp.basic.DropdownEntry
+import top.yukonga.miuix.kmp.basic.DropdownItem
+import androidx.compose.material.icons.filled.MoreVert
 
 /**
  * Created by bggRGjQaUbCoE on 2024/6/4
@@ -120,10 +120,8 @@ fun FeedScreen(
     val layoutDirection = LocalLayoutDirection.current
     val state = rememberPullToRefreshState()
     val lazyListState = rememberLazyListState()
-    var dropdownMenuExpanded by remember { mutableStateOf(false) }
 
     val scope = rememberCoroutineScope()
-    val bottomSheetState = rememberModalBottomSheetState(true)
     var openBottomSheet by remember { mutableStateOf(false) }
     var viewReply by remember { mutableStateOf(false) }
     var selected by rememberSaveable { mutableIntStateOf(0) }
@@ -195,11 +193,6 @@ fun FeedScreen(
         modifier = modifier.fillMaxSize(),
         topBar = {
             TopAppBar(
-                windowInsets = WindowInsets.systemBars
-                    .only(
-                        WindowInsetsSides.Top
-                                + if (isCompat) WindowInsetsSides.Start else WindowInsetsSides.End
-                    ),
                 navigationIcon = {
                     BackButton {
                         if (!isCompat) {
@@ -254,62 +247,63 @@ fun FeedScreen(
                 },
                 actions = {
                     if (viewModel.feedState is LoadingState.Success) {
-                        Box(Modifier.wrapContentSize(Alignment.TopEnd)) {
-                            MoreMenuButton { dropdownMenuExpanded = true }
-                            DropdownMenu(
-                                expanded = dropdownMenuExpanded,
-                                onDismissRequest = { dropdownMenuExpanded = false }
-                            ) {
-                                listOf("复制", "分享")
-                                    .forEachIndexed { index, menu ->
-                                        DropdownMenuItem(
-                                            text = { Text(menu) },
-                                            onClick = {
-                                                dropdownMenuExpanded = false
-                                                when (index) {
-                                                    0 -> context.copyText(
+                        OverlayIconDropdownMenu(
+                            modifier = Modifier.wrapContentSize(Alignment.TopEnd),
+                            entries = listOf(
+                                DropdownEntry(
+                                    items = buildList {
+                                        add(
+                                            DropdownItem(
+                                                text = "复制",
+                                                onClick = {
+                                                    context.copyText(
                                                         getShareText(ShareType.FEED, id)
                                                     )
-
-                                                    1 -> context.shareText(
+                                                },
+                                            )
+                                        )
+                                        add(
+                                            DropdownItem(
+                                                text = "分享",
+                                                onClick = {
+                                                    context.shareText(
                                                         getShareText(ShareType.FEED, id)
                                                     )
-                                                }
-                                            }
+                                                },
+                                            )
                                         )
-                                    }
-                                DropdownMenuItem(
-                                    text = { Text(if (viewModel.isFav) "取消收藏" else "收藏") },
-                                    onClick = {
-                                        dropdownMenuExpanded = false
-                                        viewModel.onFav()
-                                    }
-                                )
-                                DropdownMenuItem(
-                                    text = {
-                                        Text(
-                                            if (viewModel.isBlocked) {
-                                                stringResource(id = R.string.menu_unblock)
-                                            } else {
-                                                "拉黑"
-                                            }
+                                        add(
+                                            DropdownItem(
+                                                text = if (viewModel.isFav) "取消收藏" else "收藏",
+                                                onClick = { viewModel.onFav() },
+                                            )
                                         )
-                                    },
-                                    onClick = {
-                                        dropdownMenuExpanded = false
-                                        viewModel.blockUser()
-                                    }
-                                )
-                                if (isLogin) {
-                                    DropdownMenuItem(
-                                        text = { Text(stringResource(id = R.string.menu_report)) },
-                                        onClick = {
-                                            dropdownMenuExpanded = false
-                                            onReport(id, ReportType.FEED)
+                                        add(
+                                            DropdownItem(
+                                                text = if (viewModel.isBlocked) {
+                                                    stringResource(id = R.string.menu_unblock)
+                                                } else {
+                                                    "拉黑"
+                                                },
+                                                onClick = { viewModel.blockUser() },
+                                            )
+                                        )
+                                        if (isLogin) {
+                                            add(
+                                                DropdownItem(
+                                                    text = stringResource(id = R.string.menu_report),
+                                                    onClick = { onReport(id, ReportType.FEED) },
+                                                )
+                                            )
                                         }
-                                    )
-                                }
-                            }
+                                    }
+                                )
+                            ),
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.MoreVert,
+                                contentDescription = null,
+                            )
                         }
                     }
                 }
@@ -359,7 +353,7 @@ fun FeedScreen(
                     modifier = Modifier.align(Alignment.TopCenter),
                     isRefreshing = viewModel.isRefreshing,
                     state = state,
-                    color = MaterialTheme.colorScheme.primary,
+                    color = MiuixTheme.colorScheme.primary,
                 )
             }
         ) {
@@ -587,12 +581,12 @@ fun FeedScreen(
         val topInsetPx = WindowInsets.systemBars.getTop(LocalDensity.current)
         val topInset = with(LocalDensity.current) { topInsetPx.toDp() }
 
-        ModalBottomSheet(
+        OverlayBottomSheet(
+            show = true,
             onDismissRequest = {
                 resetBottomSheet()
             },
             modifier = Modifier.padding(top = topInset),
-            sheetState = bottomSheetState,
         ) {
             LazyColumn(
                 modifier = Modifier.fillMaxSize()

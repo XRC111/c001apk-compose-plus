@@ -7,9 +7,7 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -22,6 +20,9 @@ import com.example.c001apk.compose.logic.model.HomeFeedResponse
 import com.example.c001apk.compose.ui.component.CoilLoader
 import com.example.c001apk.compose.ui.theme.cardBg
 import com.example.c001apk.compose.util.DateUtils.fromToday
+import top.yukonga.miuix.kmp.theme.MiuixTheme
+import com.example.c001apk.compose.ui.theme.MiuixShapes
+import top.yukonga.miuix.kmp.basic.Button
 
 /**
  * Created by bggRGjQaUbCoE on 2024/6/10
@@ -48,10 +49,10 @@ fun AppCard(
         modifier = modifier
             .fillMaxSize()
             .padding(horizontal = 10.dp)
-            .clip(MaterialTheme.shapes.medium)
+            .clip(MiuixShapes.medium)
             .background(
-                if (isHomeFeed) MaterialTheme.colorScheme.surface
-                else if (data.isTop == 1) MaterialTheme.colorScheme.primaryContainer
+                if (isHomeFeed) MiuixTheme.colorScheme.surface
+                else if (data.isTop == 1) MiuixTheme.colorScheme.primaryContainer
                 else cardBg()
             )
             .combinedClickable(
@@ -120,7 +121,7 @@ fun AppCard(
                 },
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
-            style = MaterialTheme.typography.titleSmall.copy(lineHeight = 18.sp)
+            style = MiuixTheme.textStyles.title3.copy(lineHeight = 18.sp)
         )
 
         Text(
@@ -140,8 +141,8 @@ fun AppCard(
                 },
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
-            style = MaterialTheme.typography.bodyMedium.copy(fontSize = 13.sp, lineHeight = 16.sp),
-            color = MaterialTheme.colorScheme.outline,
+            style = MiuixTheme.textStyles.body1.copy(fontSize = 13.sp, lineHeight = 16.sp),
+            color = MiuixTheme.colorScheme.outline,
         )
 
         Text(
@@ -164,8 +165,8 @@ fun AppCard(
                 },
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
-            style = MaterialTheme.typography.bodyMedium.copy(fontSize = 13.sp, lineHeight = 16.sp),
-            color = MaterialTheme.colorScheme.outline,
+            style = MiuixTheme.textStyles.body1.copy(fontSize = 13.sp, lineHeight = 16.sp),
+            color = MiuixTheme.colorScheme.outline,
         )
 
         if (appCardType in listOf(AppCardType.USER, AppCardType.CONTACTS)) {
@@ -182,15 +183,15 @@ fun AppCard(
                     },
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
-                style = MaterialTheme.typography.bodyMedium.copy(
+                style = MiuixTheme.textStyles.body1.copy(
                     fontSize = 13.sp,
                     lineHeight = 16.sp
                 ),
-                color = MaterialTheme.colorScheme.outline,
+                color = MiuixTheme.colorScheme.outline,
             )
 
             if (appCardType == AppCardType.USER) {
-                TextButton(
+                Button(
                     onClick = {
                         onFollowUser?.let {
                             it(data.uid.orEmpty(), data.isFollow ?: 0)
@@ -207,9 +208,9 @@ fun AppCard(
                     Text(
                         text = if (data.isFollow == 1) "取消关注" else "关注",
                         color = if (data.isFollow == 1)
-                            MaterialTheme.colorScheme.outline
+                            MiuixTheme.colorScheme.outline
                         else
-                            MaterialTheme.colorScheme.primary
+                            MiuixTheme.colorScheme.primary
                     )
                 }
             }

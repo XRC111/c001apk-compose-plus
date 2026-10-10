@@ -13,12 +13,9 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Update
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
+import top.yukonga.miuix.kmp.basic.CircularProgressIndicator
+import top.yukonga.miuix.kmp.basic.FloatingActionButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.ListItem
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults
@@ -39,11 +36,12 @@ import com.example.c001apk.compose.logic.model.UpdateCheckItem
 import com.example.c001apk.compose.logic.providable.LocalUserPreferences
 import com.example.c001apk.compose.util.isScrollingUp
 import com.example.c001apk.compose.util.longVersionCodeCompat
+import top.yukonga.miuix.kmp.theme.MiuixTheme
+import top.yukonga.miuix.kmp.basic.BasicComponent
 
 /**
  * Created by bggRGjQaUbCoE on 2024/6/9
  */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppListScreen(
     refreshState: Boolean,
@@ -78,7 +76,7 @@ fun AppListScreen(
                 modifier = Modifier.align(Alignment.TopCenter),
                 isRefreshing = viewModel.isRefreshing,
                 state = state,
-                color = MaterialTheme.colorScheme.primary,
+                color = MiuixTheme.colorScheme.primary,
             )
         }
     ) {
@@ -91,11 +89,10 @@ fun AppListScreen(
                 items = viewModel.appList,
                 key = { it.packageInfo.packageName }
             ) {
-                ListItem(
-                    modifier = Modifier.clickable {
-                        onViewApp(it.packageInfo.packageName)
-                    },
-                    leadingContent = {
+                BasicComponent(
+                    title = it.label,
+                    summary = "${it.packageInfo.packageName}\n${it.packageInfo.versionName}(${it.packageInfo.longVersionCodeCompat})",
+                    startAction = {
                         AsyncImage(
                             model = ImageRequest.Builder(context)
                                 .data(it.packageInfo)
@@ -108,15 +105,7 @@ fun AppListScreen(
                                 .height(48.dp)
                         )
                     },
-                    headlineContent = {
-                        Text(text = it.label)
-                    },
-                    supportingContent = {
-                        Text(
-                            text =
-                            "${it.packageInfo.packageName}\n${it.packageInfo.versionName}(${it.packageInfo.longVersionCodeCompat})"
-                        )
-                    }
+                    onClick = { onViewApp(it.packageInfo.packageName) },
                 )
             }
 
@@ -125,7 +114,6 @@ fun AppListScreen(
         if (viewModel.isLoading) {
             CircularProgressIndicator(
                 modifier = Modifier.align(Alignment.Center),
-                strokeCap = StrokeCap.Round
             )
         }
 

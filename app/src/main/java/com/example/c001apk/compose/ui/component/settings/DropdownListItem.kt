@@ -1,19 +1,12 @@
 package com.example.c001apk.compose.ui.component.settings
 
-import androidx.compose.foundation.background
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
+import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.example.c001apk.compose.constant.Constants.EMPTY_STRING
+import top.yukonga.miuix.kmp.basic.DropdownEntry
+import top.yukonga.miuix.kmp.basic.DropdownItem
+import top.yukonga.miuix.kmp.menu.OverlayDropdownMenu
 
 /**
  * Used for selections
@@ -29,31 +22,24 @@ fun <T> DropdownListItem(
     selections: List<SelectionItem<T>>,
     onValueChanged: (index: Int, value: T) -> Unit,
 ) {
-    var dropdownMenuExpanded by remember { mutableStateOf(false) }
-    BasicListItem(
-        headlineText = headlineText,
-        supportingText = selections.find { it.value == value }?.label ?: EMPTY_STRING,
-        onClick = { dropdownMenuExpanded = true },
-        leadingImageVector = leadingImageVector,
-        trailingContent = {
-            DropdownMenu(
-                expanded = dropdownMenuExpanded,
-                onDismissRequest = { dropdownMenuExpanded = false },
-            ) {
-                selections.forEachIndexed { index, selection ->
-                    DropdownMenuItem(
-                        modifier = Modifier.background(
-                            if (selection.value == value) MaterialTheme.colorScheme.surfaceVariant
-                            else Color.Transparent
-                        ),
-                        text = { Text(selection.label) },
-                        onClick = {
-                            dropdownMenuExpanded = false
-                            onValueChanged(index, selection.value)
-                        }
+    OverlayDropdownMenu(
+        entries = listOf(
+            DropdownEntry(
+                items = selections.mapIndexed { index, selection ->
+                    DropdownItem(
+                        text = selection.label,
+                        selected = selection.value == value,
+                        onClick = { onValueChanged(index, selection.value) },
                     )
                 }
-            }
+            )
+        ),
+        title = headlineText,
+        summary = selections.find { it.value == value }?.label ?: EMPTY_STRING,
+        startAction = if (leadingImageVector != null) {
+            { Icon(imageVector = leadingImageVector, contentDescription = null) }
+        } else {
+            null
         },
     )
 }

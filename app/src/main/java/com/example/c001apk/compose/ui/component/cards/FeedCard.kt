@@ -25,11 +25,8 @@ import androidx.compose.material.icons.filled.Link
 import androidx.compose.material.icons.filled.Smartphone
 import androidx.compose.material.icons.filled.ThumbUpAlt
 import androidx.compose.material.icons.filled.ThumbUpOffAlt
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
+import top.yukonga.miuix.kmp.basic.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -66,6 +63,11 @@ import com.example.c001apk.compose.util.Utils.richToString
 import com.example.c001apk.compose.util.copyText
 import com.example.c001apk.compose.util.getShareText
 import com.example.c001apk.compose.util.longClick
+import top.yukonga.miuix.kmp.theme.MiuixTheme
+import com.example.c001apk.compose.ui.theme.MiuixShapes
+import top.yukonga.miuix.kmp.menu.OverlayIconDropdownMenu
+import top.yukonga.miuix.kmp.basic.DropdownEntry
+import top.yukonga.miuix.kmp.basic.DropdownItem
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -95,7 +97,7 @@ fun FeedCard(
                     else RoundedCornerShape(12.0.dp)
                 )
                 .background(
-                    if (isFeedContent) MaterialTheme.colorScheme.surface
+                    if (isFeedContent) MiuixTheme.colorScheme.surface
                     else cardBg()
                 )
             if (isFeedContent)
@@ -236,8 +238,8 @@ fun FeedBottomInfo(
                 if (ip.isNotEmpty()) "发布于 " + ip
                 else EMPTY_STRING
             } else fromToday(dateline),
-            style = MaterialTheme.typography.bodySmall.copy(fontSize = 14.sp),
-            color = MaterialTheme.colorScheme.outline
+            style = MiuixTheme.textStyles.body2.copy(fontSize = 14.sp),
+            color = MiuixTheme.colorScheme.outline
         )
 
         IconText(
@@ -302,16 +304,16 @@ fun FeedMessage(
         if (data.forwardSourceFeed == null) {
             Text(
                 text = "动态已被删除",
-                style = MaterialTheme.typography.titleSmall,
-                color = MaterialTheme.colorScheme.outline,
+                style = MiuixTheme.textStyles.title3,
+                color = MiuixTheme.colorScheme.outline,
                 modifier = modifier
                     .padding(top = 10.dp)
-                    .clip(MaterialTheme.shapes.medium)
+                    .clip(MiuixShapes.medium)
                     .background(
                         if (isFeedContent)
                             cardBg()
                         else
-                            MaterialTheme.colorScheme.surface
+                            MiuixTheme.colorScheme.surface
                     )
                     .padding(10.dp)
             )
@@ -319,12 +321,12 @@ fun FeedMessage(
             Column(
                 modifier = modifier
                     .padding(top = 10.dp)
-                    .clip(MaterialTheme.shapes.medium)
+                    .clip(MiuixShapes.medium)
                     .background(
                         if (isFeedContent)
                             cardBg()
                         else
-                            MaterialTheme.colorScheme.surface
+                            MiuixTheme.colorScheme.surface
                     )
                     .combinedClickable(
                         onClick = {
@@ -388,8 +390,8 @@ fun FeedMessage(
             modifier = modifier
                 .padding(top = 10.dp)
                 .fillMaxWidth()
-                .clip(MaterialTheme.shapes.medium)
-                .background(MaterialTheme.colorScheme.surface)
+                .clip(MiuixShapes.medium)
+                .background(MiuixTheme.colorScheme.surface)
                 .combinedClickable(
                     onClick = {
                         onViewFeed(data.id.orEmpty(), true)
@@ -407,12 +409,12 @@ fun FeedMessage(
             modifier = modifier
                 .padding(top = 10.dp)
                 .fillMaxWidth()
-                .clip(MaterialTheme.shapes.medium)
+                .clip(MiuixShapes.medium)
                 .background(
                     if (isFeedContent)
                         cardBg()
                     else
-                        MaterialTheme.colorScheme.surface
+                        MiuixTheme.colorScheme.surface
                 )
                 .clickable {
                     onOpenLink(data.extraUrl, data.extraTitle)
@@ -444,13 +446,13 @@ fun FeedMessage(
                             start.linkTo(parent.start)
                             height = Dimension.fillToConstraints
                         }
-                        .background(MaterialTheme.colorScheme.primary),
+                        .background(MiuixTheme.colorScheme.primary),
                     contentAlignment = Alignment.Center
                 ) {
                     Image(
                         imageVector = Icons.Default.Link,
                         contentDescription = null,
-                        colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onPrimary)
+                        colorFilter = ColorFilter.tint(MiuixTheme.colorScheme.onPrimary)
                     )
                 }
             }
@@ -460,7 +462,7 @@ fun FeedMessage(
                     text = data.extraTitle,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
-                    style = MaterialTheme.typography.titleSmall.copy(fontSize = 13.sp),
+                    style = MiuixTheme.textStyles.title3.copy(fontSize = 13.sp),
                     modifier = Modifier
                         .padding(start = 10.dp)
                         .constrainAs(title) {
@@ -476,7 +478,7 @@ fun FeedMessage(
                 text = data.extraUrl,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
-                style = MaterialTheme.typography.titleSmall.copy(fontSize = 13.sp),
+                style = MiuixTheme.textStyles.title3.copy(fontSize = 13.sp),
                 modifier = Modifier
                     .padding(start = 10.dp)
                     .constrainAs(url) {
@@ -521,7 +523,7 @@ fun FeedMessage(
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
                         .padding(start = startPadding, top = topPadding)
-                        .clip(MaterialTheme.shapes.medium)
+                        .clip(MiuixShapes.medium)
                         .size(imageWidth.dp)
                 )
             }
@@ -542,7 +544,6 @@ fun FeedHeader(
 ) {
 
     val vertical = if (isFeedContent) 12.dp else 10.dp
-    var dropdownMenuExpanded by remember { mutableStateOf(false) }
     val context = LocalContext.current
 
     ConstraintLayout(
@@ -587,7 +588,7 @@ fun FeedHeader(
                     width = Dimension.fillToConstraints
                 },
             text = data.username.orEmpty(),
-            style = MaterialTheme.typography.titleSmall,
+            style = MiuixTheme.textStyles.title3,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
         )
@@ -598,16 +599,16 @@ fun FeedHeader(
                 modifier = Modifier
                     .padding(top = 10.dp)
                     .clip(RoundedCornerShape(4.dp))
-                    .background(MaterialTheme.colorScheme.surface)
-                    .border(1.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(4.dp))
+                    .background(MiuixTheme.colorScheme.surface)
+                    .border(1.dp, MiuixTheme.colorScheme.primary, RoundedCornerShape(4.dp))
                     .constrainAs(stickTop) {
                         top.linkTo(username.top)
                         bottom.linkTo(username.bottom)
                         end.linkTo(expand.start)
                     }
                     .padding(horizontal = 6.dp),
-                color = MaterialTheme.colorScheme.primary,
-                style = MaterialTheme.typography.titleSmall.copy(fontSize = 10.sp)
+                color = MiuixTheme.colorScheme.primary,
+                style = MiuixTheme.textStyles.title3.copy(fontSize = 10.sp)
             )
         }
 
@@ -622,8 +623,8 @@ fun FeedHeader(
                 text = if (isFeedContent) fromToday(
                     data.dateline ?: 0
                 ) else data.infoHtml.orEmpty().richToString(),
-                style = MaterialTheme.typography.bodySmall.copy(fontSize = 13.sp),
-                color = MaterialTheme.colorScheme.outline,
+                style = MiuixTheme.textStyles.body2.copy(fontSize = 13.sp),
+                color = MiuixTheme.colorScheme.outline,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
@@ -651,7 +652,7 @@ fun FeedHeader(
         )
 
         if (!isFeedContent) {
-            Box(
+            OverlayIconDropdownMenu(
                 modifier = Modifier
                     .aspectRatio(1f, false)
                     .constrainAs(expand) {
@@ -659,61 +660,55 @@ fun FeedHeader(
                         end.linkTo(parent.end)
                         bottom.linkTo(device.bottom)
                         height = Dimension.fillToConstraints
-                    }) {
-
-                IconButton(
-                    onClick = {
-                        dropdownMenuExpanded = true
-                    }
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.ExpandMore,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.outline
-                    )
-                }
-
-                DropdownMenu(
-                    expanded = dropdownMenuExpanded,
-                    onDismissRequest = {
-                        dropdownMenuExpanded = false
                     },
-                ) {
-                    listOf("复制", "拉黑").forEachIndexed { index, menu ->
-                        DropdownMenuItem(
-                            text = { Text(menu) },
-                            onClick = {
-                                dropdownMenuExpanded = false
-                                when (index) {
-                                    0 -> context.copyText(
-                                        getShareText(ShareType.FEED, data.id.orEmpty())
+                entries = listOf(
+                    DropdownEntry(
+                        items = buildList {
+                            add(
+                                DropdownItem(
+                                    text = "复制",
+                                    onClick = {
+                                        context.copyText(
+                                            getShareText(ShareType.FEED, data.id.orEmpty())
+                                        )
+                                    },
+                                )
+                            )
+                            add(
+                                DropdownItem(
+                                    text = "拉黑",
+                                    onClick = { onBlockUser?.let { it(data.uid.orEmpty()) } },
+                                )
+                            )
+                            if (isLogin) {
+                                add(
+                                    DropdownItem(
+                                        text = stringResource(id = R.string.menu_report),
+                                        onClick = {
+                                            onReport?.let { it(data.id.orEmpty(), ReportType.FEED) }
+                                        },
                                     )
-
-                                    1 -> onBlockUser?.let { it(data.uid.orEmpty()) }
-                                }
+                                )
                             }
-                        )
-                    }
-                    if (isLogin) {
-                        DropdownMenuItem(
-                            text = { Text(stringResource(id = R.string.menu_report)) },
-                            onClick = {
-                                dropdownMenuExpanded = false
-                                onReport?.let { it(data.id.orEmpty(), ReportType.FEED) }
+                            if (data.uid == CookieUtil.uid) {
+                                add(
+                                    DropdownItem(
+                                        text = stringResource(id = R.string.menu_delete),
+                                        onClick = {
+                                            onDelete?.let { it(data.id.orEmpty(), LikeType.FEED, null) }
+                                        },
+                                    )
+                                )
                             }
-                        )
-                    }
-                        if (data.uid == CookieUtil.uid) {
-                            DropdownMenuItem(
-                                text = { Text(stringResource(id = R.string.menu_delete)) },
-                                onClick = {
-                                    dropdownMenuExpanded = false
-                                    onDelete?.let { it(data.id.orEmpty(), LikeType.FEED, null) }
-                            }
-                        )
-                    }
-                }
-
+                        }
+                    )
+                ),
+            ) {
+                Icon(
+                    imageVector = Icons.Default.ExpandMore,
+                    contentDescription = null,
+                    tint = MiuixTheme.colorScheme.outline
+                )
             }
         }
 

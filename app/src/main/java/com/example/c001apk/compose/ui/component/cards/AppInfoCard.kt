@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.FilledTonalButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -21,6 +20,7 @@ import com.example.c001apk.compose.constant.Constants.EMPTY_STRING
 import com.example.c001apk.compose.logic.model.HomeFeedResponse
 import com.example.c001apk.compose.ui.component.CoilLoader
 import com.example.c001apk.compose.util.DateUtils.fromToday
+import top.yukonga.miuix.kmp.theme.MiuixTheme
 
 /**
  * Created by bggRGjQaUbCoE on 2024/6/4
@@ -54,7 +54,7 @@ fun AppInfoCard(
 
         Text(
             text = data?.title.orEmpty(),
-            style = MaterialTheme.typography.bodySmall.copy(
+            style = MiuixTheme.textStyles.body2.copy(
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold
             ),
@@ -71,7 +71,7 @@ fun AppInfoCard(
         Text(
             text = data?.apkversionname?.let { "版本: ${data.apkversionname}(${data.apkversioncode})" }
                 ?: EMPTY_STRING,
-            style = MaterialTheme.typography.bodySmall.copy(fontSize = 14.sp),
+            style = MiuixTheme.textStyles.body2.copy(fontSize = 14.sp),
             modifier = Modifier
                 .padding(start = 10.dp, top = 5.dp, end = 10.dp)
                 .constrainAs(version) {
@@ -84,7 +84,7 @@ fun AppInfoCard(
 
         Text(
             text = data?.apksize?.let { "大小: " + data.apksize } ?: EMPTY_STRING,
-            style = MaterialTheme.typography.bodySmall.copy(fontSize = 14.sp),
+            style = MiuixTheme.textStyles.body2.copy(fontSize = 14.sp),
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
             modifier = Modifier
@@ -101,7 +101,7 @@ fun AppInfoCard(
             text = data?.let {
                 "更新时间: ${if (data.lastupdate != null) fromToday(data.lastupdate) else "null"}"
             } ?: EMPTY_STRING,
-            style = MaterialTheme.typography.bodySmall.copy(fontSize = 14.sp),
+            style = MiuixTheme.textStyles.body2.copy(fontSize = 14.sp),
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
             modifier = Modifier

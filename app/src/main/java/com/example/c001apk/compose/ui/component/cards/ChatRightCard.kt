@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -25,6 +24,8 @@ import com.example.c001apk.compose.ui.component.ImageView
 import com.example.c001apk.compose.ui.component.LinkText
 import com.example.c001apk.compose.util.ImageShowUtil
 import com.example.c001apk.compose.util.longClick
+import top.yukonga.miuix.kmp.theme.MiuixTheme
+import com.example.c001apk.compose.ui.theme.MiuixShapes
 
 /**
  * Created by bggRGjQaUbCoE on 2024/6/19
@@ -76,8 +77,8 @@ fun ChatRightCard(
                     isChat = true,
                     modifier = Modifier
                         .padding(end = 10.dp)
-                        .clip(MaterialTheme.shapes.medium)
-                        .background(MaterialTheme.colorScheme.primaryContainer)
+                        .clip(MiuixShapes.medium)
+                        .background(MiuixTheme.colorScheme.primaryContainer)
                         .width(maxWidth / 2f)
                         .height(imageHeight),
                     onClearFocus = onClearFocus,
@@ -100,7 +101,7 @@ fun ChatRightCard(
                                 bottomEnd = 12.dp
                             )
                         )
-                        .background(MaterialTheme.colorScheme.primaryContainer)
+                        .background(MiuixTheme.colorScheme.primaryContainer)
                         .padding(horizontal = 10.dp, vertical = 12.dp)
                 )
             }
@@ -108,7 +109,7 @@ fun ChatRightCard(
             CoilLoader(
                 modifier = Modifier
                     .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.primary)
+                    .background(MiuixTheme.colorScheme.primary)
                     .size(40.dp)
                     .clickable { onViewUser(data.fromuid.orEmpty()) },
                 url = data.fromUserAvatar
