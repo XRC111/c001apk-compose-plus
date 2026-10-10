@@ -1,4 +1,4 @@
-name: Release
+name: MIUIX Release
 
 on:
   workflow_dispatch:
@@ -9,6 +9,11 @@ on:
         type: string
       prerelease:
         description: '标记为预发布'
+        required: false
+        type: boolean
+        default: false
+      disable_r8:
+        description: '关闭 R8 混淆（R8 出错时用于排查）'
         required: false
         type: boolean
         default: false
@@ -93,7 +98,12 @@ jobs:
           } > local.properties
 
       - name: Build release APK
-        run: ./gradlew assembleRelease --stacktrace
+        run: |
+          if [ "${{ inputs.disable_r8 }}" = "true" ]; then
+            ./gradlew assembleRelease -PdisableR8=true --stacktrace
+          else
+            ./gradlew assembleRelease --stacktrace
+          fi
 
       - name: Build debug APK
         run: ./gradlew assembleDebug --stacktrace
