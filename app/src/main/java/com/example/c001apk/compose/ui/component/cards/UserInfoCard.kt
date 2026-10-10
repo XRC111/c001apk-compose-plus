@@ -9,9 +9,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Mail
-import androidx.compose.material3.FilledTonalButton
+import top.yukonga.miuix.kmp.basic.Button
 import androidx.compose.material3.Icon
-import androidx.compose.material3.OutlinedIconButton
+import top.yukonga.miuix.kmp.basic.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -36,6 +36,7 @@ import com.example.c001apk.compose.util.makeToast
 import com.example.c001apk.compose.util.noRippleClickable
 import top.yukonga.miuix.kmp.theme.MiuixTheme
 import com.example.c001apk.compose.ui.theme.MiuixShapes
+import androidx.compose.foundation.border
 
 /**
  * Created by bggRGjQaUbCoE on 2024/6/4
@@ -271,7 +272,7 @@ fun UserInfoCard(
                 },
         )
 
-        FilledTonalButton(
+        Button(
             onClick = {
                 onFollow(data.uid.orEmpty(), data.isFollow ?: 0)
             },
@@ -285,7 +286,7 @@ fun UserInfoCard(
             Text(text = if (data.isFollow == 1) "取消关注" else "关注")
         }
 
-        OutlinedIconButton(
+        IconButton(
             onClick = {
                 if (CookieUtil.isLogin) {
                     onPMUser(data.uid.orEmpty(), data.username.orEmpty())
@@ -299,8 +300,12 @@ fun UserInfoCard(
                     top.linkTo(followBtn.top)
                     bottom.linkTo(followBtn.bottom)
                     end.linkTo(followBtn.start)
-                },
-            border = BorderStroke(1.dp, MiuixTheme.colorScheme.outline)
+                }
+                // MIUIX IconButton 无 border 参数，用 border 修饰符还原原描边效果
+                .border(
+                    BorderStroke(1.dp, MiuixTheme.colorScheme.outline),
+                    MiuixShapes.medium,
+                ),
         ) {
             Icon(
                 imageVector = Icons.Outlined.Mail,

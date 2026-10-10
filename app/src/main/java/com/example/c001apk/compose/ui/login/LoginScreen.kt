@@ -21,7 +21,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material.icons.rounded.Cancel
-import androidx.compose.material3.FilledTonalButton
+import top.yukonga.miuix.kmp.basic.Button
 import top.yukonga.miuix.kmp.basic.HorizontalDivider
 import androidx.compose.material3.Icon
 import top.yukonga.miuix.kmp.basic.IconButton
@@ -224,7 +224,7 @@ fun LoginScreen(
                 }
             }
 
-            FilledTonalButton(
+            Button(
                 enabled = viewModel.requestHash.isNotEmpty(),
                 onClick = {
                     onLogin()

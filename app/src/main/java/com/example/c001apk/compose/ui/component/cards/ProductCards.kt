@@ -19,7 +19,7 @@ import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Tune
 import top.yukonga.miuix.kmp.basic.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.OutlinedButton
+import top.yukonga.miuix.kmp.basic.Button
 import top.yukonga.miuix.kmp.basic.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -33,7 +33,6 @@ import com.example.c001apk.compose.logic.model.HomeFeedResponse
 import com.example.c001apk.compose.ui.component.CoilLoader
 import com.example.c001apk.compose.ui.theme.cardBg
 import top.yukonga.miuix.kmp.theme.MiuixTheme
-import top.yukonga.miuix.kmp.basic.Button
 
 @Composable
 fun ProductConfigListCard(
@@ -133,9 +132,9 @@ private fun ProductConfigRow(
 
         Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
             if (!config.id.isNullOrBlank()) {
-                OutlinedButton(
+                Button(
                     modifier = Modifier.height(36.dp),
-                    contentPadding = PaddingValues(horizontal = 10.dp),
+                    insideMargin = PaddingValues(horizontal = 10.dp),
                     onClick = { onViewConfig(config) },
                 ) {
                     Icon(Icons.Default.Tune, contentDescription = null, modifier = Modifier.size(16.dp))
@@ -144,9 +143,9 @@ private fun ProductConfigRow(
                 }
             }
             if (!config.id.isNullOrBlank()) {
-                OutlinedButton(
+                Button(
                     modifier = Modifier.height(36.dp),
-                    contentPadding = PaddingValues(horizontal = 10.dp),
+                    insideMargin = PaddingValues(horizontal = 10.dp),
                     onClick = { onToggleCompare(config) },
                 ) {
                     Icon(
@@ -262,10 +261,10 @@ private fun ProductListRow(
                     },
                 )
                 if (!product.configId.isNullOrBlank()) {
-                    OutlinedButton(
+                    Button(
                         onClick = { onToggleCompare(product) },
                         modifier = Modifier.height(32.dp),
-                        contentPadding = PaddingValues(horizontal = 9.dp),
+                        insideMargin = PaddingValues(horizontal = 9.dp),
                     ) {
                         Icon(
                             if (selectedForCompare) Icons.Default.Check else Icons.Default.Add,

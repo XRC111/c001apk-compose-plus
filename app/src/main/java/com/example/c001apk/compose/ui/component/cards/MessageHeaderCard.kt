@@ -8,7 +8,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Logout
-import androidx.compose.material3.FilledTonalButton
+import top.yukonga.miuix.kmp.basic.Button
 import androidx.compose.material3.Icon
 import top.yukonga.miuix.kmp.basic.IconButton
 import top.yukonga.miuix.kmp.basic.LinearProgressIndicator
@@ -64,7 +64,7 @@ fun MessageHeaderCard(
         val (login, avatar, username, levelView, experienceView, indicator, logout) = createRefs()
 
         if (!isLogin) {
-            FilledTonalButton(
+            Button(
                 onClick = { onLogin() },
                 modifier = Modifier
                     .constrainAs(login) {
