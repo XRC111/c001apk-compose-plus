@@ -29,15 +29,18 @@ jobs:
           distribution: temurin
           java-version: '22'
 
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
-
-      # MIUIX 0.9.4 的 AAR metadata 要求 compileSdk >= 37
-      # 注意：包名是 android-37.2，不存在 android-37
+      # 不用 android-actions/setup-android@v3：该 action 的 license 步骤
+      # 在 runner 自带的 sdkmanager 上会 exit 1 失败。
+      # GitHub ubuntu-latest runner 已预装 Android SDK，直接调用其 sdkmanager 即可。
       - name: Install SDK 37.2 / build-tools 37.0.0
         run: |
-          sdkmanager --install "platforms;android-37.2" "build-tools;37.0.0"
-          yes | sdkmanager --licenses || true
+          SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          if [ ! -x "$SDKMANAGER" ]; then
+            SDKMANAGER=$(find "$ANDROID_HOME/cmdline-tools" -name sdkmanager -type f | head -1)
+          fi
+          echo "using: $SDKMANAGER"
+          yes | "$SDKMANAGER" --licenses > /dev/null 2>&1 || true
+          "$SDKMANAGER" --install "platforms;android-37.2" "build-tools;37.0.0"
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
