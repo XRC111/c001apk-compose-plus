@@ -1,12 +1,8 @@
 // 国内镜像开关：本地开发默认启用（下载快），CI 上设置 USE_CN_MIRROR=false 走官方源
-// 注意：必须内联到每个 block 内 —— pluginManagement{} 是独立脚本作用域，
-// 看不到 settings 脚本顶层的 val。
-fun useCnMirror(): Boolean =
-    System.getenv("USE_CN_MIRROR")?.toBooleanStrictOrNull() ?: true
-
+// 注意：pluginManagement {} 是独立脚本作用域，无法引用 settings 顶层的 val/fun，故内联判断。
 pluginManagement {
     repositories {
-        if (useCnMirror()) {
+        if (System.getenv("USE_CN_MIRROR")?.toBooleanStrictOrNull() ?: true) {
             maven("https://maven.aliyun.com/repository/gradle-plugin")
             maven("https://maven.aliyun.com/repository/google")
             maven("https://maven.aliyun.com/repository/public")
@@ -33,7 +29,7 @@ gradle.settingsEvaluated {
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
-        if (useCnMirror()) {
+        if (System.getenv("USE_CN_MIRROR")?.toBooleanStrictOrNull() ?: true) {
             maven("https://maven.aliyun.com/repository/google")
             maven("https://maven.aliyun.com/repository/public")
         }
