@@ -205,7 +205,7 @@ fun AppScreen(
 
                     if (viewModel.commentStatus == 1) {
 
-                        TabRow(
+                        MiuixTextTabRow(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .windowInsetsPadding(windowInsets.only(WindowInsetsSides.Start)),

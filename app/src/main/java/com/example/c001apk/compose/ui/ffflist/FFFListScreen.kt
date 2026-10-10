@@ -90,7 +90,7 @@ fun FFFListScreen(
         ) {
             when (type) {
                 FFFListType.FOLLOW.name, FFFListType.REPLY.name -> {
-                    TabRow(
+                    MiuixTextTabRow(
                         modifier = Modifier.padding(
                             start = paddingValues.calculateLeftPadding(layoutDirection),
                             end = paddingValues.calculateRightPadding(layoutDirection),

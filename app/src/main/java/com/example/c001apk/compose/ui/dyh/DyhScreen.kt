@@ -72,7 +72,7 @@ fun DyhScreen(
                 .fillMaxSize()
                 .padding(top = paddingValues.calculateTopPadding())
         ) {
-            TabRow(
+            MiuixTextTabRow(
                 modifier = Modifier
                     .padding(
                         start = paddingValues.calculateLeftPadding(layoutDirection),

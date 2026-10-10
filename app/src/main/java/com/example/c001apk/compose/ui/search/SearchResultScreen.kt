@@ -194,7 +194,7 @@ fun SearchResultScreen(
         ) {
 
             if (pageType.isNullOrEmpty()) {
-                TabRow(
+                MiuixTextTabRow(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(

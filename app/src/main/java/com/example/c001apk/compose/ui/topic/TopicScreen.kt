@@ -272,7 +272,7 @@ fun TopicScreen(
                             pageCount = { tabList.size }
                         )
 
-                        TabRow(
+                        MiuixTextTabRow(
                             modifier = Modifier.padding(
                                 start = paddingValues.calculateLeftPadding(layoutDirection),
                             ),

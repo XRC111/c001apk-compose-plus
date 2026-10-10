@@ -130,7 +130,7 @@ fun CarouselScreen(
                             TopicBean(it.url.orEmpty(), it.title.orEmpty())
                         }?.let { tabList ->
                             pagerState = rememberPagerState(pageCount = { tabList.size })
-                            TabRow(
+                            MiuixTextTabRow(
                                 modifier = Modifier.padding(
                                     start = paddingValues.calculateLeftPadding(layoutDirection),
                                 ),

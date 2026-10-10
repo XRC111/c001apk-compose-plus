@@ -261,7 +261,7 @@ fun HomeScreen(
             Row(
                 modifier = Modifier.fillMaxWidth()
             ) {
-                TabRow(
+                MiuixTextTabRow(
                     modifier = Modifier.weight(1f),
                     tabs = tabList.map { tabTitle(it) },
                     selectedTabIndex = selectedTabIndex,
