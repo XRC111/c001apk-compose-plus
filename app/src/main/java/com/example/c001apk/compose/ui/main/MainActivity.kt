@@ -60,6 +60,7 @@ import javax.inject.Inject
 
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
+import top.yukonga.miuix.kmp.utils.WindowNavigationEventScope
 
 /**
  * Created by bggRGjQaUbCoE on 2024/5/29
@@ -171,12 +172,21 @@ class MainActivity : ComponentActivity() {
                             .fillMaxSize()
                             .background(MiuixTheme.colorScheme.background)
                     ) {
-                        MainNavigation(
-                            navController = navController,
-                            badge = viewModel.badge,
-                            resetBadge = viewModel::resetBadge,
-                            widthSizeClass = widthSizeClass,
-                        )
+                        // MIUIX 的 MiuixPopupHost（每个 Scaffold 自动挂载）内部会调用
+                        // NavigationBackHandler，它需要 LocalNavigationEventDispatcherOwner。
+                        // 该 Local 由 androidx.navigationevent 定义，但本工程无人提供
+                        // （navigation-compose 2.9.1 不含相关代码），导致弹窗一渲染就崩：
+                        //   IllegalStateException: No NavigationEventDispatcher was provided
+                        // WindowNavigationEventScope 会从 View 树解析该 owner 并注入，
+                        // 是 MIUIX 官方为此提供的根作用域包装器。
+                        WindowNavigationEventScope {
+                            MainNavigation(
+                                navController = navController,
+                                badge = viewModel.badge,
+                                resetBadge = viewModel::resetBadge,
+                                widthSizeClass = widthSizeClass,
+                            )
+                        }
                     }
                 }
             }
