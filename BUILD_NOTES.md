@@ -205,78 +205,106 @@ implementation(libs.miuix.preference)
 
 ## 4. 仓库镜像配置
 
-`settings.gradle.kts` 中为国内网络加入了阿里云镜像（**置于官方源之前**）：
+`settings.gradle.kts` 中的阿里云镜像**由环境变量控制**，默认开启：
 
 ```kotlin
-pluginManagement {
-    repositories {
-        maven("https://maven.aliyun.com/repository/gradle-plugin")
-        maven("https://maven.aliyun.com/repository/google")
-        maven("https://maven.aliyun.com/repository/public")
-        google { content { ... } }
-        mavenCentral()
-        gradlePluginPortal()
-    }
+// 本地默认 true（阿里云，下载快）；CI 设 USE_CN_MIRROR=false 走官方源
+if (System.getenv("USE_CN_MIRROR")?.toBooleanStrictOrNull() ?: true) {
+    maven("https://maven.aliyun.com/repository/google")
+    maven("https://maven.aliyun.com/repository/public")
 }
-dependencyResolutionManagement {
-    repositories {
-        maven("https://maven.aliyun.com/repository/google")
-        maven("https://maven.aliyun.com/repository/public")
-        google()
-        mavenCentral()
-        maven("https://jitpack.io")
-        maven("https://oss.sonatype.org/content/repositories/public")
-        gradlePluginPortal()
-    }
-}
+google()
+mavenCentral()
 ```
 
-> **CI 建议**：GitHub Actions 上阿里云镜像会**更慢**（跨境）。
-> 如果 CI 变慢，删掉这 5 行 `maven("https://maven.aliyun.com/...")` 即可，
-> 官方源 `google()` / `mavenCentral()` 仍在列表中。
+> **坑（已踩）**：`pluginManagement {}` 是**独立脚本作用域**，
+> 无法引用 settings 脚本顶层的 `val` 或 `fun`（会报 `Unresolved reference`）。
+> 必须把判断**内联**到 block 内部。
+
+CI 工作流中已设 `USE_CN_MIRROR: 'false'`（GitHub Actions 在国外，走官方源更快）。
+wrapper 已恢复官方 `services.gradle.org`。
 
 ---
 
-## 5. 验证状态（重要）
+## 5. 验证状态
 
-以下结论基于本机实际编译（JDK 22 + Android SDK 37.2 + Gradle 9.6.0）：
+### 5.1 CI 验证（最终，全部通过）
 
-| 阶段 | 结果 |
+GitHub Actions `MIUIX Build` 工作流在提交 `4d38205` 上**全绿**：
+
+| 步骤 | 结果 |
 |---|---|
-| 插件解析（AGP / KSP / Hilt / protobuf / Compose） | ✅ 通过 |
-| **Kotlin 源码编译 `:app:compileDebugKotlin`** | ✅ **BUILD SUCCESSFUL** |
-| AAR metadata 检查（compileSdk 37） | ✅ 通过 |
-| Manifest 合并（移除 miuix-blur 后） | ✅ 通过 |
-| 注解处理 `:app:hiltJavaCompileDebug` | ⚠️ Hilt 已升 2.60.1，**该轮验证被中止，未确认** |
+| Setup Java 22 | ✅ |
+| Install SDK 37.2 / build-tools 37.0.0 | ✅ |
+| Setup Gradle | ✅ |
+| **Compile Kotlin**（`:app:compileDebugKotlin`） | ✅ |
+| **Assemble Debug APK**（`assembleDebug`） | ✅ |
+| Upload build artifact | ✅（31 MB APK） |
 
-**关键结论**：`:app:compileDebugKotlin` 曾完整 **BUILD SUCCESSFUL**，
-意味着 **UI 迁移的全部 Kotlin 代码（87 个文件）已通过编译器检查**。
+**这意味着 87 个文件的 UI 迁移代码编译通过，且完整 APK 成功打包。**
+Hilt 2.60.1 解决了 metadata 版本问题，Room 无需升级。
+
+### 5.2 本机验证过程（历史）
+
+本机（JDK 22 + Android SDK 37.2 + Gradle 9.6.0）曾跑到 `:app:compileDebugKotlin` BUILD SUCCESSFUL，
+随后发现 Hilt metadata 版本问题（已升 2.60.1），最终由 CI 完成完整验证。
 后续失败均发生在**注解处理 / 打包阶段**，属于构建配置问题，非迁移代码问题。
 
 ### 尚未验证的项
 
-1. Hilt 2.60.1 是否解决 metadata 版本问题 → **待编译确认**
-2. Room 注解处理器是否也需要升级（同类 metadata 限制）→ **待编译确认**
-3. `assembleDebug` 产出 APK → **未完成**
-4. 运行时行为 / UI 实际渲染效果 → **完全未验证**
+1. 运行时行为 / UI 实际渲染效果 → **完全未验证**（需装机实测）
 
 ---
 
-## 6. CI 配置参考（GitHub Actions）
+## 6. CI 配置（GitHub Actions）
+
+实际使用的工作流见 `.github/workflows/miuix-build.yml`：
 
 ```yaml
-- uses: actions/setup-java@v4
-  with:
-    distribution: temurin
-    java-version: '22'
+env:
+  USE_CN_MIRROR: 'false'   # CI 在国外，走官方源
 
-- uses: android-actions/setup-android@v3
-
-- name: Install SDK 37.2
-  run: sdkmanager --install "platforms;android-37.2" "build-tools;37.0.0"
-
-- name: Build
-  run: ./gradlew assembleDebug
+steps:
+  - uses: actions/checkout@v4
+    with: { fetch-depth: 0 }
+  - uses: actions/setup-java@v4
+    with: { distribution: temurin, java-version: '22' }
+  # 不用 android-actions/setup-android@v3：其 license 步骤在 runner 上必然 exit 1
+  - name: Install SDK 37.2 / build-tools 37.0.0
+    run: |
+      SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+      yes | "$SDKMANAGER" --licenses > /dev/null 2>&1 || true
+      "$SDKMANAGER" --install "platforms;android-37.2" "build-tools;37.0.0"
+  - uses: gradle/actions/setup-gradle@v4
+  - run: chmod +x gradlew
+  - run: ./gradlew :app:compileDebugKotlin --stacktrace
+  - run: ./gradlew assembleDebug --stacktrace
 ```
 
-Gradle 由 wrapper 自动下载（9.6.0），无需额外配置。
+---
+
+## 7. 本机 `git push` 不可用的原因（环境问题，非仓库问题）
+
+本机 **Steam++（Watt Toolkit）** 会把 `github.com` 等 28 个域名写入 hosts 指向 `127.0.0.1`，
+由它的本地代理转发。`gh` CLI 能正常走通，但 **git 的 schannel TLS 在此代理上做证书吊销检查会失败**：
+
+```
+schannel: next InitializeSecurityContext failed:
+CRYPT_E_NO_REVOCATION_CHECK (0x80092012)
+```
+
+`git ls-remote` 可以成功（只读、无需认证），但 `git push` 必然失败（exit 128，无错误输出）——
+因为 push 需要 `git-receive-pack` 的认证握手，而该握手在本地代理下无法完成。
+
+**可行做法**（择一）：
+
+1. **关闭 Steam++ 后 `git push`**（最简单）
+2. **用 `gh api` 走 Git Data API 推送**（本次实际采用）：
+   建 blob → 建 tree → 建 commit → PATCH ref。注意 commit message 的 JSON
+   必须用 **UTF-8** 写入，否则中文会变成 `?`。
+3. 换用 SSH（需配 key；注意本机 22 端口当前也不通）
+
+> 注意：推送时若用 `--force` 覆盖远端，务必确认本地历史正确——
+> 本次曾因脚本 bug（PowerShell `HashSet` 默认**大小写不敏感**，
+> 把 `androidx.compose.ui.unit.Dp` 和 `.dp` 当成重复项而删掉了后者）
+> 产生过一个编译失败的提交，已废弃并重做。
