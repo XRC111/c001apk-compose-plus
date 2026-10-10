@@ -1,8 +1,14 @@
+// 国内镜像开关：本地开发默认启用（下载快），CI 上设置 USE_CN_MIRROR=false 走官方源
+val useCnMirror: Boolean =
+    System.getenv("USE_CN_MIRROR")?.toBooleanStrictOrNull() ?: true
+
 pluginManagement {
     repositories {
-        maven("https://maven.aliyun.com/repository/gradle-plugin")
-        maven("https://maven.aliyun.com/repository/google")
-        maven("https://maven.aliyun.com/repository/public")
+        if (useCnMirror) {
+            maven("https://maven.aliyun.com/repository/gradle-plugin")
+            maven("https://maven.aliyun.com/repository/google")
+            maven("https://maven.aliyun.com/repository/public")
+        }
         google {
             content {
                 includeGroupByRegex("com\\.android.*")
@@ -25,8 +31,10 @@ gradle.settingsEvaluated {
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
-        maven("https://maven.aliyun.com/repository/google")
-        maven("https://maven.aliyun.com/repository/public")
+        if (useCnMirror) {
+            maven("https://maven.aliyun.com/repository/google")
+            maven("https://maven.aliyun.com/repository/public")
+        }
         google()
         mavenCentral()
         maven ("https://jitpack.io")
