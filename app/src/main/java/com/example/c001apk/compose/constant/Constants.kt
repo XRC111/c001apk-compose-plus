@@ -13,9 +13,13 @@ object Constants {
     const val CHANNEL = "coolapk"
     const val MODE = "universal"
     const val APP_LABEL = "token://com.coolapk.market/dcf01e569c1e3db93a3d0fcf191a622c"
-    const val VERSION_NAME = "13.4.1"
-    const val API_VERSION = "13"
-    const val VERSION_CODE = "2312121"
+    // 酷安客户端版本标识。服务端会校验，过低会被拒绝：
+    //   {"status":403,"message":"评论接口异常，请尝试升级到新版酷安"}
+    // 这三个值取自官方 CoolApk-16.6.4-2609291 的 AndroidManifest（aapt2 dump badging）。
+    // 实测：X-Api-Version 用 13 时 replyList 返回"请升级"，改为 16 后版本校验通过。
+    const val VERSION_NAME = "16.6.4"
+    const val API_VERSION = "16"
+    const val VERSION_CODE = "2609291"
 
     const val PREFIX_COOLMARKET = "coolmarket://"
     const val PREFIX_HTTP = "http"
