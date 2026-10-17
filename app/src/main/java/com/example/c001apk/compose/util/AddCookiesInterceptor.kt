@@ -8,6 +8,7 @@ import com.example.c001apk.compose.constant.Constants.MODE
 import com.example.c001apk.compose.constant.Constants.REQUEST_WITH
 import com.example.c001apk.compose.util.CookieUtil.SESSID
 import com.example.c001apk.compose.util.TokenDeviceUtils.getTokenV2
+import com.example.c001apk.compose.util.TokenDeviceUtils.getTokenV3
 import okhttp3.Interceptor
 import okhttp3.Request
 import okhttp3.Response
@@ -22,7 +23,8 @@ object AddCookiesInterceptor : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
         val builder: Request.Builder = chain.request().newBuilder()
         val deviceCode = CookieUtil.xAppDevice
-        val token = deviceCode.getTokenV2()
+        // 酷安 16.x 起服务端校验 token 版本，v2 会被拒（评论接口 403），必须用 v3
+        val token = deviceCode.getTokenV3()
         builder.apply {
             addHeader("User-Agent", CookieUtil.userAgent)
             addHeader("X-Requested-With", REQUEST_WITH)

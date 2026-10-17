@@ -10,8 +10,10 @@ object Constants {
     const val LOCALE = "zh-CN"
     const val APP_ID = "com.coolapk.market"
     var DARK_MODE = if (isDarkMode) "1" else "0"
-    const val CHANNEL = "coolapk"
-    const val MODE = "universal"
+    // 渠道/模式取自官方 APK 抓包。原值 coolapk/universal 与官方不一致，
+    // 改动后与 X-App-Version 16.6.4 保持同一套客户端标识。
+    const val CHANNEL = "xiaomi"
+    const val MODE = "community"
     const val APP_LABEL = "token://com.coolapk.market/dcf01e569c1e3db93a3d0fcf191a622c"
     // 酷安客户端版本标识。服务端会校验，过低会被拒绝：
     //   {"status":403,"message":"评论接口异常，请尝试升级到新版酷安"}
