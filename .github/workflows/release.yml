@@ -20,9 +20,22 @@ on:
   push:
     tags:
       - '*'
+    branches:
+      - main
+    # 只对代码改动自动发版；纯文档/CI 改动跳过，避免刷版
+    paths-ignore:
+      - '**.md'
+      - '.github/**'
+      - 'LICENSE'
+      - '.gitignore'
 
 permissions:
   contents: write
+
+# 同一分支只保留最新一次发版，避免连续 push 时并发抢同一个 tag
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   release:

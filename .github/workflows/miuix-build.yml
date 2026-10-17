@@ -1,8 +1,8 @@
 name: MIUIX Build
 
+# push main 的编译验证由 MIUIX Release 一并完成（它也会跑 compileDebugKotlin），
+# 这里只负责 PR 预检和手动验证，避免同一提交重复构建。
 on:
-  push:
-    branches: [ main ]
   pull_request:
     branches: [ main ]
   workflow_dispatch:
