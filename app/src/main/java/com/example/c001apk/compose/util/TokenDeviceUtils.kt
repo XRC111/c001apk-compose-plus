@@ -6,6 +6,7 @@ import com.example.c001apk.compose.constant.Constants.EMPTY_STRING
 import com.example.c001apk.compose.util.Utils.getBase64
 import com.example.c001apk.compose.util.Utils.getMD5
 import org.mindrot.jbcrypt.BCrypt
+import java.io.ByteArrayOutputStream
 import java.nio.charset.Charset
 import java.nio.charset.StandardCharsets
 import java.util.Random
@@ -74,17 +75,18 @@ object TokenDeviceUtils {
 
         val segment = Base64.decode(String(chunk, StandardCharsets.ISO_8859_1).trim(), Base64.DEFAULT)
 
-        val plain = buildList<Byte> {
-            addAll(pkg.toByteArray(StandardCharsets.UTF_8))
-            add('&'.code.toByte())
-            addAll(segment)
-            add('&'.code.toByte())
-            addAll(deviceCode.getMD5().toByteArray(StandardCharsets.US_ASCII))
-            add('&'.code.toByte())
-            addAll(ts.toString().toByteArray(StandardCharsets.US_ASCII))
-            add('&'.code.toByte())
-            addAll(versionCode.toByteArray(StandardCharsets.US_ASCII))
-        }.toByteArray()
+        val plain = ByteArrayOutputStream().use { out ->
+            out.write(pkg.toByteArray(StandardCharsets.UTF_8))
+            out.write('&'.code)
+            out.write(segment)
+            out.write('&'.code)
+            out.write(deviceCode.getMD5().toByteArray(StandardCharsets.US_ASCII))
+            out.write('&'.code)
+            out.write(ts.toString().toByteArray(StandardCharsets.US_ASCII))
+            out.write('&'.code)
+            out.write(versionCode.toByteArray(StandardCharsets.US_ASCII))
+            out.toByteArray()
+        }
 
         // bcrypt 的口令
         val pw = Base64.encodeToString(plain, Base64.NO_WRAP).getMD5()
