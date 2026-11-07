@@ -438,6 +438,9 @@ class NetworkRepo @Inject constructor(
         if (normalized.equals("timeout", ignoreCase = true)) {
             return "超时"
         }
+        if (normalized.contains("验证码")) {
+            return "当前访问需要验证码，请完成人机验证；或在「设置 → 数字联盟ID」导入官方 ShuzlmID 以稳定免验"
+        }
         return normalized.ifEmpty { LOADING_FAILED }
     }
 

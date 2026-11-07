@@ -3,6 +3,7 @@ package com.example.c001apk.compose.di
 import com.example.c001apk.compose.BuildConfig
 import com.example.c001apk.compose.logic.network.ApiService
 import com.example.c001apk.compose.util.AddCookiesInterceptor
+import com.example.c001apk.compose.util.CaptchaInterceptor
 import com.example.c001apk.compose.util.LoginCookiesInterceptor
 import dagger.Module
 import dagger.Provides
@@ -116,6 +117,9 @@ object NetworkModule {
     @Provides
     fun provideOkHttpClient(): OkHttpClient {
         return OkHttpClient.Builder()
+            // CaptchaInterceptor 必须最外层：它重放请求时会重新经过 AddCookiesInterceptor，
+            // 从而自动带上刚写入的 validate Cookie 与全套签名头。
+            .addInterceptor(CaptchaInterceptor)
             .addInterceptor(AddCookiesInterceptor)
             .addInterceptor(
                 HttpLoggingInterceptor().setLevel(
@@ -132,6 +136,7 @@ object NetworkModule {
     @Provides
     fun provideNoOkHttpClient(): OkHttpClient {
         return OkHttpClient.Builder()
+            .addInterceptor(CaptchaInterceptor)
             .addInterceptor(AddCookiesInterceptor)
             .addInterceptor(
                 HttpLoggingInterceptor().setLevel(

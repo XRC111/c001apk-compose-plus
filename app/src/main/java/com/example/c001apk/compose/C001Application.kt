@@ -5,6 +5,7 @@ import coil.Coil
 import coil.ImageLoader
 import com.example.c001apk.compose.util.CookieUtil.materialYou
 import com.example.c001apk.compose.util.AddCookiesInterceptor
+import com.example.c001apk.compose.util.CaptchaStore
 import com.example.c001apk.compose.util.dp
 import com.google.android.material.color.DynamicColors
 import dagger.hilt.android.HiltAndroidApp
@@ -27,6 +28,8 @@ class C001Application : Application() {
         super.onCreate()
 
         c001Application = this
+        // 触发 init：读取持久化的 SESSID / validate，确保首个请求就带上
+        CaptchaStore.validate
         if (materialYou) {
             DynamicColors.applyToActivitiesIfAvailable(this)
         }

@@ -5,7 +5,8 @@ c001apk-compose 的 MIUIX 界面迁移分支，个人学习用。
 ## 说明
 
 - 非官方客户端，与酷安官方没有任何关系。
-- 只动 UI 层：把 Material 组件换成 [MIUIX](https://github.com/YuKongA/Miuix)，业务与网络逻辑沿用上游。
+- 主体是 UI 迁移：把 Material 组件换成 [MIUIX](https://github.com/YuKongA/Miuix)；上游已停更（2024-09），
+  因此网络层也做了少量必要适配（v3 签名、新版风控验证码闭环），详见下节。
 - 个人练手项目，**不保证可用性，也不承诺持续维护**。上游接口变动可能导致部分页面失效。
 - 代码、图标与内容版权归原作者，使用请遵守 AGPL-3.0。
 - 迁移过程踩到的版本问题记在 [BUILD_NOTES.md](BUILD_NOTES.md)、[MIUIX_MIGRATION.md](MIUIX_MIGRATION.md) 和两份 cheatsheet 里，供参考。
@@ -52,11 +53,31 @@ SketchImageViewLoader/   # 图片加载器适配
 | `miuix-blur` 要求 minSdk 33 | 与 minSdk 24 冲突，移除 |
 | Compose 编译器坐标 | 用 `org.jetbrains.kotlin.plugin.compose` |
 
+## 新版风控验证码（err_request_captcha_v2）
+
+酷安 16.x 起 `/v6/feed/detail` 等接口会返回 `403 / 当前访问需要验证码`，
+`messageStatus=err_request_captcha_v2`。这是网易易盾滑块风控，与旧的
+`err_request_captcha`（发评论时的图形验证码）是两套机制。
+
+本分支已接入完整闭环（思路参考 [WangMCweijia/c001apk PR #2](https://github.com/WangMCweijia/c001apk/pull/2)）：
+
+- `CaptchaInterceptor` 识别风控响应 → 弹出应用内易盾滑块验证页 → 拿到 `validate`
+  → 拼成 `NEC:<captchaId前8位>:<validate>` 写入 `validate` Cookie → **自动重放原请求**（GET 加 query / POST 加表单字段）。
+- `validate` / `SESSID` 持久化在 `CaptchaStore`，重放仍命中风控时自动清除失效凭证。
+- 详情接口被风控时仍继续加载评论（评论接口不受影响），不再整页空白。
+- 反复触发验证时，可在「设置 → 数字联盟ID (ShuzlmID)」导入官方设备标识：
+  打开官方酷安 OAID 页面连点 5 次「复制 OAID」，把多行日志直接粘贴进输入框即可自动提取。
+  配置合法 ShuzlmID 后可稳定免验。
+
+相关代码：`app/src/main/java/com/example/c001apk/compose/util/Captcha*.kt`、
+`ui/captcha/CaptchaActivity.kt`、`logic/repository/NetworkRepo.kt`、`ui/settings/SettingsScreen.kt`。
+
 ## 已知问题
 
 - 只测过 Android 手机，未适配平板 / 折叠屏。
 - 少数页面仍是 Material 实现，视觉未完全统一。
 - 没有做完整回归测试，个别功能可能不可用。
+- 易盾验证页依赖 `cstaticdun.126.net` 可访问；网络受限时仍可退回手动导入 ShuzlmID 免验。
 
 ## License
 

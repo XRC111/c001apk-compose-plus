@@ -171,6 +171,10 @@ class FeedViewModel @AssistedInject constructor(
                         }
                         isFav = historyFavoriteRepo.checkFavorite(id)
                         isBlocked = blackListRepo.checkUid(feedUid)
+                    } else {
+                        // 详情接口命中风控 / 报错时，评论接口（/v6/feed/replyList）仍可正常返回，
+                        // 继续加载评论，避免整页空白；验证码闭环由 CaptchaInterceptor 处理。
+                        fetchData()
                     }
                     feedState = state
                     isRefreshing = false
@@ -178,8 +182,10 @@ class FeedViewModel @AssistedInject constructor(
         }
     }
 
-    lateinit var feedUid: String
-    lateinit var feedUsername: String
+    // 详情接口命中风控时仍会继续加载评论，此时 feedUid 尚未从详情返回，
+    // 用空串兜底，避免 handleResponse 访问未初始化的 lateinit 属性。
+    var feedUid: String = EMPTY_STRING
+    var feedUsername: String = EMPTY_STRING
     var feedTypeName by mutableStateOf(EMPTY_STRING)
 
     override suspend fun customFetchData() =

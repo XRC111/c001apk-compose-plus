@@ -1,5 +1,7 @@
 package com.example.c001apk.compose.ui.settings
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Build
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -94,7 +96,9 @@ import com.example.c001apk.compose.ui.component.settings.SwitchListItem
 import com.example.c001apk.compose.util.CacheDataManager.clearAllCache
 import com.example.c001apk.compose.util.CacheDataManager.getTotalCacheSize
 import com.example.c001apk.compose.util.TokenDeviceUtils.encode
+import com.example.c001apk.compose.util.SzlmIdExtractor
 import com.example.c001apk.compose.util.Utils.randomMacAddress
+import com.example.c001apk.compose.util.makeToast
 import com.example.c001apk.compose.util.openInBrowser
 import com.google.accompanist.drawablepainter.rememberDrawablePainter
 import com.materialkolor.PaletteStyle
@@ -189,10 +193,27 @@ fun SettingsScreen(
             Card {
             BasicListItem(
                 leadingImageVector = Icons.Outlined.Smartphone,
-                headlineText = "数字联盟ID",
-                supportingText = prefs.szlmId.ifEmpty { null }
+                headlineText = "数字联盟ID (ShuzlmID)",
+                supportingText = prefs.szlmId.ifEmpty { "导入官方设备标识可免除大部分人机验证" }
             ) {
                 showSZLMIDDialog = true
+            }
+            BasicListItem(
+                leadingImageVector = Icons.Outlined.TravelExplore,
+                headlineText = "打开官方酷安 OAID 页面",
+                supportingText = "连点 5 次「复制 OAID」后回到本页粘贴"
+            ) {
+                try {
+                    context.packageManager.getApplicationInfo("com.coolapk.market", 0)
+                    context.startActivity(
+                        Intent(
+                            Intent.ACTION_VIEW,
+                            Uri.parse("coolmarket://www.coolapk.com/native/testSettings")
+                        ).setPackage("com.coolapk.market")
+                    )
+                } catch (e: Exception) {
+                    context.makeToast("未安装官方酷安客户端")
+                }
             }
             BasicListItem(
                 leadingImageVector = Icons.Outlined.DeveloperMode,
@@ -468,14 +489,16 @@ fun SettingsScreen(
             showSZLMIDDialog -> {
                 EditTextDialog(
                     data = prefs.szlmId,
-                    title = "数字联盟 ID",
+                    title = "数字联盟 ID (ShuzlmID)",
+                    hint = "可直接粘贴官方酷安连点 5 次「复制 OAID」的多行日志",
                     onDismiss = {
                         showSZLMIDDialog = false
                     },
-                    setData = {
-                        viewModel.setSZLMId(it)
+                    setData = { raw ->
+                        val normalized = SzlmIdExtractor.extract(raw)
+                        viewModel.setSZLMId(normalized)
                         viewModel.setXAppDevice(
-                            encode("$it; ; ; ${randomMacAddress()}; ${prefs.manufacturer}; ${prefs.brand}; ${prefs.model}; ${prefs.buildNumber}; null")
+                            encode("$normalized; ; ; ${randomMacAddress()}; ${prefs.manufacturer}; ${prefs.brand}; ${prefs.model}; ${prefs.buildNumber}; null")
                         )
                     }
                 )

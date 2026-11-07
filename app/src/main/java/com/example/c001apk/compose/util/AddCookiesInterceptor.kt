@@ -41,12 +41,19 @@ object AddCookiesInterceptor : Interceptor {
             addHeader("X-App-Mode", MODE)
             addHeader("X-App-Supported", CookieUtil.versionCode)
             addHeader("Content-Type", "application/x-www-form-urlencoded")
-            if (CookieUtil.isLogin)
-                addHeader(
-                    "Cookie",
-                    "uid=${CookieUtil.uid}; username=${CookieUtil.username}; token=${CookieUtil.token}"
-                )
-            else addHeader("Cookie", SESSID)
+            // Cookie 组成：登录态凭据 + 服务端下发的 SESSID + 易盾验证凭证 validate。
+            // 三者同时带上才不会在 /v6/feed/detail 命中 err_request_captcha_v2。
+            val cookies = buildList {
+                if (CookieUtil.isLogin) {
+                    add("uid=${CookieUtil.uid}")
+                    add("username=${CookieUtil.username}")
+                    add("token=${CookieUtil.token}")
+                }
+                val sessid = CaptchaStore.sessid?.takeIf { it.isNotEmpty() } ?: SESSID
+                if (sessid.isNotEmpty()) add(sessid)
+                CaptchaStore.validate?.takeIf { it.isNotEmpty() }?.let { add("validate=$it") }
+            }
+            if (cookies.isNotEmpty()) addHeader("Cookie", cookies.joinToString("; "))
         }
         return chain.proceed(builder.build())
     }
