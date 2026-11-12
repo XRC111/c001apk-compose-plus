@@ -13,6 +13,7 @@ export interface FeedItem {
   entityType?: string;
   turl?: string;
   pic?: string;
+  uid?: string;
 }
 
 export interface FeedEnvelope {
@@ -37,6 +38,7 @@ export interface FeedDetailData {
   picArr?: string[];
   likes?: string;
   dateline?: number;
+  uid?: string;
 }
 
 export interface FeedDetailEnvelope {
@@ -291,4 +293,72 @@ export function setPendingAppId(id: string): void {
 
 export function getPendingAppId(): string {
   return pendingAppId;
+}
+
+/** 用户主页数据模型。 */
+export interface UserProfileData {
+  uid?: string;
+  username?: string;
+  bio?: string;
+  level?: string;
+  fans?: string;
+  follow?: string;
+  experience?: string;
+  userAvatar?: string;
+  pic?: string;
+  regdate?: number;
+}
+
+export interface UserProfileEnvelope {
+  data?: UserProfileData;
+}
+
+export interface ParsedProfile {
+  profile: UserProfileData | null;
+  error: string;
+}
+
+/** 解析用户主页响应。 */
+export function parseProfile(body: string): ParsedProfile {
+  const empty: ParsedProfile = { profile: null, error: '' };
+  if (body.length === 0) {
+    empty.error = '响应为空';
+    return empty;
+  }
+  try {
+    const env: UserProfileEnvelope = JSON.parse(body) as UserProfileEnvelope;
+    const data = env.data;
+    if (data === undefined || data === null) {
+      empty.error = '响应中没有 data 字段';
+      return empty;
+    }
+    const result: ParsedProfile = { profile: data, error: '' };
+    return result;
+  } catch (e) {
+    empty.error = 'JSON 解析失败';
+    return empty;
+  }
+}
+
+/** 用户头像。 */
+export function userAvatar(d: UserProfileData): string {
+  const a = d.userAvatar;
+  if (a !== undefined && a.length > 0) {
+    return a;
+  }
+  const p = d.pic;
+  if (p !== undefined && p.length > 0) {
+    return p;
+  }
+  return '';
+}
+
+let pendingUid: string = '';
+
+export function setPendingUid(uid: string): void {
+  pendingUid = uid;
+}
+
+export function getPendingUid(): string {
+  return pendingUid;
 }

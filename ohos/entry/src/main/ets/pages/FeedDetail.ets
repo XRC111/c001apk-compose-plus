@@ -7,6 +7,7 @@ import {
   ParsedDetail,
   ParsedReplies,
   ReplyItem,
+  setPendingUid,
   str,
   timeAgo,
 } from '../common/Feed';
@@ -27,6 +28,7 @@ struct FeedDetail {
   @State replies: ReplyItem[] = [];
   @State replyStatus: string = '';
   @State captchaId: string = '';
+  @State authorUid: string = '';
 
   aboutToAppear(): void {
     this.feedId = getPendingDetailId();
@@ -50,6 +52,7 @@ struct FeedDetail {
       this.time = timeAgo(d.dateline);
       this.title = str(d.title);
       this.message = str(d.message);
+      this.authorUid = str(d.uid);
       this.likes = str(d.likes);
       const arr = d.picArr;
       this.pics = arr !== undefined && arr !== null ? arr : [];
@@ -132,7 +135,15 @@ struct FeedDetail {
           if (this.user.length > 0 || this.message.length > 0) {
             Column() {
               Row() {
-                Text(this.user).fontSize(12).fontColor('#7A8CD0')
+                Text(this.user)
+                  .fontSize(12)
+                  .fontColor('#7A8CD0')
+                  .onClick(() => {
+                    if (this.authorUid.length > 0) {
+                      setPendingUid(this.authorUid);
+                      router.pushUrl({ url: 'pages/UserPage' });
+                    }
+                  })
                 Blank()
                 Text(this.time).fontSize(11).fontColor('#A0A0A6')
               }
@@ -213,4 +224,5 @@ struct FeedDetail {
     .backgroundColor($r('app.color.page_background'))
   }
 }
+
 

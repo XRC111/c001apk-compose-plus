@@ -3,6 +3,7 @@
     "pages/Index",
     "pages/FeedDetail",
     "pages/AppDetail",
+    "pages/UserPage",
     "pages/SearchPage",
     "pages/CaptchaPage",
     "pages/LoginPage",
