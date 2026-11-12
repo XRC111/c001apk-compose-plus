@@ -84,10 +84,31 @@ jobs:
       - name: 构建 HAP
         working-directory: ohos
         run: |
-          set -euo pipefail
+          set -uo pipefail
           echo "DEVECO_SDK_HOME=$DEVECO_SDK_HOME"
+          TOOLROOT=$(dirname "$DEVECO_SDK_HOME")
+
+          echo "===== hvigor 包版本 ====="
+          cat "$TOOLROOT/hvigor/hvigor/package.json" 2>/dev/null | head -12 || true
+          cat "$TOOLROOT/hvigor/hvigor-ohos-plugin/package.json" 2>/dev/null | head -12 || true
+
+          echo "===== hvigor 内出现的版本号（用于推断支持的 modelVersion） ====="
+          grep -rhoE '"[0-9]+\.[0-9]+\.[0-9]+"' "$TOOLROOT/hvigor/hvigor/src" 2>/dev/null \
+            | sort -u | head -60 || true
+
+          echo "===== modelVersion 校验相关代码 ====="
+          grep -rn 'modelVersion' "$TOOLROOT/hvigor/hvigor/src" 2>/dev/null | head -20 || true
+
+          echo "--- HAP 产物（构建前） ---"
+          find . -name "*.hap" -type f | head -5 || true
+
+          echo "===== 尝试构建（modelVersion 对齐 hvigor 6.21.1） ====="
+          sed -i 's/"modelVersion": *"[^"]*"/"modelVersion": "6.21.1"/' hvigor/hvigor-config.json5
+          cat hvigor/hvigor-config.json5
+
           hvigorw clean --no-daemon 2>&1 || true
           hvigorw assembleHap --mode module -p product=default -p debuggable=false --no-daemon
+
           echo "--- HAP 产物 ---"
           find . -name "*.hap" -type f | head -20
 
