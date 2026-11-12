@@ -34,7 +34,7 @@ import com.example.c001apk.compose.ui.component.BackButton
 import com.example.c001apk.compose.ui.component.settings.BasicListItem
 import com.example.c001apk.compose.util.openInBrowser
 import com.google.accompanist.drawablepainter.rememberDrawablePainter
-import top.yukonga.miuix.kmp.basic.Card
+import com.example.c001apk.compose.ui.theme.glass.Card
 
 /**
  * Created by bggRGjQaUbCoE on 2024/6/2

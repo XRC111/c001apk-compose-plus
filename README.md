@@ -7,6 +7,7 @@ c001apk-compose 的 MIUIX 界面迁移分支，个人学习用。
 - 非官方客户端，与酷安官方没有任何关系。
 - 主体是 UI 迁移：把 Material 组件换成 [MIUIX](https://github.com/YuKongA/Miuix)；上游已停更（2024-09），
   因此网络层也做了少量必要适配（v3 签名、新版风控验证码闭环），详见下节。
+- 主要容器已替换为 [Haze 2](https://github.com/chrisbanes/haze) 的液态玻璃（折射 / 色散 / Fresnel 高光），详见下节。
 - 个人练手项目，**不保证可用性，也不承诺持续维护**。上游接口变动可能导致部分页面失效。
 - 代码、图标与内容版权归原作者，使用请遵守 AGPL-3.0。
 - 迁移过程踩到的版本问题记在 [BUILD_NOTES.md](BUILD_NOTES.md)、[MIUIX_MIGRATION.md](MIUIX_MIGRATION.md) 和两份 cheatsheet 里，供参考。
@@ -18,8 +19,11 @@ c001apk-compose 的 MIUIX 界面迁移分支，个人学习用。
 | JDK | 22 |
 | Gradle | 9.6.0 |
 | AGP | 9.4.1 |
-| Kotlin | 2.4.20 |
+| Kotlin | 2.4.21 |
 | KSP | 2.3.12 |
+| Compose Multiplatform | 1.12.2 |
+| Compose BOM | 2026.09.00 |
+| Haze (liquid glass) | 2.1.0 |
 | compileSdk | 37 |
 | minSdk | 24 |
 | targetSdk | 35 |
@@ -72,12 +76,30 @@ SketchImageViewLoader/   # 图片加载器适配
 相关代码：`app/src/main/java/com/example/c001apk/compose/util/Captcha*.kt`、
 `ui/captcha/CaptchaActivity.kt`、`logic/repository/NetworkRepo.kt`、`ui/settings/SettingsScreen.kt`。
 
+## 液态玻璃 UI（Haze 2）
+
+主要容器改用第三方 [chrisbanes/haze](https://github.com/chrisbanes/haze) 2.1.0 的
+`haze-glass`（Apache-2.0），而不是自绘的毛玻璃：带真实折射、RGB 色散、Fresnel 边缘高光，
+并按设备能力自动降级（AGSL / RenderEffect / CPU 模糊 / 纯渐变）。
+
+- 根层：`MainActivity` 用 `ProvideGlass` 铺一层 `hazeSource` 背景层，全局共享 `GlassEnv.hazeState`；
+  保持纯色主题背景（未加动态壁纸），玻璃质感来自折射与高光。
+- 卡片式容器：`ui/theme/glass/Glass.kt` 提供与 MIUIX 签名兼容的 `Card` / `Surface`，
+  设置页、关于页、通知页、聊天页等只需切换 import 即可获得玻璃效果。
+- 信息流卡片：`glassBackground()` 作为普通 Modifier 扩展替换 `.background(cardBg())`，
+  覆盖 FeedCard / FeedReplyCard 及各类 *Card；条件式背景用半透明 `cardBg()` 兜底。
+- 版本对齐：Kotlin 2.4.21 / Compose Multiplatform 1.12.2，与 Haze 2.1.0 的编译版本一致。
+
+> 注意：Haze 官方提示密集滚动列表里大量 Glass 面板会明显增加 GPU 开销。
+> 当前为全量玻璃方案，低端机如出现掉帧，可在设置中关闭或把 `glassBackground()` 退回纯色。
+
 ## 已知问题
 
 - 只测过 Android 手机，未适配平板 / 折叠屏。
 - 少数页面仍是 Material 实现，视觉未完全统一。
 - 没有做完整回归测试，个别功能可能不可用。
 - 易盾验证页依赖 `cstaticdun.126.net` 可访问；网络受限时仍可退回手动导入 ShuzlmID 免验。
+- 全屏液态玻璃在纯色背景上折射效果有限，且密集列表可能有性能开销（见上节）。
 
 ## License
 
@@ -86,4 +108,5 @@ AGPL-3.0（见 [LICENSE](./LICENSE)）。
 ## 致谢
 
 - [YuKongA/Miuix](https://github.com/YuKongA/Miuix)
+- [chrisbanes/haze](https://github.com/chrisbanes/haze)（液态玻璃效果库）
 - c001apk-compose 原作者及贡献者

@@ -44,7 +44,7 @@ import androidx.compose.material.icons.outlined.TextFields
 import androidx.compose.material.icons.outlined.TouchApp
 import androidx.compose.material.icons.outlined.TravelExplore
 import androidx.compose.material3.OutlinedTextField
-import top.yukonga.miuix.kmp.basic.Card
+import com.example.c001apk.compose.ui.theme.glass.Card
 import top.yukonga.miuix.kmp.basic.CardDefaults
 import top.yukonga.miuix.kmp.basic.RadioButton
 import top.yukonga.miuix.kmp.basic.Scaffold

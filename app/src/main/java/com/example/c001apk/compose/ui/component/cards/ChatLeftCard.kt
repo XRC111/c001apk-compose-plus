@@ -1,4 +1,5 @@
 package com.example.c001apk.compose.ui.component.cards
+import com.example.c001apk.compose.ui.theme.glass.glassBackground
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -21,7 +22,6 @@ import com.example.c001apk.compose.logic.model.HomeFeedResponse
 import com.example.c001apk.compose.ui.component.CoilLoader
 import com.example.c001apk.compose.ui.component.ImageView
 import com.example.c001apk.compose.ui.component.LinkText
-import com.example.c001apk.compose.ui.theme.cardBg
 import com.example.c001apk.compose.util.ImageShowUtil
 import com.example.c001apk.compose.util.longClick
 import com.example.c001apk.compose.ui.theme.MiuixShapes
@@ -80,7 +80,7 @@ fun ChatLeftCard(
                                 bottomEnd = 12.dp
                             )
                         )
-                        .background(cardBg())
+                        .glassBackground()
                         .padding(horizontal = 10.dp, vertical = 12.dp)
                 )
             }
@@ -104,7 +104,7 @@ fun ChatLeftCard(
                     modifier = Modifier
                         .padding(start = 10.dp)
                         .clip(MiuixShapes.medium)
-                        .background(cardBg())
+                        .glassBackground()
                         .width(maxWidth / 2f)
                         .height(imageHeight),
                     onClearFocus = onClearFocus,

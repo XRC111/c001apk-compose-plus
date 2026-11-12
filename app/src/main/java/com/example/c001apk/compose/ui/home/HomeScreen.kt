@@ -69,7 +69,7 @@ import com.example.c001apk.compose.ui.component.MiuixTextTabRow
 import androidx.compose.ui.state.ToggleableState
 import top.yukonga.miuix.kmp.basic.BasicComponent
 import top.yukonga.miuix.kmp.basic.TextButton
-import top.yukonga.miuix.kmp.basic.Card
+import com.example.c001apk.compose.ui.theme.glass.Card
 
 /**
  * Created by bggRGjQaUbCoE on 2024/6/5

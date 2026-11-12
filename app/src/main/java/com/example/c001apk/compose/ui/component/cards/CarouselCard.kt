@@ -1,4 +1,5 @@
 package com.example.c001apk.compose.ui.component.cards
+import com.example.c001apk.compose.ui.theme.glass.glassBackground
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -19,7 +20,6 @@ import androidx.compose.ui.unit.dp
 import com.example.c001apk.compose.constant.Constants.EMPTY_STRING
 import com.example.c001apk.compose.logic.model.HomeFeedResponse
 import com.example.c001apk.compose.ui.component.CoilLoader
-import com.example.c001apk.compose.ui.theme.cardBg
 import kotlinx.coroutines.delay
 import com.example.c001apk.compose.ui.theme.MiuixShapes
 
@@ -61,7 +61,7 @@ fun CarouselCard(
                     .fillMaxWidth()
                     .wrapContentHeight()
                     .clip(MiuixShapes.medium)
-                    .background(cardBg()),
+                    .glassBackground(),
                 state = pagerState,
                 beyondViewportPageCount = if (it.size > 1) it.size else 0,
             ) { index ->

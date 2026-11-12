@@ -1,4 +1,5 @@
 package com.example.c001apk.compose.ui.component.cards
+import com.example.c001apk.compose.ui.theme.glass.glassBackground
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -10,7 +11,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
-import com.example.c001apk.compose.ui.theme.cardBg
 import top.yukonga.miuix.kmp.theme.MiuixTheme
 
 /**
@@ -28,7 +28,7 @@ fun SearchHistoryCard(
     Text(
         modifier = modifier
             .clip(RoundedCornerShape(20.dp))
-            .background(cardBg())
+            .glassBackground()
             .combinedClickable(
                 onClick = onSearch,
                 onLongClick = onDelete

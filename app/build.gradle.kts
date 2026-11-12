@@ -187,6 +187,10 @@ dependencies {
     // MIUIX (Compose Multiplatform UI library)
     implementation(libs.miuix.ui)
     implementation(libs.miuix.preference)
+
+    // 液态玻璃（第三方 chrisbanes/haze 2.x），与 Kotlin/CMP 版本对齐
+    implementation(libs.haze)
+    implementation(libs.haze.glass)
     // miuix-icons / miuix-nav / miuix-blur 均未使用；
     // miuix-blur 额外要求 minSdk 33，会阻塞本工程 minSdk 24，故移除
 

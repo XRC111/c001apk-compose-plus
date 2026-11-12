@@ -1,4 +1,5 @@
 package com.example.c001apk.compose.ui.component.cards
+import com.example.c001apk.compose.ui.theme.glass.glassBackground
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -27,7 +28,6 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
-import com.example.c001apk.compose.ui.theme.cardBg
 import com.example.c001apk.compose.util.CookieUtil
 import top.yukonga.miuix.kmp.theme.MiuixTheme
 import com.example.c001apk.compose.ui.theme.MiuixShapes
@@ -60,7 +60,7 @@ fun MessageListCard(
         modifier = modifier
             .fillMaxWidth()
             .clip(MiuixShapes.medium)
-            .background(cardBg())
+            .glassBackground()
             .clickable {
                 if (CookieUtil.isLogin) {
                     onViewNotice()

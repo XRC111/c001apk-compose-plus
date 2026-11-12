@@ -6,7 +6,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
@@ -25,6 +24,7 @@ import androidx.core.view.WindowInsetsCompat
 import com.example.c001apk.compose.logic.providable.LocalUserPreferences
 import com.example.c001apk.compose.logic.repository.UserPreferencesRepository
 import com.example.c001apk.compose.ui.theme.C001apkComposeTheme
+import com.example.c001apk.compose.ui.theme.glass.ProvideGlass
 import com.example.c001apk.compose.ui.search.SearchViewModel
 import com.example.c001apk.compose.util.CookieUtil.apiVersion
 import com.example.c001apk.compose.util.CookieUtil.customHaptics
@@ -167,11 +167,11 @@ class MainActivity : ComponentActivity() {
                     fontScale = preferences.fontScale,
                     contentScale = preferences.contentScale,
                 ) {
-                    Surface(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .background(MiuixTheme.colorScheme.background)
-                    ) {
+                    ProvideGlass {
+                        // 根层保持原生 Surface（纯色背景），玻璃采样由 ProvideGlass 的背景层承担
+                        Surface(
+                            modifier = Modifier.fillMaxSize()
+                        ) {
                         // MIUIX 的 MiuixPopupHost（每个 Scaffold 自动挂载）内部会调用
                         // NavigationBackHandler，它需要 LocalNavigationEventDispatcherOwner。
                         // 该 Local 由 androidx.navigationevent 定义，但本工程无人提供
@@ -187,9 +187,10 @@ class MainActivity : ComponentActivity() {
                                 widthSizeClass = widthSizeClass,
                             )
                         }
-                    }
-                }
-            }
+                        } // Surface
+                    } // ProvideGlass
+                } // C001apkComposeTheme
+            } // CompositionLocalProvider
 
             LaunchedEffect(key1 = navController) {
                 if (savedInstanceState == null) {

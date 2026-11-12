@@ -1,4 +1,5 @@
 package com.example.c001apk.compose.ui.component.cards
+import com.example.c001apk.compose.ui.theme.glass.glassBackground
 
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
@@ -25,7 +26,6 @@ import androidx.constraintlayout.compose.Dimension
 import com.example.c001apk.compose.constant.Constants.EMPTY_STRING
 import com.example.c001apk.compose.logic.model.HomeFeedResponse
 import com.example.c001apk.compose.ui.component.CoilLoader
-import com.example.c001apk.compose.ui.theme.cardBg
 import com.example.c001apk.compose.util.DateUtils.fromToday
 import com.example.c001apk.compose.util.Utils.getAppVersion
 import com.example.c001apk.compose.util.noRippleClickable
@@ -50,7 +50,7 @@ fun AppUpdateCard(
         modifier = modifier
             .fillMaxWidth()
             .clip(MiuixShapes.medium)
-            .background(cardBg())
+            .glassBackground()
             .clickable {
                 onViewApp(data.packageName.orEmpty())
             }

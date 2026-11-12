@@ -1,4 +1,5 @@
 package com.example.c001apk.compose.ui.component.cards
+import com.example.c001apk.compose.ui.theme.glass.glassBackground
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -21,7 +22,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.example.c001apk.compose.logic.model.HomeFeedResponse
 import com.example.c001apk.compose.ui.component.CoilLoader
-import com.example.c001apk.compose.ui.theme.cardBg
 import top.yukonga.miuix.kmp.theme.MiuixTheme
 import com.example.c001apk.compose.ui.theme.MiuixShapes
 
@@ -110,7 +110,7 @@ fun ImageTextScrollCardItem(
             style = MiuixTheme.textStyles.body1.copy(fontWeight = FontWeight.Bold),
             modifier = Modifier
                 .fillMaxWidth()
-                .background(cardBg())
+                .glassBackground()
                 .padding(horizontal = 10.dp, vertical = 5.dp)
         )
     }

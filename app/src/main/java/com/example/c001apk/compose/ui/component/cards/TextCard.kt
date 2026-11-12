@@ -1,4 +1,5 @@
 package com.example.c001apk.compose.ui.component.cards
+import com.example.c001apk.compose.ui.theme.glass.glassBackground
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -11,7 +12,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
-import com.example.c001apk.compose.ui.theme.cardBg
 import top.yukonga.miuix.kmp.theme.MiuixTheme
 import com.example.c001apk.compose.ui.theme.MiuixShapes
 
@@ -28,7 +28,7 @@ fun TextCard(
             .fillMaxWidth()
             .height(80.dp)
             .clip(MiuixShapes.medium)
-            .background(cardBg()),
+            .glassBackground(),
         contentAlignment = Alignment.Center
     ) {
         Text(

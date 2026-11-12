@@ -38,7 +38,7 @@ import com.example.c001apk.compose.util.isScrollingUp
 import com.example.c001apk.compose.util.longVersionCodeCompat
 import top.yukonga.miuix.kmp.theme.MiuixTheme
 import top.yukonga.miuix.kmp.basic.BasicComponent
-import top.yukonga.miuix.kmp.basic.Card
+import com.example.c001apk.compose.ui.theme.glass.Card
 
 /**
  * Created by bggRGjQaUbCoE on 2024/6/9

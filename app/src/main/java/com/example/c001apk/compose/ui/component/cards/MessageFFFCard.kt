@@ -1,4 +1,5 @@
 package com.example.c001apk.compose.ui.component.cards
+import com.example.c001apk.compose.ui.theme.glass.glassBackground
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -26,7 +27,6 @@ import androidx.compose.ui.unit.sp
 import com.example.c001apk.compose.constant.Constants.EMPTY_STRING
 import com.example.c001apk.compose.ui.ffflist.FFFListType
 import com.example.c001apk.compose.ui.history.HistoryType
-import com.example.c001apk.compose.ui.theme.cardBg
 import com.example.c001apk.compose.util.CookieUtil
 import top.yukonga.miuix.kmp.theme.MiuixTheme
 import com.example.c001apk.compose.ui.theme.MiuixShapes
@@ -51,7 +51,7 @@ fun MessageFFFCard(
     FFFCardRow(
         modifier = modifier
             .clip(MiuixShapes.medium)
-            .background(cardBg()),
+            .glassBackground(),
         dataList = listOf(
             FFFCardItem(
                 title = "动态",

@@ -1,4 +1,5 @@
 package com.example.c001apk.compose.ui.chat
+import com.example.c001apk.compose.ui.theme.glass.glassBackground
 
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -43,14 +44,14 @@ import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.automirrored.outlined.Backspace
 import androidx.compose.material.icons.outlined.AddPhotoAlternate
 import androidx.compose.material.icons.outlined.EmojiEmotions
-import top.yukonga.miuix.kmp.basic.Card
+import com.example.c001apk.compose.ui.theme.glass.Card
 import top.yukonga.miuix.kmp.basic.CardDefaults
 import top.yukonga.miuix.kmp.basic.CircularProgressIndicator
 import top.yukonga.miuix.kmp.basic.HorizontalDivider
 import androidx.compose.material3.Icon
 import top.yukonga.miuix.kmp.basic.IconButton
 import top.yukonga.miuix.kmp.basic.Scaffold
-import top.yukonga.miuix.kmp.basic.Surface
+import com.example.c001apk.compose.ui.theme.glass.Surface
 import androidx.compose.material3.Text
 import top.yukonga.miuix.kmp.basic.TopAppBar
 import top.yukonga.miuix.kmp.basic.VerticalDivider
@@ -87,7 +88,6 @@ import com.example.c001apk.compose.ui.component.cards.ChatLeftCard
 import com.example.c001apk.compose.ui.component.cards.ChatRightCard
 import com.example.c001apk.compose.ui.component.cards.ChatTimeCard
 import com.example.c001apk.compose.ui.component.cards.LoadingCard
-import com.example.c001apk.compose.ui.theme.cardBg
 import com.example.c001apk.compose.util.CookieUtil
 import com.example.c001apk.compose.util.EmojiUtils
 import com.example.c001apk.compose.util.EmojiUtils.coolBList
@@ -338,7 +338,7 @@ fun ChatScreen(
             ChatBottom(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(cardBg())
+                    .glassBackground()
                     .padding(bottom = androidx.compose.animation.core.animateDpAsState(
                         targetValue = with(androidx.compose.ui.platform.LocalDensity.current) {
                             androidx.compose.foundation.layout.WindowInsets.ime.getBottom(this).toDp()

@@ -1,4 +1,5 @@
 package com.example.c001apk.compose.ui.home.topic
+import com.example.c001apk.compose.ui.theme.glass.glassBackground
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -33,7 +34,6 @@ import com.example.c001apk.compose.logic.state.LoadingState
 import com.example.c001apk.compose.ui.carousel.CarouselContentScreen
 import com.example.c001apk.compose.ui.component.cards.LoadingCard
 import com.example.c001apk.compose.ui.home.TabType
-import com.example.c001apk.compose.ui.theme.cardBg
 import kotlinx.coroutines.launch
 import top.yukonga.miuix.kmp.theme.MiuixTheme
 
@@ -111,7 +111,7 @@ fun HomeTopicScreen(
                     Row(
                         modifier = Modifier
                             .fillMaxSize()
-                            .background(cardBg())
+                            .glassBackground()
                     ) {
 
                         LazyColumn(

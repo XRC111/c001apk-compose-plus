@@ -1,4 +1,5 @@
 package com.example.c001apk.compose.ui.component.cards
+import com.example.c001apk.compose.ui.theme.glass.glassBackground
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -17,7 +18,6 @@ import androidx.constraintlayout.compose.Dimension
 import com.example.c001apk.compose.logic.model.HomeFeedResponse
 import com.example.c001apk.compose.ui.component.CoilLoader
 import com.example.c001apk.compose.ui.ffflist.FFFListType
-import com.example.c001apk.compose.ui.theme.cardBg
 import top.yukonga.miuix.kmp.theme.MiuixTheme
 import com.example.c001apk.compose.ui.theme.MiuixShapes
 
@@ -34,7 +34,7 @@ fun CollectionCard(
         modifier = modifier
             .fillMaxWidth()
             .clip(MiuixShapes.medium)
-            .background(cardBg())
+            .glassBackground()
             .clickable {
                 onViewFFFList?.let {
                     it(

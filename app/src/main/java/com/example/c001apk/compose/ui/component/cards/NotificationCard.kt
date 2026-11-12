@@ -1,4 +1,5 @@
 package com.example.c001apk.compose.ui.component.cards
+import com.example.c001apk.compose.ui.theme.glass.glassBackground
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -31,7 +32,6 @@ import com.example.c001apk.compose.R
 import com.example.c001apk.compose.logic.model.HomeFeedResponse
 import com.example.c001apk.compose.ui.component.CoilLoader
 import com.example.c001apk.compose.ui.component.LinkText
-import com.example.c001apk.compose.ui.theme.cardBg
 import com.example.c001apk.compose.util.DateUtils
 import com.example.c001apk.compose.util.ReportType
 import org.jsoup.Jsoup
@@ -64,7 +64,7 @@ fun NotificationCard(
             .fillMaxWidth()
             .padding(horizontal = 10.dp)
             .clip(MiuixShapes.medium)
-            .background(cardBg())
+            .glassBackground()
             .combinedClickable(
                 onClick = {
                     if (isFollow) {

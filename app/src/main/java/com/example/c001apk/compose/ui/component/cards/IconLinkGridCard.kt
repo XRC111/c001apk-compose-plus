@@ -1,4 +1,5 @@
 package com.example.c001apk.compose.ui.component.cards
+import com.example.c001apk.compose.ui.theme.glass.glassBackground
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -19,7 +20,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.c001apk.compose.logic.model.HomeFeedResponse
 import com.example.c001apk.compose.ui.component.CoilLoader
-import com.example.c001apk.compose.ui.theme.cardBg
 import top.yukonga.miuix.kmp.theme.MiuixTheme
 import com.example.c001apk.compose.ui.theme.MiuixShapes
 
@@ -39,7 +39,7 @@ fun IconLinkGridCard(
             modifier = modifier
                 .fillMaxWidth()
                 .clip(MiuixShapes.medium)
-                .background(cardBg())
+                .glassBackground()
         ) {
             HorizontalPager(
                 modifier = Modifier.fillMaxWidth(),

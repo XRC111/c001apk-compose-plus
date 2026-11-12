@@ -54,6 +54,7 @@ import com.example.c001apk.compose.ui.component.IconText
 import com.example.c001apk.compose.ui.component.LinkText
 import com.example.c001apk.compose.ui.component.NineImageView
 import com.example.c001apk.compose.ui.theme.cardBg
+import com.example.c001apk.compose.ui.theme.glass.glassBackground
 import com.example.c001apk.compose.util.CookieUtil
 import com.example.c001apk.compose.util.CookieUtil.isLogin
 import com.example.c001apk.compose.util.DateUtils.fromToday
@@ -92,20 +93,17 @@ fun FeedCard(
             val tmp = modifier
                 .fillMaxWidth()
                 .wrapContentHeight()
-                .clip(
-                    if (isFeedContent) RectangleShape
-                    else RoundedCornerShape(12.0.dp)
-                )
-                .background(
-                    if (isFeedContent) MiuixTheme.colorScheme.surface
-                    else cardBg()
-                )
+            val glassed = if (isFeedContent) {
+                tmp.background(MiuixTheme.colorScheme.surface)
+            } else {
+                tmp.glassBackground(RoundedCornerShape(12.0.dp))
+            }
             if (isFeedContent)
-                tmp.longClick {
+                glassed.longClick {
                     onCopyText(data.message)
                 }
             else
-                tmp.combinedClickable(
+                glassed.combinedClickable(
                     onClick = {
                         onViewFeed(data.id.orEmpty(), false)
                     },

@@ -1,4 +1,5 @@
 package com.example.c001apk.compose.ui.component.cards
+import com.example.c001apk.compose.ui.theme.glass.glassBackground
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
@@ -10,7 +11,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import com.example.c001apk.compose.logic.model.HomeFeedResponse
-import com.example.c001apk.compose.ui.theme.cardBg
 import com.example.c001apk.compose.ui.theme.MiuixShapes
 
 /**
@@ -28,7 +28,7 @@ fun IconMiniGridCard(
         modifier = modifier
             .fillMaxWidth()
             .clip(MiuixShapes.medium)
-            .background(cardBg())
+            .glassBackground()
             .padding(vertical = 5.dp)
     ) {
 

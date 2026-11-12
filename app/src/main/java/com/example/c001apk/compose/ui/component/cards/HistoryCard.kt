@@ -1,4 +1,5 @@
 package com.example.c001apk.compose.ui.component.cards
+import com.example.c001apk.compose.ui.theme.glass.glassBackground
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -36,7 +37,6 @@ import com.example.c001apk.compose.logic.model.FeedEntity
 import com.example.c001apk.compose.ui.component.CoilLoader
 import com.example.c001apk.compose.ui.component.IconText
 import com.example.c001apk.compose.ui.component.LinkText
-import com.example.c001apk.compose.ui.theme.cardBg
 import com.example.c001apk.compose.util.CookieUtil.isLogin
 import com.example.c001apk.compose.util.DateUtils.fromToday
 import com.example.c001apk.compose.util.ReportType
@@ -71,7 +71,7 @@ fun HistoryCard(
         modifier = modifier
             .fillMaxWidth()
             .clip(MiuixShapes.medium)
-            .background(cardBg())
+            .glassBackground()
             .combinedClickable(
                 onClick = {
                     onViewFeed(data.id, false)

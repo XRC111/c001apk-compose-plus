@@ -1,4 +1,5 @@
 package com.example.c001apk.compose.ui.component.cards
+import com.example.c001apk.compose.ui.theme.glass.glassBackground
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -495,7 +496,7 @@ fun FeedReplyCard(
                     modifier = Modifier
                         .padding(start = 10.dp, top = 10.dp, end = 16.dp)
                         .clip(MiuixShapes.medium)
-                        .background(cardBg())
+                        .glassBackground()
                         .constrainAs(replyRows) {
                             top.linkTo(dateLine.bottom)
                             start.linkTo(avatar.end)

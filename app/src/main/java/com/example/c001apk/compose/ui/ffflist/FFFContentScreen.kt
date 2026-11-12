@@ -21,7 +21,7 @@ import com.example.c001apk.compose.constant.Constants.EMPTY_STRING
 import com.example.c001apk.compose.ui.component.CommonScreen
 import com.example.c001apk.compose.util.ReportType
 import com.example.c001apk.compose.util.makeToast
-import top.yukonga.miuix.kmp.basic.Card
+import com.example.c001apk.compose.ui.theme.glass.Card
 import top.yukonga.miuix.kmp.basic.CardDefaults
 import top.yukonga.miuix.kmp.theme.MiuixTheme
 
