@@ -22,12 +22,14 @@ on:
       - '*'
     branches:
       - main
-    # 只对代码改动自动发版；纯文档/CI 改动跳过，避免刷版
+    # 只对代码改动自动发版；纯文档/CI/鸿蒙工程改动跳过，避免刷版
     paths-ignore:
       - '**.md'
       - '.github/**'
+      - 'ohos/**'
+      - 'scripts/harmony/**'
       - 'LICENSE'
-      - '.gitignore'
+      - '**.gitignore'
 
 permissions:
   contents: write
