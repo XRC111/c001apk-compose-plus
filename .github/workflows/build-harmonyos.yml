@@ -88,29 +88,42 @@ jobs:
           echo "DEVECO_SDK_HOME=$DEVECO_SDK_HOME"
           TOOLROOT=$(dirname "$DEVECO_SDK_HOME")
 
-          echo "===== hvigor 包版本 ====="
-          cat "$TOOLROOT/hvigor/hvigor/package.json" 2>/dev/null | head -12 || true
-          cat "$TOOLROOT/hvigor/hvigor-ohos-plugin/package.json" 2>/dev/null | head -12 || true
+          echo "===== 工具版本 ====="
+          cat "$TOOLROOT/version.txt" 2>/dev/null || true
+          node -v || true
 
-          echo "===== hvigor 内出现的版本号（用于推断支持的 modelVersion） ====="
-          grep -rhoE '"[0-9]+\.[0-9]+\.[0-9]+"' "$TOOLROOT/hvigor/hvigor/src" 2>/dev/null \
-            | sort -u | head -60 || true
+          echo "===== SDK 的 hvigorw 脚本 ====="
+          HVIGORW=$(command -v hvigorw)
+          echo "HVIGORW=$HVIGORW"
+          head -60 "$HVIGORW" 2>/dev/null || true
 
-          echo "===== modelVersion 校验相关代码 ====="
-          grep -rn 'modelVersion' "$TOOLROOT/hvigor/hvigor/src" 2>/dev/null | head -20 || true
+          echo "===== 定位 00303024 抛错点 ====="
+          grep -rln 'need to be upgraded' "$TOOLROOT/hvigor" 2>/dev/null | head -5 || true
+          FFILE=$(grep -rln 'need to be upgraded' "$TOOLROOT/hvigor" 2>/dev/null | head -1)
+          if [ -n "${FFILE:-}" ]; then
+            echo "FILE=$FFILE"
+            grep -o '.\{0,400\}need to be upgraded.\{0,200\}' "$FFILE" 2>/dev/null | head -3 || true
+          fi
 
-          echo "--- HAP 产物（构建前） ---"
-          find . -name "*.hap" -type f | head -5 || true
+          echo "===== SDK/default 结构 ====="
+          find "$DEVECO_SDK_HOME/default" -maxdepth 2 -type d 2>/dev/null | head -20 || true
 
-          echo "===== 尝试构建（modelVersion 对齐 hvigor 6.21.1） ====="
-          sed -i 's/"modelVersion": *"[^"]*"/"modelVersion": "6.21.1"/' hvigor/hvigor-config.json5
-          cat hvigor/hvigor-config.json5
+          echo "===== 工程结构对照（标准 DevEco 应有 hvigor-wrapper.js / hvigorw.bat） ====="
+          ls -la hvigor/ . 2>/dev/null || true
 
-          hvigorw clean --no-daemon 2>&1 || true
-          hvigorw assembleHap --mode module -p product=default -p debuggable=false --no-daemon
+          echo "===== 用 SDK 内 hvigor 直接跑（绕过 wrapper） ====="
+          hvigorw --help 2>&1 | head -30 || true
+          hvigorw clean --no-daemon 2>&1 | tail -20 || true
+          hvigorw assembleHap --mode module -p product=default -p debuggable=false --no-daemon 2>&1 | tail -60 || true
 
           echo "--- HAP 产物 ---"
-          find . -name "*.hap" -type f | head -20
+          find . -name "*.hap" -type f | head -20 || true
+          HAPS=$(find . -name "*.hap" -type f | wc -l | tr -d ' ')
+          echo "hap_count=$HAPS"
+          if [ "$HAPS" -eq 0 ]; then
+            echo "::error::构建未产出 HAP"
+            exit 1
+          fi
 
       - name: 上传 HAP
         uses: actions/upload-artifact@v4
