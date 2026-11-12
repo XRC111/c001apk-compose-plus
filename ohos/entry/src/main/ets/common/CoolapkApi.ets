@@ -15,7 +15,7 @@ import { http } from '@kit.NetworkKit';
 import { hilog } from '@kit.PerformanceAnalysisKit';
 import { getTokenV3, APP_ID, VERSION_CODE, API_VERSION, CHANNEL, MODE, VERSION_NAME } from './CoolapkToken';
 import { getDeviceCode } from './DeviceCode';
-import { buildCookieHeader } from './CookieStore';
+import { buildCookieHeader, saveSessid } from './CookieStore';
 
 const DOMAIN = 0x0000;
 const API_HOST: string = 'https://api.coolapk.com';
@@ -70,11 +70,47 @@ function extractCaptchaId(body: string): string {
   return m !== null ? m[1] : '';
 }
 
+/** 从 Set-Cookie 串里取某个 Cookie 的值。 */
+function extractCookieValue(cookies: string, name: string): string {
+  const parts = cookies.split(';');
+  for (const raw of parts) {
+    const s = raw.trim();
+    const eq = s.indexOf('=');
+    if (eq > 0 && s.substring(0, eq) === name) {
+      return s.substring(eq + 1);
+    }
+  }
+  return '';
+}
+
+/**
+ * v3 token 的短期缓存。
+ *
+ * 生成一次 token 需要一次 bcrypt(cost=10)，在手机上约数百毫秒；
+ * 列表滚动时会连续发多个请求，逐个重算会明显卡顿。
+ * token 内部带时间戳，服务端只校验新鲜度，缓存 3 秒是安全的。
+ */
+let cachedToken: string = '';
+let cachedTokenAt: number = 0;
+let cachedTokenDevice: string = '';
+
+function tokenFor(deviceCode: string): string {
+  const now = Date.now();
+  if (cachedToken.length > 0 && cachedTokenDevice === deviceCode && now - cachedTokenAt < 3000) {
+    return cachedToken;
+  }
+  const t = getTokenV3(deviceCode);
+  cachedToken = t;
+  cachedTokenAt = now;
+  cachedTokenDevice = deviceCode;
+  return t;
+}
+
 export class CoolapkApi {
   /** 发起一次 GET，自动带上 v3 token 与本地 Cookie。 */
   static async get(path: string): Promise<CoolapkResponse> {
     const deviceCode = getDeviceCode();
-    const token = getTokenV3(deviceCode);
+    const token = tokenFor(deviceCode);
     const cookie = await buildCookieHeader();
     const url = API_HOST + path;
     const req = http.createHttp();
@@ -88,6 +124,16 @@ export class CoolapkApi {
       });
       const raw = res.result;
       const body: string = typeof raw === 'string' ? raw : '';
+
+      // 服务端下发的 SESSID 必须带回后续请求，风控重放才有效
+      const respCookies: string = res.cookies !== undefined ? res.cookies : '';
+      if (respCookies.length > 0) {
+        const sessid = extractCookieValue(respCookies, 'SESSID');
+        if (sessid.length > 0) {
+          await saveSessid('SESSID=' + sessid);
+        }
+      }
+
       const messageStatus = extractMessageStatus(body);
       const needCaptcha = messageStatus === 'err_request_captcha_v2' ||
         body.indexOf('当前访问需要验证码') >= 0 ||
