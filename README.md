@@ -54,28 +54,52 @@ scripts/harmony/         # 鸿蒙 SDK 安装脚本（CI 用）
 
 `ohos/` 是独立的 ArkTS/ArkUI 原生实现，与 Android 版共用同一套酷安协议。
 
-已完成：
+**已实现（均通过 CI 构建）**
 
-- **X-App-Token v3 全链路纯 ArkTS 实现**，不依赖任何三方库：
-  - `Md5.ets` —— RFC 1321
-  - `StandardBase64.ets` —— 标准 base64 + Java `latin1→UTF-8` 语义模拟
-  - `Bcrypt.ets` —— Blowfish + EksBlowfish key schedule（cost=10），含 jBCrypt
-    遇到非字母表字符时截断 salt 的宽容行为
-  - `CoolapkToken.ets` —— v3（16 秒向前探测重试）+ v2 兜底 + 完整请求头
-  - `AuthBlob.ets` —— 从 `libauth.so` 提取的 930 字符认证 blob
-  - `DeviceCode.ets` —— `X-App-Device` 生成（base64 反转去 `=`）
-- 风控响应（`err_request_captcha_v2`）识别
-- 首页 / 设置 / 关于三页骨架，首页会实时展示 v3 token 摘要与耗时
+协议与安全层，全部纯 ArkTS、零三方依赖：
 
-正确性验证（本地对拍，非 CI）：bcrypt 与 bcryptjs 6/6、ArkTS 移植版与已验证
+- `Md5.ets` —— RFC 1321
+- `StandardBase64.ets` —— 标准 base64 + Java `latin1→UTF-8` 语义模拟
+- `Bcrypt.ets` —— Blowfish + EksBlowfish key schedule（cost=10），含 jBCrypt
+  遇到非字母表字符时截断 salt 的宽容行为
+- `CoolapkToken.ets` —— X-App-Token v3（16 秒向前探测重试）+ v2 兜底 + 完整请求头
+- `AuthBlob.ets` —— 从 `libauth.so` 提取的 930 字符认证 blob
+- `DeviceCode.ets` —— `X-App-Device` 生成（base64 反转去 `=`）
+- `CookieStore.ets` —— 登录态（uid/username/token）+ SESSID + validate
+
+功能页面：
+
+| 页面 | 说明 |
+| --- | --- |
+| `Index` | 首页信息流、分页加载、缩略图、v3 token 摘要与耗时 |
+| `FeedDetail` | 动态正文、图片、评论列表 |
+| `SearchPage` | 关键词搜索动态 |
+| `LoginPage` | 内置网页登录，页末自动提取 Cookie 并落盘 |
+| `CaptchaPage` | 内嵌易盾滑块（`cstaticdun.126.net`），通过 `javaScriptProxy` 回传 `validate` |
+| `Settings` | ShuzlmID 持久化、设备码预览 |
+| `About` | 能力清单与未实现项 |
+
+运行时细节：
+
+- 命中 `err_request_captcha_v2` 时解析 `captchaId`，页面给出「去验证」入口，
+  验证成功后 `validate` 落盘，后续请求自动带上
+- 服务端下发的 `SESSID` 自动回写（风控重放必需）
+- v3 token 有 3 秒短期缓存：单次生成要跑 bcrypt(cost=10)，手机上约数百毫秒，
+  列表连续请求时逐次重算会明显卡顿
+
+**正确性验证**（本地对拍，非 CI）：bcrypt 与 bcryptjs 6/6、ArkTS 移植版与已验证
 JS 参考实现 30/30（含 `+` 在 salt 首/中/尾）、MD5 与 `node:crypto` 10/10、
 v3 token 端到端 24/24 逐字符一致。
 
-构建：GitHub Actions `Build HarmonyOS HAP`（`ohos/**` 变更或手动触发），
+**构建**：GitHub Actions `Build HarmonyOS HAP`（`ohos/**` 变更或手动触发），
 产物 `ohos/entry/build/default/outputs/default/entry-default-unsigned.hap`
 （**未签名**，真机安装需自行用 DevEco 配签名）。
 
-未闭环：易盾滑块验证页（需 ArkUI Web 组件 + cookie 回写）、登录态持久化、信息流 UI。
+**尚未实现**：应用详情 / 用户主页、点赞收藏评论等写操作、消息通知与发现页、
+图片缓存与预加载。
+
+> 注：所有功能只经过编译验证，**未在真机上做运行时验证**；易盾滑块与登录页
+> 依赖 Web 组件与真实网络，需装机确认。
 
 ### 踩坑：hvigor `00303024 项目结构需要升级`
 
