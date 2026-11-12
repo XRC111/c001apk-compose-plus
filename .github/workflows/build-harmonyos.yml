@@ -58,6 +58,29 @@ jobs:
           cd entry
           ohpm install --all 2>&1 || echo "::warning::entry ohpm install 未成功（可能无三方依赖）"
 
+      - name: 诊断工具链与工程结构
+        working-directory: ohos
+        run: |
+          set -uo pipefail
+          echo "===== hvigorw 位置 ====="
+          command -v hvigorw || true
+          echo "===== hvigorw --version ====="
+          hvigorw --version 2>&1 | head -20 || true
+          echo "===== 工程 hvigor 配置 ====="
+          cat hvigor/hvigor-config.json5 || true
+          echo "===== 工程文件清单 ====="
+          ls -la . hvigor 2>/dev/null || true
+          echo "===== SDK 顶层 ====="
+          ls -1 "$DEVECO_SDK_HOME" 2>/dev/null || true
+          echo "===== SDK 内 hvigor 相关 ====="
+          find "$DEVECO_SDK_HOME" -maxdepth 3 -iname '*hvigor*' 2>/dev/null | head -20 || true
+          echo "===== 工具根目录 ====="
+          TOOLROOT=$(dirname "$DEVECO_SDK_HOME")
+          ls -1 "$TOOLROOT" 2>/dev/null || true
+          echo "===== 工具 node / hvigor 版本 ====="
+          ls -1 "$TOOLROOT/tool/node/bin" 2>/dev/null || true
+          find "$TOOLROOT" -maxdepth 4 -name "package.json" -path "*hvigor*" 2>/dev/null | head -10 || true
+
       - name: 构建 HAP
         working-directory: ohos
         run: |
