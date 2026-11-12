@@ -111,25 +111,13 @@ jobs:
           echo "===== 工程结构对照（标准 DevEco 应有 hvigor-wrapper.js / hvigorw.bat） ====="
           ls -la hvigor/ . 2>/dev/null || true
 
-          echo "===== 自动尝试各 modelVersion（00303024 快速失败，成本极低） ====="
-          OK=0
-          for mv in 6.0.1 6.1.1 6.1.0 6.0.0 5.0.5 5.0.0; do
-            sed -i "s/\"modelVersion\": *\"[^\"]*\"/\"modelVersion\": \"$mv\"/" hvigor/hvigor-config.json5
-            echo "########## try modelVersion=$mv ##########"
-            OUT=$(hvigorw assembleHap --mode module -p product=default -p debuggable=false --no-daemon 2>&1 || true)
-            echo "$OUT" | tail -25
-            if echo "$OUT" | grep -q "BUILD SUCCESSFUL"; then
-              echo "::notice::SUCCESS with modelVersion=$mv"
-              OK=1
-              break
-            fi
-            if ! echo "$OUT" | grep -q "00303024"; then
-              echo "::notice::modelVersion=$mv 已越过 00303024，出现新的错误类型"
-              OK=2
-              break
-            fi
-          done
-          echo "attempt_result=$OK"
+          echo "===== 带 stacktrace 的单次构建（拿真实抛错点） ====="
+          hvigorw assembleHap --mode module -p product=default -p debuggable=false --no-daemon --stacktrace 2>&1 | head -120 || true
+
+          echo "===== hvigor 内 project structure 检查相关代码 ====="
+          PSRC="$TOOLROOT/hvigor/hvigor-ohos-plugin/src"
+          grep -rn 'upgrade' "$PSRC" 2>/dev/null | head -10 || true
+          grep -rln '00303024\|PROJECT_STRUCTURE' "$PSRC" 2>/dev/null | head -5 || true
 
           echo "--- HAP 产物 ---"
           find . -name "*.hap" -type f | head -20 || true
