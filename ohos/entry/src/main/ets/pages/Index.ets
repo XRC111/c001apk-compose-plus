@@ -1,16 +1,19 @@
 import { router } from '@kit.ArkUI';
 import { CoolapkApi, CoolapkResponse } from '../common/CoolapkApi';
 import { getDeviceCode } from '../common/DeviceCode';
+import { feedSummary, feedTypeLabel, FeedItem, parseFeed, ParsedFeed } from '../common/Feed';
 
 @Entry
 @Component
 struct Index {
   @State statusText: string = '未请求';
-  @State responsePreview: string = '';
   @State loading: boolean = false;
   @State tokenPreview: string = '';
   @State devicePreview: string = '';
   @State elapsedMs: number = 0;
+  @State items: FeedItem[] = [];
+  @State showRaw: boolean = false;
+  @State rawPreview: string = '';
 
   aboutToAppear(): void {
     // 进页面就把 v3 token 算出来，确认 bcrypt / MD5 / base64 链路在设备上跑通
@@ -23,83 +26,139 @@ struct Index {
 
   build() {
     Column() {
-      Text('c001apk')
-        .fontSize(30)
-        .fontWeight(FontWeight.Bold)
-        .margin({ bottom: 6 })
-      Text('HarmonyOS 原生 (ArkTS / ArkUI · Stage)')
-        .fontSize(13)
-        .fontColor('#8A8A8E')
-        .margin({ bottom: 20 })
+      Row() {
+        Column() {
+          Text('c001apk')
+            .fontSize(22)
+            .fontWeight(FontWeight.Bold)
+          Text('HarmonyOS 原生 · ArkTS/ArkUI')
+            .fontSize(11)
+            .fontColor('#8A8A8E')
+            .margin({ top: 2 })
+        }
+        .alignItems(HorizontalAlign.Start)
+
+        Blank()
+
+        Button('设置', { type: ButtonType.Normal })
+          .fontSize(13)
+          .onClick(() => router.pushUrl({ url: 'pages/Settings' }))
+        Button('关于', { type: ButtonType.Normal })
+          .fontSize(13)
+          .margin({ left: 8 })
+          .onClick(() => router.pushUrl({ url: 'pages/About' }))
+      }
+      .width('100%')
+      .padding({ bottom: 10 })
 
       // token 信息卡
       Column() {
         Row() {
-          Text('X-App-Token v3').fontSize(13).fontWeight(FontWeight.Medium)
+          Text('X-App-Token v3')
+            .fontSize(12)
+            .fontColor('#666666')
           Blank()
-          Text(`${this.elapsedMs} ms`).fontSize(12).fontColor('#8A8A8E')
+          Text(`${this.elapsedMs} ms`)
+            .fontSize(11)
+            .fontColor('#8A8A8E')
         }
         .width('100%')
+
         Text(this.tokenPreview.length > 0 ? this.tokenPreview : '计算中…')
-          .fontSize(11)
+          .fontSize(10)
           .fontColor('#4A4A8A')
           .width('100%')
-          .margin({ top: 6 })
+          .margin({ top: 4 })
+
         Text(`device: ${this.devicePreview}`)
-          .fontSize(11)
+          .fontSize(10)
           .fontColor('#8A8A8E')
           .width('100%')
-          .margin({ top: 4 })
+          .margin({ top: 2 })
       }
-      .width('90%')
-      .padding(12)
+      .width('100%')
+      .padding(10)
       .backgroundColor('#FFFFFF')
-      .borderRadius(12)
-      .margin({ bottom: 18 })
+      .borderRadius(10)
+      .margin({ bottom: 10 })
 
-      Button('测试酷安接口 /v6/main/indexV8', { type: ButtonType.Capsule })
-        .width('86%')
-        .height(44)
-        .onClick(() => this.loadHome())
-
-      if (this.loading) {
-        LoadingProgress().width(36).height(36).margin({ top: 16 })
+      Row() {
+        Button(this.loading ? '加载中…' : '加载首页', { type: ButtonType.Capsule })
+          .layoutWeight(1)
+          .height(40)
+          .enabled(!this.loading)
+          .onClick(() => this.loadHome())
+        Button('原始响应', { type: ButtonType.Normal })
+          .fontSize(13)
+          .height(40)
+          .margin({ left: 8 })
+          .onClick(() => {
+            this.showRaw = !this.showRaw;
+          })
       }
+      .width('100%')
+      .margin({ bottom: 8 })
 
       Text(this.statusText)
-        .fontSize(14)
-        .margin({ top: 16 })
-        .fontColor(this.statusText.indexOf('风控') >= 0 ? '#E06030' : '#333333')
+        .fontSize(12)
+        .fontColor(this.statusText.indexOf('风控') >= 0 ? '#E06030' : '#8A8A8E')
+        .width('100%')
+        .margin({ bottom: 6 })
 
-      if (this.responsePreview.length > 0) {
+      if (this.showRaw && this.rawPreview.length > 0) {
         Scroll() {
-          Text(this.responsePreview)
-            .fontSize(11)
+          Text(this.rawPreview)
+            .fontSize(10)
             .fontColor('#555555')
             .width('100%')
         }
-        .width('90%')
-        .height(180)
-        .padding(10)
-        .margin({ top: 12 })
+        .width('100%')
+        .height(140)
+        .padding(8)
         .backgroundColor('#FFFFFF')
-        .borderRadius(12)
+        .borderRadius(10)
+        .margin({ bottom: 8 })
       }
 
-      Blank()
+      List({ space: 8 }) {
+        ForEach(this.items, (item: FeedItem) => {
+          ListItem() {
+            Column() {
+              Row() {
+                Text(feedTypeLabel(item))
+                  .fontSize(10)
+                  .fontColor('#FFFFFF')
+                  .padding({ left: 6, right: 6, top: 2, bottom: 2 })
+                  .backgroundColor('#7A8CD0')
+                  .borderRadius(4)
+                Blank()
+                Text(item.username !== undefined ? item.username : '')
+                  .fontSize(10)
+                  .fontColor('#8A8A8E')
+              }
+              .width('100%')
 
-      Row() {
-        Button('设置', { type: ButtonType.Normal })
-          .onClick(() => router.pushUrl({ url: 'pages/Settings' }))
-        Button('关于', { type: ButtonType.Normal })
-          .margin({ left: 12 })
-          .onClick(() => router.pushUrl({ url: 'pages/About' }))
+              Text(feedSummary(item))
+                .fontSize(13)
+                .width('100%')
+                .margin({ top: 6 })
+                .maxLines(3)
+                .textOverflow({ overflow: TextOverflow.Ellipsis })
+            }
+            .width('100%')
+            .padding(10)
+            .backgroundColor('#FFFFFF')
+            .borderRadius(10)
+            .alignItems(HorizontalAlign.Start)
+          }
+        }, (item: FeedItem) => item.id !== undefined ? item.id : '')
       }
-      .margin({ bottom: 28 })
+      .width('100%')
+      .layoutWeight(1)
     }
     .width('100%')
     .height('100%')
-    .padding({ top: 48, left: 20, right: 20 })
+    .padding({ left: 16, right: 16, top: 40, bottom: 12 })
     .backgroundColor($r('app.color.page_background'))
   }
 
@@ -107,14 +166,21 @@ struct Index {
     this.loading = true;
     this.statusText = '请求中…';
     const res: CoolapkResponse = await CoolapkApi.fetchHome(1);
+    const parsed: ParsedFeed = parseFeed(res.body);
+    this.items = parsed.items;
+    this.rawPreview = res.body.substring(0, Math.min(2000, res.body.length));
     this.loading = false;
+
     if (res.needCaptcha) {
-      this.statusText = '命中风控验证码（err_request_captcha_v2）：需完成人机验证或导入 ShuzlmID';
+      this.statusText = '命中风控验证码（err_request_captcha_v2）：需人机验证或导入 ShuzlmID';
+    } else if (res.status === 200 && parsed.items.length > 0) {
+      this.statusText = `HTTP 200 · ${parsed.items.length} 条`;
     } else if (res.status === 200) {
-      this.statusText = `请求成功 HTTP 200（${res.body.length} 字节）`;
+      this.statusText = parsed.error.length > 0 ? `HTTP 200 · ${parsed.error}` : 'HTTP 200 · 无数据';
+    } else if (res.status < 0) {
+      this.statusText = '网络请求失败（检查网络或权限）';
     } else {
-      this.statusText = `请求结束 HTTP ${res.status}`;
+      this.statusText = `HTTP ${res.status}`;
     }
-    this.responsePreview = res.body.slice(0, 1200);
   }
 }
