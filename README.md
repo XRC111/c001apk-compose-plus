@@ -46,7 +46,43 @@ app/                     # 主应用（UI + 业务）
 mojito/                  # 基础库（网络 / 数据 / 工具）
 media-support/           # 媒体支持
 SketchImageViewLoader/   # 图片加载器适配
+ohos/                    # HarmonyOS 原生版（ArkTS / ArkUI，Stage 模型）
+scripts/harmony/         # 鸿蒙 SDK 安装脚本（CI 用）
 ```
+
+## HarmonyOS 原生版（实验）
+
+`ohos/` 是独立的 ArkTS/ArkUI 原生实现，与 Android 版共用同一套酷安协议。
+
+已完成：
+
+- **X-App-Token v3 全链路纯 ArkTS 实现**，不依赖任何三方库：
+  - `Md5.ets` —— RFC 1321
+  - `StandardBase64.ets` —— 标准 base64 + Java `latin1→UTF-8` 语义模拟
+  - `Bcrypt.ets` —— Blowfish + EksBlowfish key schedule（cost=10），含 jBCrypt
+    遇到非字母表字符时截断 salt 的宽容行为
+  - `CoolapkToken.ets` —— v3（16 秒向前探测重试）+ v2 兜底 + 完整请求头
+  - `AuthBlob.ets` —— 从 `libauth.so` 提取的 930 字符认证 blob
+  - `DeviceCode.ets` —— `X-App-Device` 生成（base64 反转去 `=`）
+- 风控响应（`err_request_captcha_v2`）识别
+- 首页 / 设置 / 关于三页骨架，首页会实时展示 v3 token 摘要与耗时
+
+正确性验证（本地对拍，非 CI）：bcrypt 与 bcryptjs 6/6、ArkTS 移植版与已验证
+JS 参考实现 30/30（含 `+` 在 salt 首/中/尾）、MD5 与 `node:crypto` 10/10、
+v3 token 端到端 24/24 逐字符一致。
+
+构建：GitHub Actions `Build HarmonyOS HAP`（`ohos/**` 变更或手动触发），
+产物 `ohos/entry/build/default/outputs/default/entry-default-unsigned.hap`
+（**未签名**，真机安装需自行用 DevEco 配签名）。
+
+未闭环：易盾滑块验证页（需 ArkUI Web 组件 + cookie 回写）、登录态持久化、信息流 UI。
+
+### 踩坑：hvigor `00303024 项目结构需要升级`
+
+根 `oh-package.json5` 与 `hvigor/hvigor-config.json5` **都必须有 `modelVersion`，
+且两者必须完全相等**。任一缺失都会抛该错误，与 modelVersion 具体取值无关
+（hvigor 的 `ValidateUtil.modelVersionCheck` 同时读这两处，缺失即走 else 分支）。
+合法范围为 `[5.0.0, 当前 SDK 版本]`，本项目两处均为 `6.0.0`。
 
 ## 迁移中遇到的问题
 
@@ -56,6 +92,7 @@ SketchImageViewLoader/   # 图片加载器适配
 | `material-icons-extended` 没有 1.12.1 | 换回 AndroidX 1.7.8 |
 | `miuix-blur` 要求 minSdk 33 | 与 minSdk 24 冲突，移除 |
 | Compose 编译器坐标 | 用 `org.jetbrains.kotlin.plugin.compose` |
+| 鸿蒙 `00303024` | 见上节：两处 `modelVersion` 必须都存在且相等 |
 
 ## 新版风控验证码（err_request_captcha_v2）
 
