@@ -183,6 +183,19 @@ export class CoolapkApi {
     return CoolapkApi.get(q);
   }
 
+  /**
+   * 搜索。
+   * @param type feed / app / user / topic 等
+   */
+  static async fetchSearch(keyword: string, type: string = 'feed', page: number = 1): Promise<CoolapkResponse> {
+    const q = '/v6/search?type=' + type +
+      '&feedType=feed&sort=default' +
+      '&searchValue=' + encodeURIComponent(keyword) +
+      '&page=' + page.toString() +
+      '&showAnonymous=-1';
+    return CoolapkApi.get(q);
+  }
+
   /** 当前 v3 token（调试用，页面可展示前若干位确认算法生效）。 */
   static currentTokenPreview(): string {
     const token = getTokenV3(getDeviceCode());

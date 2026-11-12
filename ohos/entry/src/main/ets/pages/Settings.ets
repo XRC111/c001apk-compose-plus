@@ -101,6 +101,12 @@ struct Settings {
         .margin({ top: 10 })
 
       Blank()
+
+      Button('关于本应用', { type: ButtonType.Normal })
+        .width('100%')
+        .fontSize(14)
+        .margin({ bottom: 12 })
+        .onClick(() => router.pushUrl({ url: 'pages/About' }))
     }
     .width('100%')
     .height('100%')

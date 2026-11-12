@@ -72,13 +72,13 @@ struct Index {
 
         Blank()
 
+        Button('搜索', { type: ButtonType.Normal })
+          .fontSize(13)
+          .onClick(() => router.pushUrl({ url: 'pages/SearchPage' }))
         Button('设置', { type: ButtonType.Normal })
           .fontSize(13)
-          .onClick(() => router.pushUrl({ url: 'pages/Settings' }))
-        Button('关于', { type: ButtonType.Normal })
-          .fontSize(13)
           .margin({ left: 8 })
-          .onClick(() => router.pushUrl({ url: 'pages/About' }))
+          .onClick(() => router.pushUrl({ url: 'pages/Settings' }))
       }
       .width('100%')
       .padding({ bottom: 10 })
