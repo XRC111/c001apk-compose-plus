@@ -1,4 +1,8 @@
 {
+  // hvigor 的 ValidateUtil.modelVersionCheck 会同时读取本文件与
+  // hvigor/hvigor-config.json5 的 modelVersion，且要求两者**完全相等**，
+  // 任一缺失都会抛 00303024「项目结构需升级」。故两处必须保持一致。
+  "modelVersion": "6.0.0",
   "name": "c001apk-harmony",
   "version": "1.0.0",
   "description": "c001apk HarmonyOS native (ArkTS/ArkUI) skeleton",

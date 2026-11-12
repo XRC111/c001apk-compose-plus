@@ -57,82 +57,36 @@ jobs:
           fi
           cd entry
           ohpm install --all 2>&1 || echo "::warning::entry ohpm install 未成功（可能无三方依赖）"
-
-      - name: 诊断工具链与工程结构
-        working-directory: ohos
-        run: |
-          set -uo pipefail
-          echo "===== hvigorw 位置 ====="
-          command -v hvigorw || true
-          echo "===== hvigorw --version ====="
-          hvigorw --version 2>&1 | head -20 || true
-          echo "===== 工程 hvigor 配置 ====="
-          cat hvigor/hvigor-config.json5 || true
-          echo "===== 工程文件清单 ====="
-          ls -la . hvigor 2>/dev/null || true
-          echo "===== SDK 顶层 ====="
-          ls -1 "$DEVECO_SDK_HOME" 2>/dev/null || true
-          echo "===== SDK 内 hvigor 相关 ====="
-          find "$DEVECO_SDK_HOME" -maxdepth 3 -iname '*hvigor*' 2>/dev/null | head -20 || true
-          echo "===== 工具根目录 ====="
-          TOOLROOT=$(dirname "$DEVECO_SDK_HOME")
-          ls -1 "$TOOLROOT" 2>/dev/null || true
-          echo "===== 工具 node / hvigor 版本 ====="
-          ls -1 "$TOOLROOT/tool/node/bin" 2>/dev/null || true
-          find "$TOOLROOT" -maxdepth 4 -name "package.json" -path "*hvigor*" 2>/dev/null | head -10 || true
-
       - name: 构建 HAP
         working-directory: ohos
         run: |
           set -uo pipefail
-          echo "DEVECO_SDK_HOME=$DEVECO_SDK_HOME"
           TOOLROOT=$(dirname "$DEVECO_SDK_HOME")
 
-          echo "===== 工具版本 ====="
-          cat "$TOOLROOT/version.txt" 2>/dev/null || true
-          node -v || true
+          echo "===== 工具链 ====="
+          hvigorw --version 2>&1 | head -3 || true
+          echo "DEVECO_SDK_HOME=$DEVECO_SDK_HOME"
 
-          echo "===== SDK 的 hvigorw 脚本 ====="
-          HVIGORW=$(command -v hvigorw)
-          echo "HVIGORW=$HVIGORW"
-          head -60 "$HVIGORW" 2>/dev/null || true
-
-          echo "===== 定位 00303024 抛错点 ====="
-          FFILE=$(grep -rln 'need to be upgraded' "$TOOLROOT/hvigor" 2>/dev/null | head -1)
-          if [ -n "${FFILE:-}" ]; then
-            echo "FILE=$FFILE"
-            grep -o '.\{0,240\}00303024.\{0,500\}' "$FFILE" 2>/dev/null | head -2 || true
-            grep -o '.\{0,160\}need to be upgraded.\{0,400\}' "$FFILE" 2>/dev/null | head -2 || true
-          fi
-
-          echo "===== SDK/default 结构 ====="
-          find "$DEVECO_SDK_HOME/default" -maxdepth 2 -type d 2>/dev/null | head -20 || true
-
-          echo "===== 工程结构对照（标准 DevEco 应有 hvigor-wrapper.js / hvigorw.bat） ====="
-          ls -la hvigor/ . 2>/dev/null || true
-
-          echo "===== 带 stacktrace 的单次构建（拿真实抛错点） ====="
-          hvigorw assembleHap --mode module -p product=default -p debuggable=false --no-daemon --stacktrace 2>&1 | head -120 || true
-
-          echo "===== 反编译 modelVersionCheck 实际判断逻辑 ====="
-          VU="$TOOLROOT/hvigor/hvigor-ohos-plugin/src/utils/validate/validate-util.js"
+          echo "===== hvigor 支持的 modelVersion 范围 ====="
           node -e "
             const fs=require('fs');
-            const s=fs.readFileSync(process.argv[1],'utf8');
-            console.log('LEN='+s.length);
-            const i=s.indexOf('modelVersionCheck');
-            console.log('IDX='+i);
-            console.log('--- around modelVersionCheck ---');
-            console.log(s.slice(Math.max(0,i-200), i+1400));
-          " "$VU" 2>/dev/null || true
+            const f=process.argv[1];
+            if (fs.existsSync(f)) {
+              const s=fs.readFileSync(f,'utf8');
+              const i=s.indexOf('CURRENT_MODEL_VERSION');
+              console.log(s.slice(Math.max(0,i-500), i+500));
+            } else { console.log('version-const.js not found: '+f); }
+          " "$TOOLROOT/hvigor/hvigor-ohos-plugin/src/const/version-const.js" 2>/dev/null || true
 
-          echo "===== 相关配置字段现状 ====="
-          cat oh-package.json5
-          cat hvigor/hvigor-config.json5
+          echo "===== 两个 modelVersion 必须一致 ====="
+          grep -n "modelVersion" oh-package.json5 hvigor/hvigor-config.json5 || true
+
+          hvigorw clean --no-daemon 2>&1 | tail -10 || true
+          hvigorw assembleHap --mode module -p product=default -p debuggable=false --no-daemon
 
           echo "--- HAP 产物 ---"
-          find . -name "*.hap" -type f | head -20 || true
-          HAPS=$(find . -name "*.hap" -type f | wc -l | tr -d ' ')
+          find . -name "*.hap" -type f
+          HAPS=$(find . -name "*.hap" -type f | wc -l | tr -d " ")
           echo "hap_count=$HAPS"
           if [ "$HAPS" -eq 0 ]; then
             echo "::error::构建未产出 HAP"
