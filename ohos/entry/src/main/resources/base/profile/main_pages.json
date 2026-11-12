@@ -1,6 +1,7 @@
 {
   "src": [
     "pages/Index",
+    "pages/FeedDetail",
     "pages/Settings",
     "pages/About"
   ]

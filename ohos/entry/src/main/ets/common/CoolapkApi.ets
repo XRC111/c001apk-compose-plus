@@ -104,6 +104,19 @@ export class CoolapkApi {
     return CoolapkApi.get('/v6/main/indexV8?page=' + page.toString());
   }
 
+  /** 动态详情。 */
+  static async fetchFeedDetail(id: string): Promise<CoolapkResponse> {
+    return CoolapkApi.get('/v6/feed/detail?id=' + encodeURIComponent(id));
+  }
+
+  /** 动态评论列表。 */
+  static async fetchReplies(id: string, page: number = 1): Promise<CoolapkResponse> {
+    const q = '/v6/feed/replyList?id=' + encodeURIComponent(id) +
+      '&listType=lastupdate&page=' + page.toString() +
+      '&discussMode=1&feedType=feed&blockStatus=0&fromInclude=0';
+    return CoolapkApi.get(q);
+  }
+
   /** 当前 v3 token（调试用，页面可展示前若干位确认算法生效）。 */
   static currentTokenPreview(): string {
     const token = getTokenV3(getDeviceCode());

@@ -1,7 +1,14 @@
 import { router } from '@kit.ArkUI';
 import { CoolapkApi, CoolapkResponse } from '../common/CoolapkApi';
 import { getDeviceCode } from '../common/DeviceCode';
-import { feedSummary, feedTypeLabel, FeedItem, parseFeed, ParsedFeed } from '../common/Feed';
+import {
+  feedSummary,
+  feedTypeLabel,
+  FeedItem,
+  parseFeed,
+  ParsedFeed,
+  setPendingDetailId,
+} from '../common/Feed';
 
 @Entry
 @Component
@@ -123,33 +130,53 @@ struct Index {
       List({ space: 8 }) {
         ForEach(this.items, (item: FeedItem) => {
           ListItem() {
-            Column() {
-              Row() {
-                Text(feedTypeLabel(item))
-                  .fontSize(10)
-                  .fontColor('#FFFFFF')
-                  .padding({ left: 6, right: 6, top: 2, bottom: 2 })
-                  .backgroundColor('#7A8CD0')
-                  .borderRadius(4)
-                Blank()
-                Text(item.username !== undefined ? item.username : '')
-                  .fontSize(10)
-                  .fontColor('#8A8A8E')
-              }
-              .width('100%')
-
-              Text(feedSummary(item))
-                .fontSize(13)
+            Row() {
+              Column() {
+                Row() {
+                  Text(feedTypeLabel(item))
+                    .fontSize(10)
+                    .fontColor('#FFFFFF')
+                    .padding({ left: 6, right: 6, top: 2, bottom: 2 })
+                    .backgroundColor('#7A8CD0')
+                    .borderRadius(4)
+                  Blank()
+                  Text(item.username !== undefined ? item.username : '')
+                    .fontSize(10)
+                    .fontColor('#8A8A8E')
+                }
                 .width('100%')
-                .margin({ top: 6 })
-                .maxLines(3)
-                .textOverflow({ overflow: TextOverflow.Ellipsis })
+
+                Text(feedSummary(item))
+                  .fontSize(13)
+                  .width('100%')
+                  .margin({ top: 6 })
+                  .maxLines(3)
+                  .textOverflow({ overflow: TextOverflow.Ellipsis })
+              }
+              .layoutWeight(1)
+              .alignItems(HorizontalAlign.Start)
+
+              if (item.pic !== undefined && item.pic.length > 0) {
+                Image(item.pic)
+                  .width(64)
+                  .height(64)
+                  .objectFit(ImageFit.Cover)
+                  .borderRadius(8)
+                  .margin({ left: 10 })
+              }
             }
             .width('100%')
             .padding(10)
             .backgroundColor('#FFFFFF')
             .borderRadius(10)
-            .alignItems(HorizontalAlign.Start)
+            .alignItems(VerticalAlign.Top)
+            .onClick(() => {
+              const feedId = item.id;
+              if (feedId !== undefined && feedId.length > 0) {
+                setPendingDetailId(feedId);
+                router.pushUrl({ url: 'pages/FeedDetail' });
+              }
+            })
           }
         }, (item: FeedItem) => item.id !== undefined ? item.id : '')
       }
