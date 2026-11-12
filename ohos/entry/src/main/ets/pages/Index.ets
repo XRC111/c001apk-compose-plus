@@ -25,6 +25,9 @@ struct Index {
   @State rawPreview: string = '';
   @State loginName: string = '';
   @State captchaId: string = '';
+  @State page: number = 1;
+  @State loadingMore: boolean = false;
+  @State hasMore: boolean = true;
 
   aboutToAppear(): void {
     // 进页面就把 v3 token 算出来，确认 bcrypt / MD5 / base64 链路在设备上跑通
@@ -249,6 +252,31 @@ struct Index {
             })
           }
         }, (item: FeedItem) => item.id !== undefined ? item.id : '')
+
+        // 分页脚注
+        ListItem() {
+          Row() {
+            if (this.loadingMore) {
+              LoadingProgress().width(18).height(18)
+              Text('加载中…')
+                .fontSize(12)
+                .fontColor('#8A8A8E')
+                .margin({ left: 6 })
+            } else if (this.hasMore) {
+              Text('加载更多')
+                .fontSize(13)
+                .fontColor('#7A8CD0')
+            } else {
+              Text('没有更多了')
+                .fontSize(12)
+                .fontColor('#A0A0A6')
+            }
+          }
+          .width('100%')
+          .justifyContent(FlexAlign.Center)
+          .padding({ top: 12, bottom: 12 })
+          .onClick(() => this.loadMore())
+        }
       }
       .width('100%')
       .layoutWeight(1)
@@ -263,6 +291,8 @@ struct Index {
     this.loading = true;
     this.statusText = '请求中…';
     this.captchaId = '';
+    this.page = 1;
+    this.hasMore = true;
     const res: CoolapkResponse = await CoolapkApi.fetchHome(1);
     const parsed: ParsedFeed = parseFeed(res.body);
     this.items = parsed.items;
@@ -283,5 +313,31 @@ struct Index {
     } else {
       this.statusText = `HTTP ${res.status}`;
     }
+  }
+
+  /** 加载下一页并追加。 */
+  private async loadMore(): Promise<void> {
+    if (this.loadingMore || !this.hasMore) {
+      return;
+    }
+    this.loadingMore = true;
+    const next = this.page + 1;
+    const res: CoolapkResponse = await CoolapkApi.fetchHome(next);
+    const parsed: ParsedFeed = parseFeed(res.body);
+    this.loadingMore = false;
+
+    if (res.needCaptcha) {
+      this.captchaId = res.captchaId;
+      this.statusText = '加载更多时命中风控验证码';
+      return;
+    }
+    if (parsed.items.length === 0) {
+      this.hasMore = false;
+      this.statusText = '没有更多了';
+      return;
+    }
+    this.page = next;
+    this.items = this.items.concat(parsed.items);
+    this.statusText = `已加载 ${this.items.length} 条`;
   }
 }
