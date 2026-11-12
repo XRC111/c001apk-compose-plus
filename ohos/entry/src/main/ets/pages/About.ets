@@ -32,9 +32,11 @@ struct About {
           .margin({ bottom: 6 })
 
         Text('· X-App-Token v3 全链路（纯 ArkTS 的 bcrypt / MD5 / base64）\n'
-          + '· 首页信息流、动态详情与评论、搜索\n'
+          + '· 首页信息流（含分页）、动态详情与评论\n'
+          + '· 应用详情（图标 / 版本 / 大小 / 下载量 / 更新日志）\n'
+          + '· 关键词搜索\n'
           + '· 账号登录（内置网页登录并提取 Cookie）\n'
-          + '· 新版风控验证（易盾滑块，verifying 后自动写回 validate）\n'
+          + '· 新版风控验证（易盾滑块，验证后自动写回 validate）\n'
           + '· ShuzlmID / 设备码本地持久化\n'
           + '· SESSID 自动回写')
           .fontSize(12)
@@ -48,7 +50,7 @@ struct About {
           .alignSelf(ItemAlign.Start)
           .margin({ top: 14, bottom: 6 })
 
-        Text('· 应用详情 / 用户主页\n'
+        Text('· 用户主页\n'
           + '· 点赞、收藏、评论等写操作\n'
           + '· 消息通知、发现页\n'
           + '· 图片缓存与预加载')
