@@ -170,8 +170,9 @@ jobs:
             | 签名 | ${{ steps.keystore.outputs.signed == 'true' && 'release（已签名）' || 'debug' }} |
 
             ### 版本矩阵
-            - Kotlin 2.4.20 / Compose 1.12.1 / AGP 9.4.1 / Gradle 9.6.0
+            - Kotlin 2.4.21 / Compose 1.12.2 / AGP 9.4.1 / Gradle 9.6.0
             - MIUIX 0.9.4（YuKongA/Miuix）
+            - Haze 2.1.0（chrisbanes/haze，液态玻璃）
             - compileSdk 37 / minSdk 24
 
             > 自动构建，未做运行时验证。详见仓库内 `BUILD_NOTES.md`。
