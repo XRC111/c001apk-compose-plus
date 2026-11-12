@@ -21,7 +21,7 @@ struct AppDetail {
   @State name: string = '';
   @State icon: string = '';
   @State versionName: string = '';
-  @State size: string = '';
+  @State apkSize: string = '';
   @State downloads: string = '';
   @State comments: string = '';
   @State updated: string = '';
@@ -48,7 +48,7 @@ struct AppDetail {
       this.name = appName(d);
       this.icon = appIcon(d);
       this.versionName = str(d.apkversionname);
-      this.size = str(d.apksize);
+      this.apkSize = str(d.apksize);
       const down = d.downCount;
       const downNum = d.downnum;
       this.downloads = down !== undefined && down.length > 0 ? down : str(downNum);
@@ -169,7 +169,7 @@ struct AppDetail {
             .layoutWeight(1)
 
             Column() {
-              Text(this.size.length > 0 ? this.size : '-').fontSize(15).fontWeight(FontWeight.Medium)
+              Text(this.apkSize.length > 0 ? this.apkSize : '-').fontSize(15).fontWeight(FontWeight.Medium)
               Text('大小').fontSize(10).fontColor('#A0A0A6')
             }
             .layoutWeight(1)
@@ -242,3 +242,4 @@ struct AppDetail {
     .backgroundColor($r('app.color.page_background'))
   }
 }
+
