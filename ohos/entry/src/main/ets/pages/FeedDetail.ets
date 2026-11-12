@@ -14,7 +14,7 @@ import {
 @Entry
 @Component
 struct FeedDetail {
-  @State id: string = '';
+  @State feedId: string = '';
   @State loading: boolean = false;
   @State status: string = '';
   @State user: string = '';
@@ -27,8 +27,8 @@ struct FeedDetail {
   @State replyStatus: string = '';
 
   aboutToAppear(): void {
-    this.id = getPendingDetailId();
-    if (this.id.length === 0) {
+    this.feedId = getPendingDetailId();
+    if (this.feedId.length === 0) {
       this.status = '缺少动态 ID';
       return;
     }
@@ -40,7 +40,7 @@ struct FeedDetail {
     this.status = '加载中…';
 
     // 详情与评论并行，评论失败不影响正文
-    const detailRes: CoolapkResponse = await CoolapkApi.fetchFeedDetail(this.id);
+    const detailRes: CoolapkResponse = await CoolapkApi.fetchFeedDetail(this.feedId);
     const parsed: ParsedDetail = parseDetail(detailRes.body);
     if (parsed.detail !== null) {
       const d = parsed.detail;
@@ -63,7 +63,7 @@ struct FeedDetail {
       this.status = `加载失败 HTTP ${detailRes.status}`;
     }
 
-    const replyRes: CoolapkResponse = await CoolapkApi.fetchReplies(this.id, 1);
+    const replyRes: CoolapkResponse = await CoolapkApi.fetchReplies(this.feedId, 1);
     const parsedReplies: ParsedReplies = parseReplies(replyRes.body);
     this.replies = parsedReplies.replies;
     if (parsedReplies.error.length > 0) {
@@ -187,3 +187,4 @@ struct FeedDetail {
     .backgroundColor($r('app.color.page_background'))
   }
 }
+
