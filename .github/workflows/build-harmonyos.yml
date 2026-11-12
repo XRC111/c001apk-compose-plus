@@ -98,11 +98,11 @@ jobs:
           head -60 "$HVIGORW" 2>/dev/null || true
 
           echo "===== 定位 00303024 抛错点 ====="
-          grep -rln 'need to be upgraded' "$TOOLROOT/hvigor" 2>/dev/null | head -5 || true
           FFILE=$(grep -rln 'need to be upgraded' "$TOOLROOT/hvigor" 2>/dev/null | head -1)
           if [ -n "${FFILE:-}" ]; then
             echo "FILE=$FFILE"
-            grep -o '.\{0,400\}need to be upgraded.\{0,200\}' "$FFILE" 2>/dev/null | head -3 || true
+            grep -o '.\{0,240\}00303024.\{0,500\}' "$FFILE" 2>/dev/null | head -2 || true
+            grep -o '.\{0,160\}need to be upgraded.\{0,400\}' "$FFILE" 2>/dev/null | head -2 || true
           fi
 
           echo "===== SDK/default 结构 ====="

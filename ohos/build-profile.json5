@@ -6,8 +6,10 @@
         // 不引用 signingConfigs（此处为空）：产出未签名 HAP，真机安装需在 DevEco 配签名。
         // arkTSVersion 是 DevEco 6.x schema 的必需字段；1.1 为经典 ArkTS 语法
         //（本项目全部代码按 ArkTS 1.1 编写）。
+        // Command Line Tools 6.0.1.251 自带 HarmonyOS 6.0.1 Release (API 21)，
+        // compatibleSdkVersion 必须与 SDK 对齐，否则 hvigor 报 00303024。
         "name": "default",
-        "compatibleSdkVersion": "6.0.0(20)",
+        "compatibleSdkVersion": "6.0.1(21)",
         "runtimeOS": "HarmonyOS",
         "arkTSVersion": "1.1"
       }
