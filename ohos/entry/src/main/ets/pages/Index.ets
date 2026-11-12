@@ -1,350 +1,59 @@
-import { router } from '@kit.ArkUI';
-import { CoolapkApi, CoolapkResponse } from '../common/CoolapkApi';
-import { getDeviceCode } from '../common/DeviceCode';
-import {
-  feedSummary,
-  feedTypeLabel,
-  FeedItem,
-  parseFeed,
-  ParsedFeed,
-  setPendingAppId,
-  setPendingDetailId,
-} from '../common/Feed';
-import { setPendingCaptchaId } from '../common/CaptchaBridge';
-import { clearLogin, currentUsername, isLoggedIn } from '../common/CookieStore';
+import { HomeTab } from '../view/HomeTab';
+import { MessageTab } from '../view/MessageTab';
+import { SettingsTab } from '../view/SettingsTab';
 
+/**
+ * 应用外壳：底部三栏（首页 / 消息 / 设置），与 Android 版
+ * MainScreen 的 NavigationSuiteScaffold 结构一致。
+ */
 @Entry
 @Component
 struct Index {
-  @State statusText: string = '未请求';
-  @State loading: boolean = false;
-  @State tokenPreview: string = '';
-  @State devicePreview: string = '';
-  @State elapsedMs: number = 0;
-  @State items: FeedItem[] = [];
-  @State showRaw: boolean = false;
-  @State rawPreview: string = '';
-  @State loginName: string = '';
-  @State captchaId: string = '';
-  @State page: number = 1;
-  @State loadingMore: boolean = false;
-  @State hasMore: boolean = true;
-
-  aboutToAppear(): void {
-    // 进页面就把 v3 token 算出来，确认 bcrypt / MD5 / base64 链路在设备上跑通
-    const t0 = Date.now();
-    this.tokenPreview = CoolapkApi.currentTokenPreview();
-    this.elapsedMs = Date.now() - t0;
-    const dev = getDeviceCode();
-    this.devicePreview = dev.length > 20 ? dev.substring(0, 20) + '…' : dev;
-    this.refreshLogin();
-  }
-
-  /** 从登录页返回时刷新登录态。 */
-  onPageShow(): void {
-    this.refreshLogin();
-  }
-
-  private async refreshLogin(): Promise<void> {
-    const logged = await isLoggedIn();
-    if (logged) {
-      this.loginName = await currentUsername();
-    } else {
-      this.loginName = '';
-    }
-  }
-
-  private async logout(): Promise<void> {
-    await clearLogin();
-    this.loginName = '';
-    this.statusText = '已退出登录';
-  }
+  @State tabIndex: number = 0;
 
   build() {
     Column() {
-      Row() {
-        Column() {
-          Text('c001apk')
-            .fontSize(22)
-            .fontWeight(FontWeight.Bold)
-          Text('HarmonyOS 原生 · ArkTS/ArkUI')
-            .fontSize(11)
-            .fontColor('#8A8A8E')
-            .margin({ top: 2 })
-        }
-        .alignItems(HorizontalAlign.Start)
-
-        Blank()
-
-        Button('搜索', { type: ButtonType.Normal })
-          .fontSize(13)
-          .onClick(() => router.pushUrl({ url: 'pages/SearchPage' }))
-        Button('设置', { type: ButtonType.Normal })
-          .fontSize(13)
-          .margin({ left: 8 })
-          .onClick(() => router.pushUrl({ url: 'pages/Settings' }))
-      }
-      .width('100%')
-      .padding({ bottom: 10 })
-
-      // 账号行
-      Row() {
-        if (this.loginName.length > 0) {
-          Text(`已登录：${this.loginName}`)
-            .fontSize(12)
-            .fontColor('#2E7D32')
-          Blank()
-          Button('退出', { type: ButtonType.Normal })
-            .fontSize(12)
-            .onClick(() => this.logout())
-        } else {
-          Text('未登录')
-            .fontSize(12)
-            .fontColor('#8A8A8E')
-          Blank()
-          Button('登录酷安', { type: ButtonType.Normal })
-            .fontSize(12)
-            .onClick(() => router.pushUrl({ url: 'pages/LoginPage' }))
-        }
-      }
-      .width('100%')
-      .margin({ bottom: 8 })
-
-      // token 信息卡
       Column() {
-        Row() {
-          Text('X-App-Token v3')
-            .fontSize(12)
-            .fontColor('#666666')
-          Blank()
-          Text(`${this.elapsedMs} ms`)
-            .fontSize(11)
-            .fontColor('#8A8A8E')
+        if (this.tabIndex === 0) {
+          HomeTab()
+        } else if (this.tabIndex === 1) {
+          MessageTab()
+        } else {
+          SettingsTab()
         }
-        .width('100%')
-
-        Text(this.tokenPreview.length > 0 ? this.tokenPreview : '计算中…')
-          .fontSize(10)
-          .fontColor('#4A4A8A')
-          .width('100%')
-          .margin({ top: 4 })
-
-        Text(`device: ${this.devicePreview}`)
-          .fontSize(10)
-          .fontColor('#8A8A8E')
-          .width('100%')
-          .margin({ top: 2 })
       }
+      .layoutWeight(1)
       .width('100%')
-      .padding(10)
-      .backgroundColor('#FFFFFF')
-      .borderRadius(10)
-      .margin({ bottom: 10 })
+
+      Divider().strokeWidth(0.5).color('#EAEAEA')
 
       Row() {
-        Button(this.loading ? '加载中…' : '加载首页', { type: ButtonType.Capsule })
-          .layoutWeight(1)
-          .height(40)
-          .enabled(!this.loading)
-          .onClick(() => this.loadHome())
-        Button('原始响应', { type: ButtonType.Normal })
-          .fontSize(13)
-          .height(40)
-          .margin({ left: 8 })
-          .onClick(() => {
-            this.showRaw = !this.showRaw;
-          })
+        this.BottomItem('首页', 0)
+        this.BottomItem('消息', 1)
+        this.BottomItem('设置', 2)
       }
       .width('100%')
-      .margin({ bottom: 8 })
-
-      Text(this.statusText)
-        .fontSize(12)
-        .fontColor(this.statusText.indexOf('风控') >= 0 ? '#E06030' : '#8A8A8E')
-        .width('100%')
-        .margin({ bottom: 6 })
-
-      // 命中风控时提供验证入口
-      if (this.captchaId.length > 0) {
-        Row() {
-          Text('需要人机验证才能继续')
-            .fontSize(12)
-            .fontColor('#E06030')
-            .layoutWeight(1)
-          Button('去验证', { type: ButtonType.Capsule })
-            .fontSize(12)
-            .height(32)
-            .onClick(() => {
-              setPendingCaptchaId(this.captchaId);
-              router.pushUrl({ url: 'pages/CaptchaPage' });
-            })
-        }
-        .width('100%')
-        .padding(10)
-        .backgroundColor('#FFF3EF')
-        .borderRadius(10)
-        .margin({ bottom: 8 })
-      }
-
-      if (this.showRaw && this.rawPreview.length > 0) {
-        Scroll() {
-          Text(this.rawPreview)
-            .fontSize(10)
-            .fontColor('#555555')
-            .width('100%')
-        }
-        .width('100%')
-        .height(140)
-        .padding(8)
-        .backgroundColor('#FFFFFF')
-        .borderRadius(10)
-        .margin({ bottom: 8 })
-      }
-
-      List({ space: 8 }) {
-        ForEach(this.items, (item: FeedItem) => {
-          ListItem() {
-            Row() {
-              Column() {
-                Row() {
-                  Text(feedTypeLabel(item))
-                    .fontSize(10)
-                    .fontColor('#FFFFFF')
-                    .padding({ left: 6, right: 6, top: 2, bottom: 2 })
-                    .backgroundColor('#7A8CD0')
-                    .borderRadius(4)
-                  Blank()
-                  Text(item.username !== undefined ? item.username : '')
-                    .fontSize(10)
-                    .fontColor('#8A8A8E')
-                }
-                .width('100%')
-
-                Text(feedSummary(item))
-                  .fontSize(13)
-                  .width('100%')
-                  .margin({ top: 6 })
-                  .maxLines(3)
-                  .textOverflow({ overflow: TextOverflow.Ellipsis })
-              }
-              .layoutWeight(1)
-              .alignItems(HorizontalAlign.Start)
-
-              if (item.pic !== undefined && item.pic.length > 0) {
-                Image(item.pic)
-                  .width(64)
-                  .height(64)
-                  .objectFit(ImageFit.Cover)
-                  .borderRadius(8)
-                  .margin({ left: 10 })
-              }
-            }
-            .width('100%')
-            .padding(10)
-            .backgroundColor('#FFFFFF')
-            .borderRadius(10)
-            .alignItems(VerticalAlign.Top)
-            .onClick(() => {
-              const feedId = item.id;
-              if (feedId !== undefined && feedId.length > 0) {
-                const et = item.entityType;
-                if (et === 'product' || et === 'apk') {
-                  setPendingAppId(feedId);
-                  router.pushUrl({ url: 'pages/AppDetail' });
-                } else {
-                  setPendingDetailId(feedId);
-                  router.pushUrl({ url: 'pages/FeedDetail' });
-                }
-              }
-            })
-          }
-        }, (item: FeedItem) => item.id !== undefined ? item.id : '')
-
-        // 分页脚注
-        ListItem() {
-          Row() {
-            if (this.loadingMore) {
-              LoadingProgress().width(18).height(18)
-              Text('加载中…')
-                .fontSize(12)
-                .fontColor('#8A8A8E')
-                .margin({ left: 6 })
-            } else if (this.hasMore) {
-              Text('加载更多')
-                .fontSize(13)
-                .fontColor('#7A8CD0')
-            } else {
-              Text('没有更多了')
-                .fontSize(12)
-                .fontColor('#A0A0A6')
-            }
-          }
-          .width('100%')
-          .justifyContent(FlexAlign.Center)
-          .padding({ top: 12, bottom: 12 })
-          .onClick(() => this.loadMore())
-        }
-      }
-      .width('100%')
-      .layoutWeight(1)
+      .height(56)
+      .backgroundColor('#FFFFFF')
     }
     .width('100%')
     .height('100%')
-    .padding({ left: 16, right: 16, top: 40, bottom: 12 })
-    .backgroundColor($r('app.color.page_background'))
+    .backgroundColor('#F5F5F7')
   }
 
-  private async loadHome(): Promise<void> {
-    this.loading = true;
-    this.statusText = '请求中…';
-    this.captchaId = '';
-    this.page = 1;
-    this.hasMore = true;
-    const res: CoolapkResponse = await CoolapkApi.fetchHome(1);
-    const parsed: ParsedFeed = parseFeed(res.body);
-    this.items = parsed.items;
-    this.rawPreview = res.body.substring(0, Math.min(2000, res.body.length));
-    this.loading = false;
-
-    if (res.needCaptcha) {
-      this.captchaId = res.captchaId;
-      this.statusText = res.captchaId.length > 0
-        ? '命中风控验证码，可点「去验证」完成人机验证'
-        : '命中风控验证码，建议先导入 ShuzlmID 再试';
-    } else if (res.status === 200 && parsed.items.length > 0) {
-      this.statusText = `HTTP 200 · ${parsed.items.length} 条`;
-    } else if (res.status === 200) {
-      this.statusText = parsed.error.length > 0 ? `HTTP 200 · ${parsed.error}` : 'HTTP 200 · 无数据';
-    } else if (res.status < 0) {
-      this.statusText = '网络请求失败（检查网络或权限）';
-    } else {
-      this.statusText = `HTTP ${res.status}`;
+  @Builder
+  BottomItem(label: string, idx: number) {
+    Column() {
+      Text(label)
+        .fontSize(this.tabIndex === idx ? 13 : 12)
+        .fontWeight(this.tabIndex === idx ? FontWeight.Bold : FontWeight.Normal)
+        .fontColor(this.tabIndex === idx ? '#FB7299' : '#8A8A8E')
     }
-  }
-
-  /** 加载下一页并追加。 */
-  private async loadMore(): Promise<void> {
-    if (this.loadingMore || !this.hasMore) {
-      return;
-    }
-    this.loadingMore = true;
-    const next = this.page + 1;
-    const res: CoolapkResponse = await CoolapkApi.fetchHome(next);
-    const parsed: ParsedFeed = parseFeed(res.body);
-    this.loadingMore = false;
-
-    if (res.needCaptcha) {
-      this.captchaId = res.captchaId;
-      this.statusText = '加载更多时命中风控验证码';
-      return;
-    }
-    if (parsed.items.length === 0) {
-      this.hasMore = false;
-      this.statusText = '没有更多了';
-      return;
-    }
-    this.page = next;
-    this.items = this.items.concat(parsed.items);
-    this.statusText = `已加载 ${this.items.length} 条`;
+    .layoutWeight(1)
+    .height('100%')
+    .justifyContent(FlexAlign.Center)
+    .onClick(() => {
+      this.tabIndex = idx;
+    })
   }
 }

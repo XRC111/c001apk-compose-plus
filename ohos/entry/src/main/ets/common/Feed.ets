@@ -13,7 +13,13 @@ export interface FeedItem {
   entityType?: string;
   turl?: string;
   pic?: string;
+  picArr?: string[];
   uid?: string;
+  userAvatar?: string;
+  likenum?: string;
+  commentnum?: string;
+  replynum?: string;
+  dateline?: number;
 }
 
 export interface FeedEnvelope {
@@ -361,4 +367,28 @@ export function setPendingUid(uid: string): void {
 
 export function getPendingUid(): string {
   return pendingUid;
+}
+
+/** 取信息流的图片列表：优先 picArr，其次单张 pic。最多 9 张。 */
+export function feedPics(item: FeedItem): string[] {
+  const arr = item.picArr;
+  if (arr !== undefined && arr !== null && arr.length > 0) {
+    return arr.length > 9 ? arr.slice(0, 9) : arr;
+  }
+  const one = item.pic;
+  if (one !== undefined && one.length > 0) {
+    const single: string[] = [one];
+    return single;
+  }
+  const none: string[] = [];
+  return none;
+}
+
+/** 卡片头像。 */
+export function feedAvatar(item: FeedItem): string {
+  const a = item.userAvatar;
+  if (a !== undefined && a.length > 0) {
+    return a;
+  }
+  return '';
 }
