@@ -2,6 +2,8 @@
   "src": [
     "pages/Index",
     "pages/FeedDetail",
+    "pages/CaptchaPage",
+    "pages/LoginPage",
     "pages/Settings",
     "pages/About"
   ]

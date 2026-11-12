@@ -5,17 +5,17 @@
  *  - Constants: VERSION_NAME / API_VERSION / VERSION_CODE / CHANNEL / MODE
  *  - X-App-Token v3（含 bcrypt、MD5、base64、AUTH_BLOB 切片）
  *  - X-App-Device 生成
- *  - 新版风控验证码（err_request_captcha_v2）的识别与错误返回
+ *  - 新版风控验证码（err_request_captcha_v2）的识别与 captchaId 提取
+ *  - Cookie：登录态（uid/username/token）+ SESSID + validate
  *
- * 尚未闭环：
- *  - 易盾滑块验证页（Android 依赖 WebView + Activity；HarmonyOS 侧需接
- *    ArkUI 的 Web 组件并打通 cookie 回写，待后续迭代）
- *  - 登录态 Cookie（需先接入 Preferences 存 uid/token）
+ * 仍待完善：
+ *  - 服务端下发的 SESSID 自动回写（目前由验证页/登录页显式保存）
  */
 import { http } from '@kit.NetworkKit';
 import { hilog } from '@kit.PerformanceAnalysisKit';
 import { getTokenV3, APP_ID, VERSION_CODE, API_VERSION, CHANNEL, MODE, VERSION_NAME } from './CoolapkToken';
 import { getDeviceCode } from './DeviceCode';
+import { buildCookieHeader } from './CookieStore';
 
 const DOMAIN = 0x0000;
 const API_HOST: string = 'https://api.coolapk.com';
@@ -27,10 +27,12 @@ export interface CoolapkResponse {
   body: string;
   messageStatus: string;
   needCaptcha: boolean;
+  /** 命中风控时服务端下发的易盾 captchaId，可能为空。 */
+  captchaId: string;
 }
 
 /** 组装与 Android 版 AddCookiesInterceptor 对齐的请求头。 */
-export function buildHeaders(token: string, deviceCode: string): Record<string, string> {
+export function buildHeaders(token: string, deviceCode: string, cookie: string): Record<string, string> {
   const headers: Record<string, string> = {
     'User-Agent': 'Dalvik/2.1.0 (Linux; U; Android 16; M2012K11AC a1b2c3d4e5f60718) ' +
       '(#Build; Xiaomi; M2012K11AC; a1b2c3d4e5f60718; 16) +CoolMarket/' +
@@ -50,6 +52,9 @@ export function buildHeaders(token: string, deviceCode: string): Record<string, 
     'X-App-Supported': VERSION_CODE,
     'Content-Type': 'application/x-www-form-urlencoded',
   };
+  if (cookie.length > 0) {
+    headers['Cookie'] = cookie;
+  }
   return headers;
 }
 
@@ -59,18 +64,25 @@ function extractMessageStatus(body: string): string {
   return m !== null ? m[1] : '';
 }
 
+/** 从风控响应里提取易盾 captchaId。 */
+function extractCaptchaId(body: string): string {
+  const m = /"captchaId"\s*:\s*"([^"]+)"/.exec(body);
+  return m !== null ? m[1] : '';
+}
+
 export class CoolapkApi {
-  /** 发起一次 GET，自动带上 v3 token。 */
+  /** 发起一次 GET，自动带上 v3 token 与本地 Cookie。 */
   static async get(path: string): Promise<CoolapkResponse> {
     const deviceCode = getDeviceCode();
     const token = getTokenV3(deviceCode);
+    const cookie = await buildCookieHeader();
     const url = API_HOST + path;
     const req = http.createHttp();
     try {
       hilog.info(DOMAIN, 'c001apk', 'GET %{public}s', path);
       const res = await req.request(url, {
         method: http.RequestMethod.GET,
-        header: buildHeaders(token, deviceCode),
+        header: buildHeaders(token, deviceCode, cookie),
         readTimeout: 15000,
         connectTimeout: 15000,
       });
@@ -80,26 +92,34 @@ export class CoolapkApi {
       const needCaptcha = messageStatus === 'err_request_captcha_v2' ||
         body.indexOf('当前访问需要验证码') >= 0 ||
         body.indexOf('err_request_captcha_v2') >= 0;
+      const captchaId = needCaptcha ? extractCaptchaId(body) : '';
       if (needCaptcha) {
-        hilog.warn(DOMAIN, 'c001apk', '命中新版风控验证码，需要人机验证');
+        hilog.warn(DOMAIN, 'c001apk', '命中新版风控验证码 captchaId=%{public}s', captchaId);
       }
       const r: CoolapkResponse = {
         status: res.responseCode,
         body: body,
         messageStatus: messageStatus,
         needCaptcha: needCaptcha,
+        captchaId: captchaId,
       };
       return r;
     } catch (e) {
       hilog.error(DOMAIN, 'c001apk', 'GET %{public}s failed: %{public}s', path, JSON.stringify(e));
-      const r: CoolapkResponse = { status: -1, body: '', messageStatus: '', needCaptcha: false };
+      const r: CoolapkResponse = {
+        status: -1,
+        body: '',
+        messageStatus: '',
+        needCaptcha: false,
+        captchaId: '',
+      };
       return r;
     } finally {
       req.destroy();
     }
   }
 
-  /** 首页信息流，用于验证网络层与 token。 */
+  /** 首页信息流。 */
   static async fetchHome(page: number = 1): Promise<CoolapkResponse> {
     return CoolapkApi.get('/v6/main/indexV8?page=' + page.toString());
   }

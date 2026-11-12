@@ -9,6 +9,8 @@ import {
   ParsedFeed,
   setPendingDetailId,
 } from '../common/Feed';
+import { setPendingCaptchaId } from '../common/CaptchaBridge';
+import { clearLogin, currentUsername, isLoggedIn } from '../common/CookieStore';
 
 @Entry
 @Component
@@ -21,6 +23,8 @@ struct Index {
   @State items: FeedItem[] = [];
   @State showRaw: boolean = false;
   @State rawPreview: string = '';
+  @State loginName: string = '';
+  @State captchaId: string = '';
 
   aboutToAppear(): void {
     // 进页面就把 v3 token 算出来，确认 bcrypt / MD5 / base64 链路在设备上跑通
@@ -29,6 +33,27 @@ struct Index {
     this.elapsedMs = Date.now() - t0;
     const dev = getDeviceCode();
     this.devicePreview = dev.length > 20 ? dev.substring(0, 20) + '…' : dev;
+    this.refreshLogin();
+  }
+
+  /** 从登录页返回时刷新登录态。 */
+  onPageShow(): void {
+    this.refreshLogin();
+  }
+
+  private async refreshLogin(): Promise<void> {
+    const logged = await isLoggedIn();
+    if (logged) {
+      this.loginName = await currentUsername();
+    } else {
+      this.loginName = '';
+    }
+  }
+
+  private async logout(): Promise<void> {
+    await clearLogin();
+    this.loginName = '';
+    this.statusText = '已退出登录';
   }
 
   build() {
@@ -57,6 +82,29 @@ struct Index {
       }
       .width('100%')
       .padding({ bottom: 10 })
+
+      // 账号行
+      Row() {
+        if (this.loginName.length > 0) {
+          Text(`已登录：${this.loginName}`)
+            .fontSize(12)
+            .fontColor('#2E7D32')
+          Blank()
+          Button('退出', { type: ButtonType.Normal })
+            .fontSize(12)
+            .onClick(() => this.logout())
+        } else {
+          Text('未登录')
+            .fontSize(12)
+            .fontColor('#8A8A8E')
+          Blank()
+          Button('登录酷安', { type: ButtonType.Normal })
+            .fontSize(12)
+            .onClick(() => router.pushUrl({ url: 'pages/LoginPage' }))
+        }
+      }
+      .width('100%')
+      .margin({ bottom: 8 })
 
       // token 信息卡
       Column() {
@@ -111,6 +159,28 @@ struct Index {
         .fontColor(this.statusText.indexOf('风控') >= 0 ? '#E06030' : '#8A8A8E')
         .width('100%')
         .margin({ bottom: 6 })
+
+      // 命中风控时提供验证入口
+      if (this.captchaId.length > 0) {
+        Row() {
+          Text('需要人机验证才能继续')
+            .fontSize(12)
+            .fontColor('#E06030')
+            .layoutWeight(1)
+          Button('去验证', { type: ButtonType.Capsule })
+            .fontSize(12)
+            .height(32)
+            .onClick(() => {
+              setPendingCaptchaId(this.captchaId);
+              router.pushUrl({ url: 'pages/CaptchaPage' });
+            })
+        }
+        .width('100%')
+        .padding(10)
+        .backgroundColor('#FFF3EF')
+        .borderRadius(10)
+        .margin({ bottom: 8 })
+      }
 
       if (this.showRaw && this.rawPreview.length > 0) {
         Scroll() {
@@ -192,6 +262,7 @@ struct Index {
   private async loadHome(): Promise<void> {
     this.loading = true;
     this.statusText = '请求中…';
+    this.captchaId = '';
     const res: CoolapkResponse = await CoolapkApi.fetchHome(1);
     const parsed: ParsedFeed = parseFeed(res.body);
     this.items = parsed.items;
@@ -199,7 +270,10 @@ struct Index {
     this.loading = false;
 
     if (res.needCaptcha) {
-      this.statusText = '命中风控验证码（err_request_captcha_v2）：需人机验证或导入 ShuzlmID';
+      this.captchaId = res.captchaId;
+      this.statusText = res.captchaId.length > 0
+        ? '命中风控验证码，可点「去验证」完成人机验证'
+        : '命中风控验证码，建议先导入 ShuzlmID 再试';
     } else if (res.status === 200 && parsed.items.length > 0) {
       this.statusText = `HTTP 200 · ${parsed.items.length} 条`;
     } else if (res.status === 200) {

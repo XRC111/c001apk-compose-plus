@@ -10,6 +10,7 @@ import {
   str,
   timeAgo,
 } from '../common/Feed';
+import { setPendingCaptchaId } from '../common/CaptchaBridge';
 
 @Entry
 @Component
@@ -25,6 +26,7 @@ struct FeedDetail {
   @State likes: string = '';
   @State replies: ReplyItem[] = [];
   @State replyStatus: string = '';
+  @State captchaId: string = '';
 
   aboutToAppear(): void {
     this.feedId = getPendingDetailId();
@@ -54,7 +56,10 @@ struct FeedDetail {
     }
 
     if (detailRes.needCaptcha) {
-      this.status = '命中风控验证码：需完成人机验证（或先导入 ShuzlmID 免验）';
+      this.captchaId = detailRes.captchaId;
+      this.status = this.captchaId.length > 0
+        ? '命中风控验证码，可点「去验证」完成人机验证'
+        : '命中风控验证码：建议先导入 ShuzlmID 免验';
     } else if (detailRes.status === 200 && parsed.detail !== null) {
       this.status = '';
     } else if (parsed.error.length > 0) {
@@ -98,6 +103,27 @@ struct FeedDetail {
           .fontColor(this.status.indexOf('风控') >= 0 ? '#E06030' : '#8A8A8E')
           .width('100%')
           .margin({ bottom: 8 })
+      }
+
+      if (this.captchaId.length > 0) {
+        Row() {
+          Text('需要人机验证才能查看')
+            .fontSize(12)
+            .fontColor('#E06030')
+            .layoutWeight(1)
+          Button('去验证', { type: ButtonType.Capsule })
+            .fontSize(12)
+            .height(32)
+            .onClick(() => {
+              setPendingCaptchaId(this.captchaId);
+              router.pushUrl({ url: 'pages/CaptchaPage' });
+            })
+        }
+        .width('100%')
+        .padding(10)
+        .backgroundColor('#FFF3EF')
+        .borderRadius(10)
+        .margin({ bottom: 8 })
       }
 
       Scroll() {
