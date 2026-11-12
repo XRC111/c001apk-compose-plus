@@ -196,6 +196,11 @@ export class CoolapkApi {
     return CoolapkApi.get(q);
   }
 
+  /** 应用详情（id 为包名）。 */
+  static async fetchAppDetail(packageName: string): Promise<CoolapkResponse> {
+    return CoolapkApi.get('/v6/apk/detail?id=' + encodeURIComponent(packageName) + '&installed=1');
+  }
+
   /** 当前 v3 token（调试用，页面可展示前若干位确认算法生效）。 */
   static currentTokenPreview(): string {
     const token = getTokenV3(getDeviceCode());

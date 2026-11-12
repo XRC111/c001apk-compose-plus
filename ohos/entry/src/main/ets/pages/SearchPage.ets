@@ -6,6 +6,7 @@ import {
   FeedItem,
   parseFeed,
   ParsedFeed,
+  setPendingAppId,
   setPendingDetailId,
 } from '../common/Feed';
 import { setPendingCaptchaId } from '../common/CaptchaBridge';
@@ -125,8 +126,14 @@ struct SearchPage {
             .onClick(() => {
               const feedId = item.id;
               if (feedId !== undefined && feedId.length > 0) {
-                setPendingDetailId(feedId);
-                router.pushUrl({ url: 'pages/FeedDetail' });
+                const et = item.entityType;
+                if (et === 'product' || et === 'apk') {
+                  setPendingAppId(feedId);
+                  router.pushUrl({ url: 'pages/AppDetail' });
+                } else {
+                  setPendingDetailId(feedId);
+                  router.pushUrl({ url: 'pages/FeedDetail' });
+                }
               }
             })
           }

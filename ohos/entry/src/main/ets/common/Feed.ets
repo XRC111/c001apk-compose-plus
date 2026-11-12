@@ -205,3 +205,90 @@ export function setPendingDetailId(id: string): void {
 export function getPendingDetailId(): string {
   return pendingDetailId;
 }
+
+/** 应用详情的数据模型（字段名与酷安 JSON 一致）。 */
+export interface AppDetailData {
+  apkname?: string;
+  title?: string;
+  apkversionname?: string;
+  apksize?: string;
+  downCount?: string;
+  downnum?: string;
+  commentnum?: string;
+  commentNum?: string;
+  changelog?: string;
+  message?: string;
+  intro?: string;
+  packageName?: string;
+  pic?: string;
+  tpic?: string;
+  lastupdate?: number;
+  entityType?: string;
+}
+
+export interface AppDetailEnvelope {
+  data?: AppDetailData;
+}
+
+export interface ParsedAppDetail {
+  app: AppDetailData | null;
+  error: string;
+}
+
+/** 解析应用详情响应。 */
+export function parseAppDetail(body: string): ParsedAppDetail {
+  const empty: ParsedAppDetail = { app: null, error: '' };
+  if (body.length === 0) {
+    empty.error = '响应为空';
+    return empty;
+  }
+  try {
+    const env: AppDetailEnvelope = JSON.parse(body) as AppDetailEnvelope;
+    const data = env.data;
+    if (data === undefined || data === null) {
+      empty.error = '响应中没有 data 字段';
+      return empty;
+    }
+    const result: ParsedAppDetail = { app: data, error: '' };
+    return result;
+  } catch (e) {
+    empty.error = 'JSON 解析失败';
+    return empty;
+  }
+}
+
+/** 应用名：优先 apkname，其次 title。 */
+export function appName(d: AppDetailData): string {
+  const a = d.apkname;
+  if (a !== undefined && a.length > 0) {
+    return a;
+  }
+  const t = d.title;
+  if (t !== undefined && t.length > 0) {
+    return t;
+  }
+  return '(未知应用)';
+}
+
+/** 应用图标。 */
+export function appIcon(d: AppDetailData): string {
+  const p = d.pic;
+  if (p !== undefined && p.length > 0) {
+    return p;
+  }
+  const t = d.tpic;
+  if (t !== undefined && t.length > 0) {
+    return t;
+  }
+  return '';
+}
+
+let pendingAppId: string = '';
+
+export function setPendingAppId(id: string): void {
+  pendingAppId = id;
+}
+
+export function getPendingAppId(): string {
+  return pendingAppId;
+}
