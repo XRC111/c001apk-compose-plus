@@ -114,10 +114,21 @@ jobs:
           echo "===== 带 stacktrace 的单次构建（拿真实抛错点） ====="
           hvigorw assembleHap --mode module -p product=default -p debuggable=false --no-daemon --stacktrace 2>&1 | head -120 || true
 
-          echo "===== hvigor 内 project structure 检查相关代码 ====="
-          PSRC="$TOOLROOT/hvigor/hvigor-ohos-plugin/src"
-          grep -rn 'upgrade' "$PSRC" 2>/dev/null | head -10 || true
-          grep -rln '00303024\|PROJECT_STRUCTURE' "$PSRC" 2>/dev/null | head -5 || true
+          echo "===== 反编译 modelVersionCheck 实际判断逻辑 ====="
+          VU="$TOOLROOT/hvigor/hvigor-ohos-plugin/src/utils/validate/validate-util.js"
+          node -e "
+            const fs=require('fs');
+            const s=fs.readFileSync(process.argv[1],'utf8');
+            console.log('LEN='+s.length);
+            const i=s.indexOf('modelVersionCheck');
+            console.log('IDX='+i);
+            console.log('--- around modelVersionCheck ---');
+            console.log(s.slice(Math.max(0,i-200), i+1400));
+          " "$VU" 2>/dev/null || true
+
+          echo "===== 相关配置字段现状 ====="
+          cat oh-package.json5
+          cat hvigor/hvigor-config.json5
 
           echo "--- HAP 产物 ---"
           find . -name "*.hap" -type f | head -20 || true
