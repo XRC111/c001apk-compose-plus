@@ -3,11 +3,13 @@
     "signingConfigs": [],
     "products": [
       {
-        // 不引用 signingConfigs（此处为空）：产出未签名 HAP，真机安装需在 DevEco 配签名
+        // 不引用 signingConfigs（此处为空）：产出未签名 HAP，真机安装需在 DevEco 配签名。
+        // arkTSVersion 是 DevEco 6.x schema 的必需字段；1.1 为经典 ArkTS 语法
+        //（本项目全部代码按 ArkTS 1.1 编写）。
         "name": "default",
         "compatibleSdkVersion": "6.0.0(20)",
         "runtimeOS": "HarmonyOS",
-        "buildModeName": "debug"
+        "arkTSVersion": "1.1"
       }
     ],
     "buildModeSet": [
