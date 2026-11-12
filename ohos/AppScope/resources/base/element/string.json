@@ -1,0 +1,8 @@
+{
+  "string": [
+    { "name": "app_name", "value": "c001apk" },
+    { "name": "page_home", "value": "首页" },
+    { "name": "page_settings", "value": "设置" },
+    { "name": "page_about", "value": "关于" }
+  ]
+}

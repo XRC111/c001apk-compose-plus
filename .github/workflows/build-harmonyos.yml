@@ -1,0 +1,76 @@
+name: Build HarmonyOS HAP
+
+# c001apk HarmonyOS 原生 (ArkTS/ArkUI) 构建。
+# 复用与 PiliPlus 仓库相同的公开 SDK 安装脚本（6.1 系列，多镜像回退，无需 secret）。
+# 产物：ohos/entry/build/default/outputs/default/entry-default-unsigned.hap（未签名）。
+"on":
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'ohos/**'
+      - 'scripts/harmony/**'
+      - '.github/workflows/build-harmonyos.yml'
+
+jobs:
+  harmonyos:
+    name: HarmonyOS HAP (ubuntu)
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      # 6.1 系列；小版本不敏感，按可用性回退（HF 镜像 + 华为云镜像）
+      HOS_SDK_URLS: >-
+        https://huggingface.co/csukuangfj/harmonyos-commandline-tools/resolve/main/commandline-tools-linux-x64-6.1.1.280.zip
+        https://huggingface.co/csukuangfj/harmonyos-commandline-tools/resolve/main/commandline-tools-linux-x64-6.1.1.300.zip
+        https://huggingface.co/csukuangfj/harmonyos-commandline-tools/resolve/main/commandline-tools-linux-x64-6.0.1.251.zip
+        https://repo.huaweicloud.com/harmonyos/ohpm/5.1.0/commandline-tools-linux-x64-5.1.0.840.zip
+
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+
+      - name: 设置 JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: zulu
+          java-version: '17'
+
+      - name: 恢复工具链缓存
+        uses: actions/cache@v4
+        with:
+          path: ~/hos-sdk.pkg
+          key: hos-sdk-6.1-v1
+          restore-keys: |
+            hos-sdk-
+
+      - name: 安装鸿蒙 SDK（公开直链，多镜像回退）
+        run: bash scripts/harmony/setup-sdk.sh
+
+      - name: 安装 ohpm 依赖
+        working-directory: ohos
+        run: |
+          set -euo pipefail
+          if [ -f oh-package.json5 ]; then
+            ohpm install --all 2>&1 || {
+              echo "::warning::根 ohpm install 失败，尝试仅 entry 模块"
+            }
+          fi
+          cd entry
+          ohpm install --all 2>&1 || echo "::warning::entry ohpm install 未成功（可能无三方依赖）"
+
+      - name: 构建 HAP
+        working-directory: ohos
+        run: |
+          set -euo pipefail
+          echo "DEVECO_SDK_HOME=$DEVECO_SDK_HOME"
+          hvigorw clean --no-daemon 2>&1 || true
+          hvigorw assembleHap --mode module -p product=default -p debuggable=false --no-daemon
+          echo "--- HAP 产物 ---"
+          find . -name "*.hap" -type f | head -20
+
+      - name: 上传 HAP
+        uses: actions/upload-artifact@v4
+        with:
+          name: c001apk-harmony-hap
+          path: ohos/**/*.hap
+          if-no-files-found: warn

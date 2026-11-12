@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+# DevEco hvigor wrapper 占位：CI 上直接使用 SDK 内的 hvigorw（已加入 PATH）。
+# 本地有 DevEco Studio 时可直接 `./hvigorw assembleHap`。
+set -euo pipefail
+if command -v hvigorw >/dev/null 2>&1; then
+  exec hvigorw "$@"
+fi
+echo "::error::未找到 hvigorw，请把 Command Line Tools 的 bin/ 加入 PATH" >&2
+exit 1

@@ -1,0 +1,10 @@
+{
+  "app": {
+    "bundleName": "com.example.c001apk.compose",
+    "vendor": "c001apk",
+    "versionCode": 268,
+    "versionName": "268-harmony",
+    "icon": "$media:app_icon",
+    "label": "$string:app_name"
+  }
+}

@@ -1,0 +1,9 @@
+node_modules/
+oh_modules/
+.hvigor/
+.cxx/
+build/
+outputs/
+*.har
+*.hap
+.coverage/

@@ -1,0 +1,12 @@
+{
+  "name": "c001apk-harmony",
+  "version": "1.0.0",
+  "description": "c001apk HarmonyOS native (ArkTS/ArkUI) skeleton",
+  "main": "",
+  "author": "",
+  "license": "AGPL-3.0",
+  "dependencies": {},
+  "devDependencies": {
+    "@ohos/hypium": "1.0.21"
+  }
+}
