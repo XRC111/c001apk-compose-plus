@@ -151,6 +151,7 @@ struct ChatPage {
       .padding({ left: 12, right: 12 })
       .scrollBar(BarState.Off)
       .contentEndOffset(16)
+      .cachedCount(4)
 
       Row() {
         TextInput({ placeholder: '发消息…', text: this.draft })

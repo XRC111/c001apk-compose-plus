@@ -8,6 +8,7 @@ import {
   FeedItem,
   parseFeed,
   ParsedFeed,
+  picsOf,
   setPendingAppId,
   setPendingDetailId,
   str,
@@ -137,6 +138,7 @@ struct SearchPage {
       .padding({ left: 12, right: 12 })
       .scrollBar(BarState.Off)
       .contentEndOffset(12)
+      .cachedCount(4)
     }
     .width('100%')
     .height('100%')
@@ -147,8 +149,8 @@ struct SearchPage {
   ResultCard(item: FeedItem) {
     Column() {
       Row() {
-        if (feedAvatar(item).length > 0) {
-          Image(feedAvatar(item))
+        if (item.avatar !== undefined && str(item.avatar).length > 0) {
+          Image(str(item.avatar))
             .width(34)
             .height(34)
             .borderRadius(17)
@@ -156,7 +158,7 @@ struct SearchPage {
               .alt($r('app.media.ic_image_placeholder'))
             .margin({ right: 8 })
         } else {
-          Text(str(item.username).length > 0 ? str(item.username).substring(0, 1) : '?')
+          Text(str(item.initial))
             .width(34)
             .height(34)
             .borderRadius(17)
@@ -168,11 +170,11 @@ struct SearchPage {
         }
 
         Column() {
-          Text(str(item.username).length > 0 ? str(item.username) : '匿名用户')
+          Text(str(item.usernameText))
             .fontSize(13)
             .fontWeight(FontWeight.Medium)
             .fontColor($r('app.color.text_title'))
-          Text(`${feedTypeLabel(item)} · ${timeAgo(item.dateline)}`)
+          Text(`${str(item.typeLabel)} · ${str(item.timeText)}`)
             .fontSize(10)
             .fontColor($r('app.color.text_secondary'))
             .margin({ top: 3 })
@@ -182,7 +184,7 @@ struct SearchPage {
       }
       .width('100%')
 
-      Text(feedSummary(item))
+      Text(str(item.summary))
         .fontSize(14)
         .fontColor($r('app.color.text_body'))
         .width('100%')
@@ -191,8 +193,8 @@ struct SearchPage {
         .textOverflow({ overflow: TextOverflow.Ellipsis })
         .lineHeight(21)
 
-      if (feedPics(item).length === 1) {
-        Image(feedPics(item)[0])
+      if (picsOf(item).length === 1) {
+        Image(picsOf(item)[0])
           .width('100%')
           .constraintSize({ maxHeight: 200 })
           .objectFit(ImageFit.Cover)
@@ -200,12 +202,12 @@ struct SearchPage {
           .borderRadius(10)
           .margin({ top: 10 })
               .onClick(() => {
-                setPendingImages(feedPics(item), 0);
+                setPendingImages(picsOf(item), 0);
                 router.pushUrl({ url: 'pages/ImageViewer' });
               })
-      } else if (feedPics(item).length > 1) {
+      } else if (picsOf(item).length > 1) {
         Grid() {
-          ForEach(feedPics(item), (p: string) => {
+          ForEach(picsOf(item), (p: string) => {
             GridItem() {
               Image(p)
                 .width('100%')
@@ -214,7 +216,7 @@ struct SearchPage {
               .alt($r('app.media.ic_image_placeholder'))
                 .borderRadius(8)
               .onClick(() => {
-                setPendingImages(feedPics(item), feedPics(item).indexOf(p));
+                setPendingImages(picsOf(item), picsOf(item).indexOf(p));
                 router.pushUrl({ url: 'pages/ImageViewer' });
               })
             }
@@ -223,7 +225,7 @@ struct SearchPage {
         .columnsTemplate('1fr 1fr 1fr')
         .columnsGap(6)
         .rowsGap(6)
-        .height(this.gridHeight(feedPics(item).length, 92))
+        .height(this.gridHeight(picsOf(item).length, 92))
         .width('100%')
         .margin({ top: 10 })
       }

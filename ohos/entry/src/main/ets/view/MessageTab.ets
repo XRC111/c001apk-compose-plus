@@ -210,6 +210,7 @@ export struct MessageTab {
         .padding({ left: 12, right: 12 })
         .scrollBar(BarState.Off)
         .contentEndOffset(12)
+        .cachedCount(4)
         .onReachEnd(() => {
           this.loadMore();
         })

@@ -12,8 +12,8 @@ import { http } from '@kit.NetworkKit';
 import { hilog } from '@kit.PerformanceAnalysisKit';
 import { getTokenV3, APP_ID, VERSION_CODE, API_VERSION, CHANNEL, MODE, VERSION_NAME } from './CoolapkToken';
 import { getDeviceCode } from './DeviceCode';
-import { buildCookieHeader, saveSessid, withProof, clearValidate, saveCaptchaField,
-  inReplayWindow } from './CookieStore';
+import { buildCookieHeader, buildCookieHeaderSync, saveSessid, withProof, withProofSync,
+  clearValidate, saveCaptchaField, inReplayWindow, inReplayWindowSync } from './CookieStore';
 import { parseChallenge, DEFAULT_CAPTCHA_FIELD } from './CaptchaChallenge';
 
 const DOMAIN = 0x0000;
@@ -97,7 +97,7 @@ function makeResponse(status: number, body: string): CoolapkResponse {
  *
  * 生成一次 token 需要一次 bcrypt(cost=10)，在手机上约数百毫秒；
  * 列表滚动时会连续发多个请求，逐个重算会明显卡顿。
- * token 内部带时间戳，服务端只校验新鲜度，缓存 3 秒是安全的。
+ * token 内部带时间戳，服务端只校验新鲜度，缓存 60 秒（token 内含时间戳，服务端只校验新鲜度）。
  */
 let cachedToken: string = '';
 let cachedTokenAt: number = 0;
@@ -105,7 +105,7 @@ let cachedTokenDevice: string = '';
 
 function tokenFor(deviceCode: string): string {
   const now = Date.now();
-  if (cachedToken.length > 0 && cachedTokenDevice === deviceCode && now - cachedTokenAt < 3000) {
+  if (cachedToken.length > 0 && cachedTokenDevice === deviceCode && now - cachedTokenAt < 60000) {
     return cachedToken;
   }
   const t = getTokenV3(deviceCode);
@@ -120,10 +120,10 @@ export class CoolapkApi {
   static async get(path: string): Promise<CoolapkResponse> {
     const deviceCode = getDeviceCode();
     const token = tokenFor(deviceCode);
-    const cookie = await buildCookieHeader();
-    // 验证成功后的窗口期内，所有请求都按服务端字段带上凭证（对齐 Android 重放语义）
-    const replay = await inReplayWindow();
-    const finalPath = await withProof(path, replay);
+    // 全部同步取值，不做任何磁盘/跨线程 IO（这是列表卡顿的主因之一）
+    const cookie = buildCookieHeaderSync();
+    const replay = inReplayWindowSync();
+    const finalPath = withProofSync(path, replay);
     const url = API_HOST + finalPath;
     const req = http.createHttp();
     try {
@@ -168,7 +168,7 @@ export class CoolapkApi {
   static async post(path: string): Promise<CoolapkResponse> {
     const deviceCode = getDeviceCode();
     const token = tokenFor(deviceCode);
-    const cookie = await buildCookieHeader();
+    const cookie = buildCookieHeaderSync();
     const url = API_HOST + path;
     const req = http.createHttp();
     try {
@@ -267,7 +267,7 @@ export class CoolapkApi {
   static async sendMessage(uid: string, text: string, pic: string): Promise<CoolapkResponse> {
     const deviceCode = getDeviceCode();
     const token = tokenFor(deviceCode);
-    const cookie = await buildCookieHeader();
+    const cookie = buildCookieHeaderSync();
     const raw = buildHeaders(token, deviceCode, cookie);
     const headers: Record<string, string> = {};
     const keys = Object.keys(raw);

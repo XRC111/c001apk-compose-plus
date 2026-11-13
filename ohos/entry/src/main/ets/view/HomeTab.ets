@@ -8,6 +8,7 @@ import {
   FeedItem,
   parseFeed,
   ParsedFeed,
+  picsOf,
   setPendingAppId,
   setPendingDetailId,
   str,
@@ -99,6 +100,7 @@ export struct HomeTab {
           .padding({ left: 12, right: 12, top: 6 })
           .scrollBar(BarState.Off)
           .contentEndOffset(12)
+          .cachedCount(4)
           .onReachEnd(() => {
             this.loadMore();
           })
@@ -199,8 +201,8 @@ export struct HomeTab {
     Column() {
       // 头部：头像 / 昵称 / 元信息
       Row() {
-        if (feedAvatar(item).length > 0) {
-          Image(feedAvatar(item))
+        if (item.avatar !== undefined && item.avatar.length > 0) {
+          Image(str(item.avatar))
             .width(40)
             .height(40)
             .borderRadius(20)
@@ -208,7 +210,7 @@ export struct HomeTab {
               .alt($r('app.media.ic_image_placeholder'))
             .margin({ right: 10 })
         } else {
-          Text(str(item.username).length > 0 ? str(item.username).substring(0, 1) : '?')
+          Text(str(item.initial))
             .width(40)
             .height(40)
             .borderRadius(20)
@@ -220,20 +222,20 @@ export struct HomeTab {
         }
 
         Column() {
-          Text(str(item.username).length > 0 ? str(item.username) : '匿名用户')
+          Text(str(item.usernameText))
             .fontSize(14)
             .fontWeight(FontWeight.Medium)
             .fontColor($r('app.color.text_title'))
             .maxLines(1)
             .textOverflow({ overflow: TextOverflow.Ellipsis })
           Row() {
-            Text(feedTypeLabel(item))
+            Text(str(item.typeLabel))
               .fontSize(10)
               .fontColor($r('app.color.text_secondary'))
             Text(' · ')
               .fontSize(10)
               .fontColor($r('app.color.text_tertiary'))
-            Text(timeAgo(item.dateline))
+            Text(str(item.timeText))
               .fontSize(10)
               .fontColor($r('app.color.text_secondary'))
           }
@@ -245,7 +247,7 @@ export struct HomeTab {
       .width('100%')
 
       // 正文
-      Text(feedSummary(item))
+      Text(str(item.summary))
         .fontSize(15)
         .fontColor($r('app.color.text_body'))
         .width('100%')
@@ -255,17 +257,17 @@ export struct HomeTab {
         .lineHeight(23)
 
       // 图片
-      if (feedPics(item).length === 1) {
-        Image(feedPics(item)[0])
+      if (picsOf(item).length === 1) {
+        Image(picsOf(item)[0])
           .width('100%')
           .constraintSize({ maxHeight: 240 })
           .objectFit(ImageFit.Cover)
               .alt($r('app.media.ic_image_placeholder'))
           .borderRadius(10)
           .margin({ top: 10 })
-      } else if (feedPics(item).length > 1) {
+      } else if (picsOf(item).length > 1) {
         Grid() {
-          ForEach(feedPics(item), (p: string) => {
+          ForEach(picsOf(item), (p: string) => {
             GridItem() {
               Image(p)
                 .width('100%')
@@ -274,7 +276,7 @@ export struct HomeTab {
               .alt($r('app.media.ic_image_placeholder'))
                 .borderRadius(8)
               .onClick(() => {
-                setPendingImages(feedPics(item), feedPics(item).indexOf(p));
+                setPendingImages(picsOf(item), picsOf(item).indexOf(p));
                 router.pushUrl({ url: 'pages/ImageViewer' });
               })
             }
@@ -283,7 +285,7 @@ export struct HomeTab {
         .columnsTemplate('1fr 1fr 1fr')
         .columnsGap(6)
         .rowsGap(6)
-        .height(this.gridHeight(feedPics(item).length, 100))
+        .height(this.gridHeight(picsOf(item).length, 100))
         .width('100%')
         .margin({ top: 10 })
       }
@@ -295,7 +297,7 @@ export struct HomeTab {
             .width(16)
             .height(16)
             .fillColor($r('app.color.text_secondary'))
-          Text(str(item.likenum).length > 0 ? str(item.likenum) : '赞')
+          Text(str(item.likeText))
             .fontSize(12)
             .fontColor($r('app.color.text_secondary'))
             .margin({ left: 4 })
@@ -307,7 +309,7 @@ export struct HomeTab {
             .width(16)
             .height(16)
             .fillColor($r('app.color.text_secondary'))
-          Text(str(item.commentnum).length > 0 ? str(item.commentnum) : '评论')
+          Text(str(item.commentText))
             .fontSize(12)
             .fontColor($r('app.color.text_secondary'))
             .margin({ left: 4 })
@@ -331,8 +333,8 @@ export struct HomeTab {
   AppCard(item: FeedItem) {
     Column() {
       Row() {
-        if (feedPics(item).length > 0) {
-          Image(feedPics(item)[0])
+        if (picsOf(item).length > 0) {
+          Image(picsOf(item)[0])
             .width(56)
             .height(56)
             .objectFit(ImageFit.Cover)

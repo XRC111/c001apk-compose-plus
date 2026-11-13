@@ -27,6 +27,16 @@ export interface FeedItem {
   downnum?: string;
   ukey?: string;
   isnew?: number;
+  // ---- 以下为解析时预计算的派生字段（避免 build() 内每帧重算）----
+  pics?: string[];
+  avatar?: string;
+  summary?: string;
+  typeLabel?: string;
+  timeText?: string;
+  initial?: string;
+  usernameText?: string;
+  likeText?: string;
+  commentText?: string;
 }
 
 export interface FeedEnvelope {
@@ -88,6 +98,7 @@ export interface ParsedReplies {
 }
 
 /** 解析首页响应；失败时返回空列表并附带错误信息，不抛异常。 */
+
 export function parseFeed(body: string): ParsedFeed {
   const empty: ParsedFeed = { items: [], error: '' };
   if (body.length === 0) {
@@ -100,6 +111,9 @@ export function parseFeed(body: string): ParsedFeed {
     if (data === undefined || data === null) {
       empty.error = '响应中没有 data 字段';
       return empty;
+    }
+    for (const it of data) {
+      enrichFeed(it);
     }
     const result: ParsedFeed = { items: data, error: '' };
     return result;
@@ -407,6 +421,29 @@ export function feedAvatar(item: FeedItem): string {
   return '';
 }
 
+/**
+ * 预计算卡片渲染需要的派生字段。
+ *
+ * 为什么要在解析时算：这些值原本写在 build() 里（如 feedPics(item) 每个卡片
+ * 要调 6~8 次），ArkUI 每次重绘都会重新执行，长列表滚动时累积成明显卡顿。
+ * 统一在数据进入列表前算一次，build() 里只做属性读取。
+ */
+export function enrichFeed(item: FeedItem): FeedItem {
+  item.pics = feedPics(item);
+  item.avatar = feedAvatar(item);
+  item.summary = feedSummary(item);
+  item.typeLabel = feedTypeLabel(item);
+  item.timeText = timeAgo(item.dateline);
+  const u = item.username;
+  item.usernameText = u !== undefined && u.length > 0 ? u : '匿名用户';
+  item.initial = item.usernameText.length > 0 ? item.usernameText.substring(0, 1) : '?';
+  const lk = item.likenum;
+  item.likeText = lk !== undefined && lk.length > 0 ? lk : '赞';
+  const cm = item.commentnum;
+  item.commentText = cm !== undefined && cm.length > 0 ? cm : '评论';
+  return item;
+}
+
 /** 正文分段：0=普通 1=@用户 2=#话题# 3=链接。 */
 export interface RichSeg {
   text: string;
@@ -466,4 +503,16 @@ export function getPendingChatUkey(): string {
 
 export function getPendingChatName(): string {
   return pendingChatName;
+}
+
+/**
+ * 卡片图片列表（读预计算结果，build() 里可安全高频调用）。
+ * 未经过 enrichFeed 的项回落到原始字段。
+ */
+export function picsOf(item: FeedItem): string[] {
+  const p = item.pics;
+  if (p !== undefined) {
+    return p;
+  }
+  return feedPics(item);
 }
