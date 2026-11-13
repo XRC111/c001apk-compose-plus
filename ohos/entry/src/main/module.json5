@@ -31,6 +31,15 @@
     "requestPermissions": [
       { "name": "ohos.permission.INTERNET" },
       { "name": "ohos.permission.GET_NETWORK_INFO" }
+    ],
+    // 酷安部分图片/接口仍返回 http 明文 URL。代码里已尽量升级到 https
+    //（见 Feed.ets 的 httpsUrl），这里再放行明文作为双保险，否则
+    // 图片会只显示占位符。
+    "metadata": [
+      {
+        "name": "ohos.net.cleartextTraffic",
+        "value": "true"
+      }
     ]
   }
 }

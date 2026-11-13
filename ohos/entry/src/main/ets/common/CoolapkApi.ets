@@ -158,6 +158,12 @@ export class CoolapkApi {
       // 真机诊断：把 HTTP 码与响应体前 200 字符打出来，定位 1004/403/风控
       hilog.info(DOMAIN, 'c001apk', 'GET %{public}s -> %{public}d body=%{public}s',
         path, res.responseCode, body.substring(0, Math.min(200, body.length)));
+      // 同时落一份到沙箱文件，便于 hdc 拉取（hilog 可能被截断）
+      logDiag('GET ' + path + ' -> ' + res.responseCode.toString() + '\n' +
+        'tokenPrefix=' + token.substring(0, Math.min(2, token.length)) +
+        ' tokenLen=' + token.length.toString() + '\n' +
+        'deviceCode=' + deviceCode + '\n' +
+        'body=' + body.substring(0, Math.min(300, body.length)));
 
       // 服务端下发的 SESSID 必须带回后续请求，风控重放才有效
       const respCookies: string = res.cookies !== undefined ? res.cookies : '';

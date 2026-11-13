@@ -118,10 +118,22 @@ export function parseFeed(body: string): ParsedFeed {
       empty.error = `无 data（status=${code}${text.length > 0 ? ' ' + text : ''}）`;
       return empty;
     }
+    // 酷安 indexV8 会把轮播卡/广告卡/推荐卡混在 data 里（entityType 不是 feed），
+    // 之前不过滤会导致首页出现「匿名用户 / card / (无内容)」这种空卡片。
+    const kept: FeedItem[] = [];
     for (const it of data) {
-      enrichFeed(it);
+      const et = it.entityType;
+      const id = it.id;
+      const isFeed = et === 'feed' || et === 'feed-reply' || et === 'question' ||
+        et === 'answer' || et === 'dyh-article';
+      // 非 feed 但带了动态 id 的（如动态卡片）也保留
+      const hasId = id !== undefined && id.length > 0;
+      if (isFeed || hasId) {
+        enrichFeed(it);
+        kept.push(it);
+      }
     }
-    const result: ParsedFeed = { items: data, error: '' };
+    const result: ParsedFeed = { items: kept, error: '' };
     return result;
   } catch (e) {
     empty.error = 'JSON 解析失败';
@@ -175,13 +187,15 @@ export function parseReplies(body: string): ParsedReplies {
 
 /** 列表项展示用的一行摘要（标题优先，其次正文）。 */
 export function feedSummary(item: FeedItem): string {
-  const title = item.title;
-  if (title !== undefined && title.length > 0) {
-    return title;
-  }
+  // 酷安 feed 的 message 才是正文，title 常是「XX的动态」这类无信息量文本，
+  // 所以正文优先；正文为空时再退回 title。
   const msg = item.message;
   if (msg !== undefined && msg.length > 0) {
     return msg;
+  }
+  const title = item.title;
+  if (title !== undefined && title.length > 0) {
+    return title;
   }
   return '(无内容)';
 }
@@ -407,11 +421,15 @@ export function getPendingUid(): string {
 export function feedPics(item: FeedItem): string[] {
   const arr = item.picArr;
   if (arr !== undefined && arr !== null && arr.length > 0) {
-    return arr.length > 9 ? arr.slice(0, 9) : arr;
+    const out: string[] = [];
+    for (const u of arr) {
+      out.push(httpsUrl(u));
+    }
+    return out.length > 9 ? out.slice(0, 9) : out;
   }
   const one = item.pic;
   if (one !== undefined && one.length > 0) {
-    const single: string[] = [one];
+    const single: string[] = [httpsUrl(one)];
     return single;
   }
   const none: string[] = [];
@@ -422,7 +440,7 @@ export function feedPics(item: FeedItem): string[] {
 export function feedAvatar(item: FeedItem): string {
   const a = item.userAvatar;
   if (a !== undefined && a.length > 0) {
-    return a;
+    return httpsUrl(a);
   }
   return '';
 }
@@ -509,6 +527,17 @@ export function getPendingChatUkey(): string {
 
 export function getPendingChatName(): string {
   return pendingChatName;
+}
+
+/**
+ * 酷安图片/头像 URL 大量是 http 明文，而 HarmonyOS 默认禁止明文流量，
+ * 会导致 Image 加载失败只显示占位符。酷安同一路径 https 可用，统一升级。
+ */
+export function httpsUrl(u: string): string {
+  if (u.length > 0 && u.startsWith('http://')) {
+    return 'https://' + u.substring(7);
+  }
+  return u;
 }
 
 /**
