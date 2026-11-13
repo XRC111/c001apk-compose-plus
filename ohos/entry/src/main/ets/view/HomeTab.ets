@@ -1,5 +1,5 @@
 import { router } from '@kit.ArkUI';
-import { CoolapkApi, CoolapkResponse } from '../common/CoolapkApi';
+import { CoolapkApi, CoolapkResponse, diagToken, diagTokenVersion, diagDevice } from '../common/CoolapkApi';
 import {
   feedAvatar,
   feedPics,
@@ -486,7 +486,8 @@ export struct HomeTab {
       if (parsed.items.length > 0) {
         this.statusText = '';
       } else if (parsed.error.length > 0) {
-        this.statusText = parsed.error;
+        // 真机诊断：把 token 前缀与设备码一并显示，不用抓日志也能定位
+        this.statusText = parsed.error + '\nver=' + diagTokenVersion() + ' token=' + diagToken() + '\ndev=' + diagDevice().substring(0, 30);
       } else {
         this.statusText = '暂无内容';
       }

@@ -22,6 +22,32 @@ const API_HOST: string = 'https://api.coolapk.com';
 const REQUEST_WITH: string = 'XMLHttpRequest';
 const LOCALE: string = 'zh-CN';
 
+/**
+ * 真机诊断用的「最后一次请求凭证」。
+ *
+ * 为什么记在模块变量里而不是只打 hilog：真机上 hilog 可能被限流/过滤，
+ * 实测 `hilog -T c001apk` 一条都取不到。把关键值挂在这里，UI 直接显示，
+ * 不依赖任何日志通道就能定位 1004 到底出在哪一环。
+ */
+let lastTokenPrefix: string = '';
+let lastTokenDeclaredPrefix: string = '';
+let lastDevice: string = '';
+
+/** 最后一次请求的 token 前缀（12 位）。 */
+export function diagToken(): string {
+  return lastTokenPrefix;
+}
+
+/** 最后一次请求 token 声明的协议版本（v2 / v3）。 */
+export function diagTokenVersion(): string {
+  return lastTokenDeclaredPrefix;
+}
+
+/** 最后一次请求使用的设备码。 */
+export function diagDevice(): string {
+  return lastDevice;
+}
+
 export interface CoolapkResponse {
   status: number;
   body: string;
@@ -153,10 +179,13 @@ function tokenFor(deviceCode: string): string {
 }
 
 export class CoolapkApi {
-  /** 发起一次 GET，自动带上 v3 token 与本地 Cookie。 */
   static async get(path: string): Promise<CoolapkResponse> {
     const deviceCode = getDeviceCode();
     const token = tokenFor(deviceCode);
+    // 记住最后一次实际使用的凭证，供界面直接显示（hilog 在真机上可能被限流）
+    lastTokenPrefix = token.substring(0, Math.min(12, token.length));
+    lastTokenDeclaredPrefix = token.substring(0, Math.min(2, token.length));
+    lastDevice = deviceCode;
     // 全部同步取值，不做任何磁盘/跨线程 IO（这是列表卡顿的主因之一）
     const cookie = buildCookieHeaderSync();
     const replay = inReplayWindowSync();
@@ -284,6 +313,41 @@ export class CoolapkApi {
   /** 首页信息流。 */
   static async fetchHome(page: number = 1): Promise<CoolapkResponse> {
     return CoolapkApi.get('/v6/main/indexV8?page=' + page.toString());
+  }
+
+  /**
+   * 酷图（/v6/picture/list）。
+   * 实测：不传 tag/type 也能返回 20 条（引擎会给默认值），
+   * 所以这里只带 page，避免因为猜错 tag 反而拿不到数据。
+   */
+  static async fetchCoolPic(page: number = 1): Promise<CoolapkResponse> {
+    return CoolapkApi.get('/v6/picture/list?page=' + page.toString());
+  }
+
+  /**
+   * 按板块取列表。
+   * @param tab 板块索引（见 HomeTab 的 TABS）
+   *
+   * 目前只有「动态」和「酷图」确认可直连；其余板块需要
+   * /v6/page/dataList 的 url 常量（V6_HOT_LIST 等），
+   * 实测直接传字符串会返回空 data，需要先从服务端拿到页面配置，
+   * 留待后续用正确常量接入，避免接了也是空列表。
+   */
+  static async fetchTab(tab: number, page: number = 1): Promise<CoolapkResponse> {
+    if (tab === 2) {
+      return CoolapkApi.fetchHome(page);
+    }
+    if (tab === 6) {
+      return CoolapkApi.fetchCoolPic(page);
+    }
+    // 其余板块暂返回空，由 UI 显示说明文案
+    const empty: CoolapkResponse = {
+      status: 200,
+      body: '{"data":[]}',
+      needCaptcha: false,
+      captchaId: '',
+    };
+    return empty;
   }
 
   /** 动态详情。 */
