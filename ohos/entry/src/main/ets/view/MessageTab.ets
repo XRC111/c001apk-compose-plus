@@ -190,6 +190,7 @@ export struct MessageTab {
         .layoutWeight(1)
         .padding({ left: 12, right: 12 })
         .scrollBar(BarState.Off)
+        .contentEndOffset(12)
       }
     }
     .width('100%')

@@ -2,6 +2,8 @@ import { ConfigurationConstant } from '@kit.AbilityKit';
 import { window } from '@kit.ArkUI';
 import { BusinessError } from '@kit.BasicServicesKit';
 import { hilog } from '@kit.PerformanceAnalysisKit';
+import { CoolapkApi, CoolapkResponse } from '../common/CoolapkApi';
+import { isLoggedIn } from '../common/CookieStore';
 import { HomeTab } from '../view/HomeTab';
 import { MessageTab } from '../view/MessageTab';
 import { SettingsTab } from '../view/SettingsTab';
@@ -21,6 +23,7 @@ const DOMAIN = 0x0000;
 @Component
 struct Index {
   @State currentTab: number = 0;
+  @State unread: number = 0;
   @StorageProp('currentColorMode')
   @Watch('onColorModeChange')
   currentColorMode: ConfigurationConstant.ColorMode =
@@ -30,6 +33,7 @@ struct Index {
   private windowObj: window.Window | null = null;
 
   aboutToAppear(): void {
+    this.loadUnread();
     try {
       window.getLastWindow(this.getUIContext().getHostContext(),
         (err: BusinessError, data: window.Window) => {
@@ -48,6 +52,19 @@ struct Index {
   /** 深浅色切换时重新设置状态栏文字颜色。 */
   onColorModeChange(): void {
     this.applyStatusBar();
+  }
+
+  /** 拉未读数，给「消息」Tab 加红点。 */
+  private async loadUnread(): Promise<void> {
+    const logged = await isLoggedIn();
+    if (!logged) {
+      return;
+    }
+    const res: CoolapkResponse = await CoolapkApi.fetchCheckCount();
+    const m = /"badge"\s*:\s*(\d+)/.exec(res.body);
+    if (m !== null) {
+      this.unread = parseInt(m[1], 10);
+    }
   }
 
   private applyStatusBar(): void {
@@ -100,13 +117,32 @@ struct Index {
   @Builder
   TabItem(label: string, idx: number, icon: Resource) {
     Column() {
-      Image(icon)
-        .width(23)
-        .height(23)
-        .fillColor(this.currentTab === idx ? $r('app.color.accent') : $r('app.color.text_secondary'))
+      if (idx === 1 && this.unread > 0) {
+        Badge({
+          count: this.unread,
+          position: BadgePosition.RightTop,
+          style: { badgeSize: 14, badgeColor: $r('app.color.accent') },
+        }) {
+          Image(icon)
+            .width(23)
+            .height(23)
+            .fillColor(this.currentTab === idx
+              ? $r('app.color.accent')
+              : $r('app.color.text_secondary'))
+        }
+      } else {
+        Image(icon)
+          .width(23)
+          .height(23)
+          .fillColor(this.currentTab === idx
+            ? $r('app.color.accent')
+            : $r('app.color.text_secondary'))
+      }
       Text(label)
         .fontSize(10)
-        .fontColor(this.currentTab === idx ? $r('app.color.accent') : $r('app.color.text_secondary'))
+        .fontColor(this.currentTab === idx
+          ? $r('app.color.accent')
+          : $r('app.color.text_secondary'))
         .fontWeight(this.currentTab === idx ? FontWeight.Medium : FontWeight.Normal)
         .margin({ top: 3 })
     }

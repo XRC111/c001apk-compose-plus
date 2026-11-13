@@ -90,6 +90,7 @@ export struct HomeTab {
           .height('100%')
           .padding({ left: 12, right: 12, top: 6 })
           .scrollBar(BarState.Off)
+          .contentEndOffset(12)
           .onReachEnd(() => {
             this.loadMore();
           })

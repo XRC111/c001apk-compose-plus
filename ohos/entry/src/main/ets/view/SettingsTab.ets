@@ -47,155 +47,186 @@ export struct SettingsTab {
     Column() {
       Row() {
         Text('设置')
-          .fontSize(24)
+          .fontSize(26)
           .fontWeight(FontWeight.Bold)
           .fontColor($r('app.color.text_title'))
         Blank()
       }
       .width('100%')
-      .height(52)
-      .padding({ left: 16, right: 12 })
+      .height(56)
+      .padding({ left: 16, right: 16 })
 
-      Scroll() {
-        Column() {
-          // 账号
-          Column() {
+      List() {
+        // ===== 账号 =====
+        ListItemGroup({ header: this.groupHeader('账号') }) {
+          ListItem() {
             Row() {
-              Text('账号')
-                .fontSize(13)
-                .fontColor($r('app.color.text_secondary'))
+              Text('当前账号')
+                .fontSize(14)
+                .fontColor($r('app.color.text_title'))
               Blank()
-              if (this.loginName.length > 0) {
-                Text(this.loginName)
-                  .fontSize(13)
-                  .fontColor($r('app.color.text_body'))
-              } else {
-                Text('未登录')
-                  .fontSize(13)
-                  .fontColor($r('app.color.text_tertiary'))
-              }
+              Text(this.loginName.length > 0 ? this.loginName : '未登录')
+                .fontSize(13)
+                .fontColor(this.loginName.length > 0
+                  ? $r('app.color.text_secondary')
+                  : $r('app.color.text_tertiary'))
             }
             .width('100%')
-
-            Row() {
-              if (this.loginName.length > 0) {
-                Button('退出登录', { type: ButtonType.Normal })
-                  .fontSize(13)
-                  .layoutWeight(1)
-                  .onClick(() => this.logout())
-              } else {
-                Button('登录酷安', { type: ButtonType.Normal })
-                  .fontSize(13)
-                  .layoutWeight(1)
-                  .onClick(() => router.pushUrl({ url: 'pages/LoginPage' }))
-              }
-            }
-            .width('100%')
-            .margin({ top: 10 })
+            .padding(14)
+            .backgroundColor($r('app.color.card_bg'))
+            .borderRadius(12)
           }
-          .width('100%')
-          .padding(14)
-          .backgroundColor($r('app.color.card_bg'))
-          .borderRadius(12)
-          .margin({ bottom: 10 })
 
-          // ShuzlmID
-          Column() {
-            Text('数字联盟 ID (ShuzlmID)')
-              .fontSize(14)
-              .fontWeight(FontWeight.Medium)
-              .width('100%')
-            Text('导入官方设备标识可免除大部分人机验证')
-              .fontSize(11)
+          ListItem() {
+            Row() {
+              Text(this.loginName.length > 0 ? '退出登录' : '登录酷安')
+                .fontSize(14)
+                .fontColor(this.loginName.length > 0
+                  ? $r('app.color.danger')
+                  : $r('app.color.accent'))
+              Blank()
+              Image($r('app.media.ic_chevron'))
+                .width(18)
+                .height(18)
+                .fillColor($r('app.color.text_tertiary'))
+            }
+            .width('100%')
+            .padding(14)
+            .backgroundColor($r('app.color.card_bg'))
+            .borderRadius(12)
+            .margin({ top: 8 })
+            .onClick(() => {
+              if (this.loginName.length > 0) {
+                this.logout();
+              } else {
+                router.pushUrl({ url: 'pages/LoginPage' });
+              }
+            })
+          }
+        }
+
+        // ===== 设备 =====
+        ListItemGroup({ header: this.groupHeader('设备') }) {
+          ListItem() {
+            Column() {
+              Text('数字联盟 ID (ShuzlmID)')
+                .fontSize(14)
+                .fontColor($r('app.color.text_title'))
+                .width('100%')
+              Text('导入官方设备标识可免除大部分人机验证')
+                .fontSize(11)
+                .fontColor($r('app.color.text_tertiary'))
+                .width('100%')
+                .margin({ top: 4, bottom: 10 })
+
+              TextInput({
+                placeholder: '粘贴官方酷安连点 5 次「复制 OAID」的日志',
+                text: this.szlmId,
+              })
+                .width('100%')
+                .height(72)
+                .onChange((v: string) => {
+                  this.szlmId = v;
+                  this.saved = false;
+                })
+
+              Button('保存', { type: ButtonType.Capsule })
+                .width('100%')
+                .height(38)
+                .margin({ top: 10 })
+                .backgroundColor($r('app.color.accent'))
+                .enabled(this.ready)
+                .onClick(() => this.save())
+
+              if (!this.ready) {
+                Text('本地存储初始化失败，本次修改仅在当前会话生效')
+                  .fontSize(11)
+                  .fontColor($r('app.color.danger'))
+                  .margin({ top: 8 })
+              } else if (this.saved) {
+                Text('已保存到本地')
+                  .fontSize(11)
+                  .fontColor($r('app.color.success'))
+                  .margin({ top: 8 })
+              }
+            }
+            .width('100%')
+            .padding(14)
+            .backgroundColor($r('app.color.card_bg'))
+            .borderRadius(12)
+            .alignItems(HorizontalAlign.Start)
+          }
+
+          ListItem() {
+            Column() {
+              Text('当前设备码 (X-App-Device)')
+                .fontSize(13)
+                .fontColor($r('app.color.text_title'))
+                .width('100%')
+              Text(this.devicePreview)
+                .fontSize(11)
+                .fontColor($r('app.color.text_secondary'))
+                .width('100%')
+                .margin({ top: 6 })
+            }
+            .width('100%')
+            .padding(14)
+            .backgroundColor($r('app.color.card_bg'))
+            .borderRadius(12)
+            .alignItems(HorizontalAlign.Start)
+            .margin({ top: 8 })
+          }
+        }
+
+        // ===== 其他 =====
+        ListItemGroup({ header: this.groupHeader('其他') }) {
+          ListItem() {
+            Row() {
+              Text('关于本应用')
+                .fontSize(14)
+                .fontColor($r('app.color.text_title'))
+              Blank()
+              Image($r('app.media.ic_chevron'))
+                .width(18)
+                .height(18)
+                .fillColor($r('app.color.text_tertiary'))
+            }
+            .width('100%')
+            .padding(14)
+            .backgroundColor($r('app.color.card_bg'))
+            .borderRadius(12)
+            .onClick(() => router.pushUrl({ url: 'pages/About' }))
+          }
+
+          ListItem() {
+            Text('非官方客户端 · AGPL-3.0')
+              .fontSize(10)
               .fontColor($r('app.color.text_tertiary'))
               .width('100%')
-              .margin({ top: 4, bottom: 10 })
-
-            TextInput({ placeholder: '粘贴官方酷安连点 5 次「复制 OAID」的日志', text: this.szlmId })
-              .width('100%')
-              .height(76)
-              .onChange((v: string) => {
-                this.szlmId = v;
-                this.saved = false;
-              })
-
-            Button('保存', { type: ButtonType.Capsule })
-              .width('100%')
-              .height(40)
-              .margin({ top: 12 })
-              .enabled(this.ready)
-              .onClick(() => this.save())
-
-            if (!this.ready) {
-              Text('本地存储初始化失败，本次修改仅在当前会话生效')
-                .fontSize(11)
-                .fontColor($r('app.color.danger'))
-                .margin({ top: 8 })
-            } else if (this.saved) {
-              Text('已保存到本地')
-                .fontSize(11)
-                .fontColor($r('app.color.success'))
-                .margin({ top: 8 })
-            }
+              .textAlign(TextAlign.Center)
+              .padding({ top: 9, bottom: 9 })
           }
-          .width('100%')
-          .padding(14)
-          .backgroundColor($r('app.color.card_bg'))
-          .borderRadius(12)
-          .alignItems(HorizontalAlign.Start)
-          .margin({ bottom: 10 })
-
-          // 设备码
-          Column() {
-            Text('当前设备码 (X-App-Device)')
-              .fontSize(13)
-              .fontWeight(FontWeight.Medium)
-              .width('100%')
-            Text(this.devicePreview)
-              .fontSize(11)
-              .fontColor($r('app.color.text_secondary'))
-              .width('100%')
-              .margin({ top: 6 })
-          }
-          .width('100%')
-          .padding(14)
-          .backgroundColor($r('app.color.card_bg'))
-          .borderRadius(12)
-          .alignItems(HorizontalAlign.Start)
-          .margin({ bottom: 10 })
-
-          // 关于
-          Row() {
-            Text('关于本应用')
-              .fontSize(14)
-              .fontColor($r('app.color.text_body'))
-            Blank()
-            Image($r('app.media.ic_chevron'))
-              .width(18)
-              .height(18)
-              .fillColor($r('app.color.text_tertiary'))
-          }
-          .width('100%')
-          .padding(14)
-          .backgroundColor($r('app.color.card_bg'))
-          .borderRadius(12)
-          .onClick(() => router.pushUrl({ url: 'pages/About' }))
-
-          Text('非官方客户端 · AGPL-3.0')
-            .fontSize(10)
-            .fontColor($r('app.color.text_tertiary'))
-            .margin({ top: 16, bottom: 12 })
         }
-        .width('100%')
-        .padding({ left: 12, right: 12 })
       }
-      .layoutWeight(1)
       .width('100%')
+      .layoutWeight(1)
+      .padding({ left: 12, right: 12 })
       .scrollBar(BarState.Off)
-      .align(Alignment.Top)
+      .sticky(StickyStyle.Header)
+      .contentEndOffset(16)
     }
     .width('100%')
     .height('100%')
     .backgroundColor($r('app.color.page_bg'))
+  }
+
+  @Builder
+  groupHeader(title: string) {
+    Text(title)
+      .fontSize(12)
+      .fontColor($r('app.color.text_secondary'))
+      .width('100%')
+      .padding({ left: 4, top: 14, bottom: 8 })
+      .backgroundColor($r('app.color.page_bg'))
   }
 }
