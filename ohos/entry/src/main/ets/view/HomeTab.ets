@@ -30,13 +30,14 @@ export struct HomeTab {
   @State pageNo: number = 1;
   @State hasMore: boolean = true;
   @State loadingMore: boolean = false;
-  /** 易盾验证完成的计数器：变化即自动重放被拦的请求。 */
-  @StorageProp('captchaDoneTick') @Watch('onCaptchaDone') captchaDoneTick: number = 0;
 
   aboutToAppear(): void {
     this.loadHome();
   }
 
+  @StorageProp('captchaDoneTick') @Watch('onCaptchaDone') captchaDoneTick: number = 0;
+
+  /** 易盾验证完成后自动重放刚才被拦的请求。 */
   private onCaptchaDone(): void {
     this.loadHome();
   }

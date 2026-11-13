@@ -36,18 +36,12 @@ struct FeedDetail {
   @State likeCount: string = '';
   @State liking: boolean = false;
 
-  @StorageProp('captchaDoneTick') @Watch('onCaptchaDone') captchaDoneTick: number = 0;
-
   aboutToAppear(): void {
     this.feedId = getPendingDetailId();
     if (this.feedId.length === 0) {
       this.status = '缺少动态 ID';
       return;
     }
-  private onCaptchaDone(): void {
-    this.load();
-  }
-
     this.load();
   }
 
@@ -125,6 +119,13 @@ struct FeedDetail {
     if (m !== null) {
       this.likeCount = m[1];
     }
+  }
+
+  @StorageProp('captchaDoneTick') @Watch('onCaptchaDone') captchaDoneTick: number = 0;
+
+  /** 易盾验证完成后自动重放刚才被拦的请求。 */
+  private onCaptchaDone(): void {
+    this.load();
   }
 
   build() {

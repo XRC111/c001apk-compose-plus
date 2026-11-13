@@ -102,7 +102,8 @@ struct CaptchaPage {
       saveValidate(validate, this.captchaId).then(() => {
         this.status = '已保存验证凭证';
         // 通知所有页面：验证完成，可以重放刚才被拦的请求
-        const tick: number = AppStorage.get<number>('captchaDoneTick') ?? 0;
+        const prev: number | undefined = AppStorage.get<number>('captchaDoneTick');
+        const tick: number = prev === undefined ? 0 : prev;
         AppStorage.setOrCreate('captchaDoneTick', tick + 1);
         setTimeout(() => {
           router.back();

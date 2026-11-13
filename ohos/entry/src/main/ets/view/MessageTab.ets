@@ -28,15 +28,9 @@ export struct MessageTab {
   @State hasMore: boolean = true;
   @State loadingMore: boolean = false;
 
-  @StorageProp('captchaDoneTick') @Watch('onCaptchaDone') captchaDoneTick: number = 0;
-
   aboutToAppear(): void {
     this.refresh();
   }
-  private onCaptchaDone(): void {
-    this.loadTab(this.selTab);
-  }
-
 
   private async refresh(): Promise<void> {
     this.loggedIn = await isLoggedIn();
@@ -76,6 +70,13 @@ export struct MessageTab {
     } else {
       this.status = `HTTP ${res.status}`;
     }
+  }
+
+  @StorageProp('captchaDoneTick') @Watch('onCaptchaDone') captchaDoneTick: number = 0;
+
+  /** 易盾验证完成后自动重放刚才被拦的请求。 */
+  private onCaptchaDone(): void {
+    this.loadTab(this.selTab);
   }
 
   build() {

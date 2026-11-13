@@ -26,10 +26,9 @@ struct SearchPage {
 
   @StorageProp('captchaDoneTick') @Watch('onCaptchaDone') captchaDoneTick: number = 0;
 
+  /** 易盾验证完成后自动重放刚才被拦的请求。 */
   private onCaptchaDone(): void {
-    if (this.keyword.trim().length > 0) {
-      this.doSearch();
-    }
+    if (this.keyword.trim().length > 0) { this.doSearch(); }
   }
 
   build() {

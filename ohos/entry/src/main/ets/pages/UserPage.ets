@@ -25,18 +25,12 @@ struct UserPage {
   @State experience: string = '';
   @State captchaId: string = '';
 
-  @StorageProp('captchaDoneTick') @Watch('onCaptchaDone') captchaDoneTick: number = 0;
-
   aboutToAppear(): void {
     this.uid = getPendingUid();
     if (this.uid.length === 0) {
       this.status = '缺少用户 ID';
       return;
     }
-  private onCaptchaDone(): void {
-    this.load();
-  }
-
     this.load();
   }
 
@@ -67,6 +61,13 @@ struct UserPage {
       this.status = `加载失败 HTTP ${res.status}`;
     }
     this.loading = false;
+  }
+
+  @StorageProp('captchaDoneTick') @Watch('onCaptchaDone') captchaDoneTick: number = 0;
+
+  /** 易盾验证完成后自动重放刚才被拦的请求。 */
+  private onCaptchaDone(): void {
+    this.load();
   }
 
   build() {
