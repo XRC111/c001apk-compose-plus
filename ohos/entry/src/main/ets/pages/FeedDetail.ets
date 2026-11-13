@@ -23,7 +23,7 @@ struct FeedDetail {
   @State status: string = '';
   @State user: string = '';
   @State time: string = '';
-  @State title: string = '';
+  @State feedTitle: string = '';
   @State message: string = '';
   @State pics: string[] = [];
   @State likes: string = '';
@@ -55,7 +55,7 @@ struct FeedDetail {
       const d = parsed.detail;
       this.user = str(d.username);
       this.time = timeAgo(d.dateline);
-      this.title = str(d.title);
+      this.feedTitle = str(d.title);
       this.message = str(d.message);
       this.segs = richSegments(this.message);
       this.authorUid = str(d.uid);
@@ -235,8 +235,8 @@ struct FeedDetail {
             }
             .width('100%')
 
-            if (this.title.length > 0) {
-              Text(this.title)
+            if (this.feedTitle.length > 0) {
+              Text(this.feedTitle)
                 .fontSize(17)
                 .fontWeight(FontWeight.Bold)
                 .fontColor($r('app.color.text_title'))

@@ -18,7 +18,7 @@ struct AppDetail {
   @State packageName: string = '';
   @State loading: boolean = false;
   @State status: string = '';
-  @State name: string = '';
+  @State apkTitle: string = '';
   @State icon: string = '';
   @State versionName: string = '';
   @State apkSize: string = '';
@@ -45,7 +45,7 @@ struct AppDetail {
     const parsed: ParsedAppDetail = parseAppDetail(res.body);
     if (parsed.app !== null) {
       const d: AppDetailData = parsed.app;
-      this.name = appName(d);
+      this.apkTitle = appName(d);
       this.icon = appIcon(d);
       this.versionName = str(d.apkversionname);
       this.apkSize = str(d.apksize);
@@ -149,7 +149,7 @@ struct AppDetail {
                 .margin({ right: 12 })
             }
             Column() {
-              Text(this.name.length > 0 ? this.name : this.packageName)
+              Text(this.apkTitle.length > 0 ? this.apkTitle : this.packageName)
                 .fontSize(17)
                 .fontWeight(FontWeight.Bold)
                 .width('100%')
