@@ -14,7 +14,7 @@ import { preferences } from '@kit.ArkData';
 import { common } from '@kit.AbilityKit';
 import { hilog } from '@kit.PerformanceAnalysisKit';
 
-const DOMAIN = 0x0000;
+const DOMAIN = 0xD0001;
 const STORE_NAME: string = 'c001apk_settings';
 
 /** 设置项 key。 */

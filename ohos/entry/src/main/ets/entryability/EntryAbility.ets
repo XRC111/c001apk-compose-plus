@@ -10,7 +10,7 @@ import { hilog } from '@kit.PerformanceAnalysisKit';
 import { getString, initSettings, KEY_SZLM_ID } from '../common/SettingsStore';
 import { setDeviceCode } from '../common/DeviceCode';
 
-const DOMAIN = 0x0000;
+const DOMAIN = 0xD0001;
 
 export default class EntryAbility extends UIAbility {
   onCreate(want: Want, launchParam: AbilityConstant.LaunchParam): void {

@@ -8,7 +8,7 @@ import { HomeTab } from '../view/HomeTab';
 import { MessageTab } from '../view/MessageTab';
 import { SettingsTab } from '../view/SettingsTab';
 
-const DOMAIN = 0x0000;
+const DOMAIN = 0xD0001;
 
 /**
  * 应用外壳：底部三栏（首页 / 消息 / 设置）。

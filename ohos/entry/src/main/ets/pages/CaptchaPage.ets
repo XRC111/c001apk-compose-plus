@@ -9,7 +9,7 @@ import {
 } from '../common/CaptchaBridge';
 import { saveValidate, markReplayPending } from '../common/CookieStore';
 
-const DOMAIN = 0x0000;
+const DOMAIN = 0xD0001;
 
 /** 与 Android 版 CaptchaActivity.BASE_URL 一致：易盾校验页面域名。 */
 const BASE_URL: string = 'https://www.coolapk.com/';

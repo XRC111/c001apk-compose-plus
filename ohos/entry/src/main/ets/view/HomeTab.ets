@@ -497,7 +497,15 @@ export struct HomeTab {
       this.captchaId = res.captchaId;
       this.statusText = '命中风控验证码';
     } else if (res.status === 200) {
-      this.statusText = parsed.items.length > 0 ? '' : '暂无内容';
+      // 有 data 但为空才是真的"暂无内容"；解析失败要把原因显示出来，
+      // 否则 1004「请求未验证」这类问题会被误判成"没内容"
+      if (parsed.items.length > 0) {
+        this.statusText = '';
+      } else if (parsed.error.length > 0) {
+        this.statusText = parsed.error;
+      } else {
+        this.statusText = '暂无内容';
+      }
     } else if (res.status < 0) {
       this.statusText = '网络请求失败，下拉可重试';
     } else {

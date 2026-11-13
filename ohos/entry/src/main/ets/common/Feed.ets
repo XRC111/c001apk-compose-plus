@@ -109,7 +109,13 @@ export function parseFeed(body: string): ParsedFeed {
     const env: FeedEnvelope = JSON.parse(body) as FeedEnvelope;
     const data = env.data;
     if (data === undefined || data === null) {
-      empty.error = '响应中没有 data 字段';
+      // 把服务端给的 status/message 一并带出来，真机上才能看出是
+      // 1004「请求未验证」/ 403 风控 / 还是别的原因，而不是笼统的"暂无内容"
+      const m = /"status"\s*:\s*(-?\d+)/.exec(body);
+      const msg = /"message"\s*:\s*"([^"]*)"/.exec(body);
+      const code = m !== null ? m[1] : '?';
+      const text = msg !== null ? msg[1] : '';
+      empty.error = `无 data（status=${code}${text.length > 0 ? ' ' + text : ''}）`;
       return empty;
     }
     for (const it of data) {

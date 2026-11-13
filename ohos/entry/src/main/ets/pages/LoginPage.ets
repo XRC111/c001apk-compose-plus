@@ -3,7 +3,7 @@ import { webview } from '@kit.ArkWeb';
 import { hilog } from '@kit.PerformanceAnalysisKit';
 import { saveLogin } from '../common/CookieStore';
 
-const DOMAIN = 0x0000;
+const DOMAIN = 0xD0001;
 /** 与 Android 版 Constants.URL_LOGIN 一致。 */
 const LOGIN_URL: string = 'https://account.coolapk.com/auth/login?type=mobile';
 

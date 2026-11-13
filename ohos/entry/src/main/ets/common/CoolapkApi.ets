@@ -16,7 +16,7 @@ import { buildCookieHeaderSync, saveSessid, withProofSync,
   clearValidate, saveCaptchaField, inReplayWindowSync } from './CookieStore';
 import { parseChallenge, DEFAULT_CAPTCHA_FIELD } from './CaptchaChallenge';
 
-const DOMAIN = 0x0000;
+const DOMAIN = 0xD0001;
 const API_HOST: string = 'https://api.coolapk.com';
 const REQUEST_WITH: string = 'XMLHttpRequest';
 const LOCALE: string = 'zh-CN';
@@ -143,7 +143,8 @@ export class CoolapkApi {
     const url = API_HOST + finalPath;
     const req = http.createHttp();
     try {
-      hilog.info(DOMAIN, 'c001apk', 'GET %{public}s', path);
+      hilog.info(DOMAIN, 'c001apk', 'GET %{public}s device=%{public}s token=%{public}s',
+        path, deviceCode, token.substring(0, Math.min(16, token.length)));
       const res = await req.request(url, {
         method: http.RequestMethod.GET,
         header: buildHeaders(token, deviceCode, cookie),
@@ -152,6 +153,9 @@ export class CoolapkApi {
       });
       const raw = res.result;
       const body: string = typeof raw === 'string' ? raw : '';
+      // 真机诊断：把 HTTP 码与响应体前 200 字符打出来，定位 1004/403/风控
+      hilog.info(DOMAIN, 'c001apk', 'GET %{public}s -> %{public}d body=%{public}s',
+        path, res.responseCode, body.substring(0, Math.min(200, body.length)));
 
       // 服务端下发的 SESSID 必须带回后续请求，风控重放才有效
       const respCookies: string = res.cookies !== undefined ? res.cookies : '';
