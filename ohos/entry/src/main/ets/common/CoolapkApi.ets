@@ -226,6 +226,77 @@ export class CoolapkApi {
     return CoolapkApi.get(path + sep + 'page=' + page.toString());
   }
 
+  /**
+   * 发送私信。
+   *
+   * 协议为 multipart/form-data：message = 正文，message_pic = 图片地址（可为空串）。
+   * 注意：multipart 的 boundary 由框架生成，必须去掉手写的 Content-Type。
+   */
+  static async sendMessage(uid: string, text: string, pic: string): Promise<CoolapkResponse> {
+    const deviceCode = getDeviceCode();
+    const token = tokenFor(deviceCode);
+    const cookie = await buildCookieHeader();
+    const raw = buildHeaders(token, deviceCode, cookie);
+    const headers: Record<string, string> = {};
+    const keys = Object.keys(raw);
+    for (const k of keys) {
+      if (k !== 'Content-Type') {
+        headers[k] = raw[k];
+      }
+    }
+
+    const url = API_HOST + '/v6/message/send?uid=' + encodeURIComponent(uid);
+    const form: Array<http.MultiFormData> = [];
+    const msgPart: http.MultiFormData = {
+      name: 'message',
+      contentType: 'text/plain',
+      data: text,
+    };
+    form.push(msgPart);
+    const picPart: http.MultiFormData = {
+      name: 'message_pic',
+      contentType: 'text/plain',
+      data: pic,
+    };
+    form.push(picPart);
+
+    const req = http.createHttp();
+    try {
+      const res = await req.request(url, {
+        method: http.RequestMethod.POST,
+        header: headers,
+        multiFormDataList: form,
+        readTimeout: 20000,
+        connectTimeout: 15000,
+      });
+      const rawResult = res.result;
+      const body: string = typeof rawResult === 'string' ? rawResult : '';
+      const messageStatus = extractMessageStatus(body);
+      const needCaptcha = messageStatus === 'err_request_captcha_v2' ||
+        body.indexOf('err_request_captcha_v2') >= 0;
+      const r: CoolapkResponse = {
+        status: res.responseCode,
+        body: body,
+        messageStatus: messageStatus,
+        needCaptcha: needCaptcha,
+        captchaId: needCaptcha ? extractCaptchaId(body) : '',
+      };
+      return r;
+    } catch (e) {
+      hilog.error(DOMAIN, 'c001apk', 'sendMessage failed: %{public}s', JSON.stringify(e));
+      const r: CoolapkResponse = {
+        status: -1,
+        body: '',
+        messageStatus: '',
+        needCaptcha: false,
+        captchaId: '',
+      };
+      return r;
+    } finally {
+      req.destroy();
+    }
+  }
+
   /** 私信会话内容。 */
   static async fetchChat(ukey: string, page: number = 1): Promise<CoolapkResponse> {
     return CoolapkApi.get('/v6/message/chat?ukey=' + encodeURIComponent(ukey) +

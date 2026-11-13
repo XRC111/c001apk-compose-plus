@@ -24,6 +24,9 @@ struct ChatPage {
   @State loading: boolean = false;
   @State status: string = '';
   @State captchaId: string = '';
+  @State peerUid: string = '';
+  @State draft: string = '';
+  @State sending: boolean = false;
   private scroller: Scroller = new Scroller();
 
   aboutToAppear(): void {
@@ -48,6 +51,7 @@ struct ChatPage {
     const parsed: ParsedFeed = parseFeed(res.body);
     // 接口按时间倒序返回，翻成「上旧下新」
     this.items = parsed.items.slice().reverse();
+    this.peekPeerUid(parsed.items);
     this.loading = false;
 
     if (res.needCaptcha) {
@@ -147,6 +151,30 @@ struct ChatPage {
       .padding({ left: 12, right: 12 })
       .scrollBar(BarState.Off)
       .contentEndOffset(16)
+
+      Row() {
+        TextInput({ placeholder: '发消息…', text: this.draft })
+          .layoutWeight(1)
+          .height(38)
+          .onChange((v: string) => {
+            this.draft = v;
+          })
+          .onSubmit(() => {
+            this.send();
+          })
+        Button(this.sending ? '发送中…' : '发送', { type: ButtonType.Capsule })
+          .fontSize(13)
+          .height(38)
+          .margin({ left: 8 })
+          .backgroundColor($r('app.color.accent'))
+          .enabled(!this.sending)
+          .onClick(() => {
+            this.send();
+          })
+      }
+      .width('100%')
+      .padding({ left: 12, right: 12, top: 8, bottom: 12 })
+      .backgroundColor($r('app.color.card_bg'))
     }
     .width('100%')
     .height('100%')
@@ -216,6 +244,50 @@ struct ChatPage {
       }
       .width('100%')
       .alignItems(VerticalAlign.Top)
+    }
+  }
+
+  /** 从会话记录里推断对方 uid（第一条非我方消息的 uid）。 */
+  private peekPeerUid(items: FeedItem[]): void {
+    if (this.peerUid.length > 0) {
+      return;
+    }
+    for (const it of items) {
+      const u = it.uid;
+      if (u !== undefined && u.length > 0 && u !== this.myUid) {
+        this.peerUid = u;
+        return;
+      }
+    }
+  }
+
+  /** 发送一条文字私信。 */
+  private async send(): Promise<void> {
+    const text = this.draft.trim();
+    if (text.length === 0 || this.sending) {
+      return;
+    }
+    if (this.peerUid.length === 0) {
+      this.status = '缺少对方 uid，暂时无法发送';
+      return;
+    }
+    this.sending = true;
+    const res: CoolapkResponse = await CoolapkApi.sendMessage(this.peerUid, text, '');
+    this.sending = false;
+
+    if (res.needCaptcha) {
+      this.captchaId = res.captchaId;
+      this.status = '发送被风控拦截，需先完成人机验证';
+      return;
+    }
+    if (res.status === 200) {
+      this.draft = '';
+      this.status = '';
+      this.load();
+    } else if (res.status < 0) {
+      this.status = '发送失败：网络错误';
+    } else {
+      this.status = `发送失败 HTTP ${res.status}`;
     }
   }
 
