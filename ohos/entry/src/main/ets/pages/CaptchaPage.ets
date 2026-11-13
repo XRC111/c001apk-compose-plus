@@ -7,7 +7,7 @@ import {
   getPendingCaptchaId,
   setValidateCallback,
 } from '../common/CaptchaBridge';
-import { saveValidate } from '../common/CookieStore';
+import { saveValidate, markReplayPending } from '../common/CookieStore';
 
 const DOMAIN = 0x0000;
 
@@ -101,13 +101,15 @@ struct CaptchaPage {
       this.status = '验证通过，正在保存…';
       saveValidate(validate, this.captchaId).then(() => {
         this.status = '已保存验证凭证';
-        // 通知所有页面：验证完成，可以重放刚才被拦的请求
-        const prev: number | undefined = AppStorage.get<number>('captchaDoneTick');
-        const tick: number = prev === undefined ? 0 : prev;
-        AppStorage.setOrCreate('captchaDoneTick', tick + 1);
-        setTimeout(() => {
-          router.back();
-        }, 700);
+        // 下一个请求作为「重放」带凭证 query；同时通知各页面自动重新拉取
+        markReplayPending().then(() => {
+          const prev: number | undefined = AppStorage.get<number>('captchaDoneTick');
+          const tick: number = prev === undefined ? 0 : prev;
+          AppStorage.setOrCreate('captchaDoneTick', tick + 1);
+          setTimeout(() => {
+            router.back();
+          }, 700);
+        });
       });
     });
   }

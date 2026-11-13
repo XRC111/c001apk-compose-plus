@@ -12,7 +12,8 @@ import { http } from '@kit.NetworkKit';
 import { hilog } from '@kit.PerformanceAnalysisKit';
 import { getTokenV3, APP_ID, VERSION_CODE, API_VERSION, CHANNEL, MODE, VERSION_NAME } from './CoolapkToken';
 import { getDeviceCode } from './DeviceCode';
-import { buildCookieHeader, saveSessid, withProof, clearValidate, saveCaptchaField } from './CookieStore';
+import { buildCookieHeader, saveSessid, withProof, clearValidate, saveCaptchaField,
+  consumeReplayPending } from './CookieStore';
 import { parseChallenge, DEFAULT_CAPTCHA_FIELD } from './CaptchaChallenge';
 
 const DOMAIN = 0x0000;
@@ -120,8 +121,9 @@ export class CoolapkApi {
     const deviceCode = getDeviceCode();
     const token = tokenFor(deviceCode);
     const cookie = await buildCookieHeader();
-    // 若已有 NEC 凭证，按服务端要求的字段拼进 query（对齐 Android 版 buildRetry）
-    const finalPath = await withProof(path);
+    // 验证成功后，仅对「下一个」请求按服务端字段拼一次凭证 query（对齐 Android 重放）
+    const replay = await consumeReplayPending();
+    const finalPath = await withProof(path, replay);
     const url = API_HOST + finalPath;
     const req = http.createHttp();
     try {

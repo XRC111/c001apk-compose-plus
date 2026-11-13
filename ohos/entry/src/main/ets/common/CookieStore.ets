@@ -105,10 +105,13 @@ export async function saveCaptchaField(field: string): Promise<void> {
 }
 
 /**
- * 给请求 path 追加凭证参数（对齐 Android 版 buildRetry）。
- * 返回追加后的 path；无凭证时原样返回。
+ * 给「重放」请求追加凭证参数（对齐 Android 版 buildRetry）。
+ * 只在调用方明确要求时才加，且取用后即清掉一次性标记，避免后续每个请求都带过期凭证。
  */
-export async function withProof(path: string): Promise<string> {
+export async function withProof(path: string, replay: boolean): Promise<string> {
+  if (!replay) {
+    return path;
+  }
   const proof = await getString(KEY_VALIDATE, '');
   if (proof.length === 0) {
     return path;
@@ -122,3 +125,19 @@ export async function withProof(path: string): Promise<string> {
 }
 
 const DEFAULT_CAPTCHA_FIELD: string = '_v2_post_token';
+const KEY_REPLAY_PENDING: string = 'replayPending';
+
+/** 验证成功后标记：下一个请求需要带凭证 query 重放。 */
+export async function markReplayPending(): Promise<void> {
+  await putString(KEY_REPLAY_PENDING, '1');
+}
+
+/** 取出并清除重放标记（一次性）。 */
+export async function consumeReplayPending(): Promise<boolean> {
+  const v = await getString(KEY_REPLAY_PENDING, '');
+  if (v.length > 0) {
+    await putString(KEY_REPLAY_PENDING, '');
+    return true;
+  }
+  return false;
+}
