@@ -406,12 +406,6 @@ export interface RichSeg {
   kind: number;
 }
 
-/** 正文分段：0=普通 1=@用户 2=#话题# 3=链接。 */
-export interface RichSeg {
-  text: string;
-  kind: number;
-}
-
 /**
  * 把酷安正文切成普通文本 / @用户 / #话题# / 链接 四类片段，
  * 供 Text + Span 分段着色（用语义色，兼容深色模式）。
