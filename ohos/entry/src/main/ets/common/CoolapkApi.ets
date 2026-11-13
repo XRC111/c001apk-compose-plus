@@ -13,7 +13,7 @@ import { hilog } from '@kit.PerformanceAnalysisKit';
 import { getTokenV3, APP_ID, VERSION_CODE, API_VERSION, CHANNEL, MODE, VERSION_NAME } from './CoolapkToken';
 import { getDeviceCode } from './DeviceCode';
 import { buildCookieHeader, saveSessid, withProof, clearValidate, saveCaptchaField,
-  consumeReplayPending } from './CookieStore';
+  inReplayWindow } from './CookieStore';
 import { parseChallenge, DEFAULT_CAPTCHA_FIELD } from './CaptchaChallenge';
 
 const DOMAIN = 0x0000;
@@ -121,8 +121,8 @@ export class CoolapkApi {
     const deviceCode = getDeviceCode();
     const token = tokenFor(deviceCode);
     const cookie = await buildCookieHeader();
-    // 验证成功后，仅对「下一个」请求按服务端字段拼一次凭证 query（对齐 Android 重放）
-    const replay = await consumeReplayPending();
+    // 验证成功后的窗口期内，所有请求都按服务端字段带上凭证（对齐 Android 重放语义）
+    const replay = await inReplayWindow();
     const finalPath = await withProof(path, replay);
     const url = API_HOST + finalPath;
     const req = http.createHttp();

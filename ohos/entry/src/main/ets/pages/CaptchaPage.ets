@@ -122,6 +122,11 @@ struct CaptchaPage {
   private loadCaptcha(): void {
     this.started = false;
     this.controller.loadData(buildHtml(), 'text/html', 'UTF-8', BASE_URL, BASE_URL);
+    // 双保险：onPageEnd 可能因 baseUrl 被当作真实导航而错过自定义页，
+    // 这里延时再试一次；startIfNeeded 内部有 started 去重，不会重复初始化。
+    setTimeout(() => {
+      this.startIfNeeded();
+    }, 600);
   }
 
   private startIfNeeded(): void {
@@ -131,7 +136,16 @@ struct CaptchaPage {
     this.started = true;
     if (this.captchaId.length > 0) {
       this.status = '请完成滑块验证';
-      this.controller.runJavaScript(`startCaptcha('${this.captchaId}')`);
+      try {
+        this.controller.runJavaScript(`startCaptcha('${this.captchaId}')`).catch((e: Error) => {
+          hilog.error(DOMAIN, 'c001apk', 'runJavaScript failed: %{public}s', e.message);
+          this.started = false;
+          this.status = '验证组件注入失败，请点「重新加载」';
+        });
+      } catch (e) {
+        this.started = false;
+        this.status = '验证组件注入异常，请点「重新加载」';
+      }
     } else {
       this.status = '缺少 captchaId，无法加载验证';
     }

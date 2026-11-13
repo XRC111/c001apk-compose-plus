@@ -82,8 +82,3 @@ export function parseChallenge(body: string): CaptchaChallenge | null {
   const ch: CaptchaChallenge = { captchaId: captchaId, field: field };
   return ch;
 }
-
-/** 易盾回调的 validate → 服务端要求的 NEC 凭证串。 */
-export function makeProof(captchaId: string, validate: string): string {
-  return 'NEC:' + captchaId.substring(0, 8) + ':' + validate;
-}

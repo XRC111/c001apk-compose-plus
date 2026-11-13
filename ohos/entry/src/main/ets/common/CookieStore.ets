@@ -63,11 +63,6 @@ export async function clearLogin(): Promise<void> {
   await putString(KEY_TOKEN, '');
 }
 
-/** 已保存的 NEC 凭证串（供重放请求拼 query）。 */
-export async function currentProof(): Promise<string> {
-  return await getString(KEY_VALIDATE, '');
-}
-
 /**
  * 保存风控验证凭证。
  *
@@ -78,10 +73,6 @@ export async function saveValidate(validate: string, captchaId: string): Promise
   const proof = 'NEC:' + captchaId.substring(0, 8) + ':' + validate;
   await putString(KEY_VALIDATE, proof);
   await putString(KEY_CAPTCHA_ID, captchaId);
-}
-
-export async function currentCaptchaId(): Promise<string> {
-  return await getString(KEY_CAPTCHA_ID, '');
 }
 
 /** 清除失效的验证凭证。 */
@@ -125,19 +116,34 @@ export async function withProof(path: string, replay: boolean): Promise<string> 
 }
 
 const DEFAULT_CAPTCHA_FIELD: string = '_v2_post_token';
-const KEY_REPLAY_PENDING: string = 'replayPending';
+const KEY_REPLAY_AT: string = 'replayAt';
 
-/** 验证成功后标记：下一个请求需要带凭证 query 重放。 */
+/**
+ * 验证成功后标记一个「重放窗口」。
+ *
+ * 为什么用时间窗口而不是一次性标记：验证返回后多个页面会同时重新拉取
+ * （首页 + 详情页 + 消息页），若只让第一个请求消费标记，其余请求拿不到凭证
+ * 会立刻再次命中风控，形成「验证→再被拦」的死循环。
+ */
 export async function markReplayPending(): Promise<void> {
-  await putString(KEY_REPLAY_PENDING, '1');
+  await putString(KEY_REPLAY_AT, Date.now().toString());
 }
 
-/** 取出并清除重放标记（一次性）。 */
-export async function consumeReplayPending(): Promise<boolean> {
-  const v = await getString(KEY_REPLAY_PENDING, '');
-  if (v.length > 0) {
-    await putString(KEY_REPLAY_PENDING, '');
-    return true;
+/** 是否处于重放窗口内（默认 8 秒）。 */
+export async function inReplayWindow(): Promise<boolean> {
+  const v = await getString(KEY_REPLAY_AT, '');
+  if (v.length === 0) {
+    return false;
   }
-  return false;
+  const at = parseInt(v, 10);
+  if (isNaN(at)) {
+    return false;
+  }
+  const age = Date.now() - at;
+  if (age < 0 || age > 8000) {
+    // 过期则清掉，避免长期误带凭证
+    await putString(KEY_REPLAY_AT, '');
+    return false;
+  }
+  return true;
 }
