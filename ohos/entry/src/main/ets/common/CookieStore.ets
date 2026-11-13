@@ -41,7 +41,11 @@ export function buildCookieHeaderSync(): string {
 
   const validate = getStringSync(KEY_VALIDATE, '');
   if (validate.length > 0) {
-    parts.push('validate=' + validate);
+    // Android 版 CaptchaStore.setValidate 会对 proof 做 URLEncoder.encode 再写 Cookie：
+    // NEC 凭证里常含 '+', '/', '=' 等字符，不编码会破坏 Cookie 格式。
+    // 注意：这里只编码「Cookie 里的值」，存储仍保留原始串，query 参数由
+    // withProofSync 用 encodeURIComponent 另行编码，两者互不影响。
+    parts.push('validate=' + encodeURIComponent(validate));
   }
 
   return parts.join('; ');
