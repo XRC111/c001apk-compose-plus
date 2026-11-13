@@ -12,7 +12,8 @@ import { http } from '@kit.NetworkKit';
 import { hilog } from '@kit.PerformanceAnalysisKit';
 import { getTokenV3, APP_ID, VERSION_CODE, API_VERSION, CHANNEL, MODE, VERSION_NAME } from './CoolapkToken';
 import { getDeviceCode } from './DeviceCode';
-import { buildCookieHeader, saveSessid } from './CookieStore';
+import { buildCookieHeader, saveSessid, withProof, clearValidate, saveCaptchaField } from './CookieStore';
+import { parseChallenge, DEFAULT_CAPTCHA_FIELD } from './CaptchaChallenge';
 
 const DOMAIN = 0x0000;
 const API_HOST: string = 'https://api.coolapk.com';
@@ -24,8 +25,10 @@ export interface CoolapkResponse {
   body: string;
   messageStatus: string;
   needCaptcha: boolean;
-  /** 命中风控时服务端下发的易盾 captchaId，可能为空。 */
+  /** 命中风控时服务端下发的易盾 captchaId；解析不到时用默认 ID。 */
   captchaId: string;
+  /** 重放请求需要携带的字段名（如 _v2_post_token）。 */
+  captchaField: string;
 }
 
 /** 组装与 Android 版 AddCookiesInterceptor 对齐的请求头。 */
@@ -82,15 +85,14 @@ function extractCookieValue(cookies: string, name: string): string {
 
 /** 统一构造响应对象。 */
 function makeResponse(status: number, body: string): CoolapkResponse {
-  const messageStatus = extractMessageStatus(body);
-  const needCaptcha = messageStatus === 'err_request_captcha_v2' ||
-    body.indexOf('err_request_captcha_v2') >= 0;
+  const ch = parseChallenge(body);
   const r: CoolapkResponse = {
     status: status,
     body: body,
-    messageStatus: messageStatus,
-    needCaptcha: needCaptcha,
-    captchaId: needCaptcha ? extractCaptchaId(body) : '',
+    messageStatus: extractMessageStatus(body),
+    needCaptcha: ch !== null,
+    captchaId: ch !== null ? ch.captchaId : '',
+    captchaField: ch !== null ? ch.field : DEFAULT_CAPTCHA_FIELD,
   };
   return r;
 }
@@ -124,7 +126,9 @@ export class CoolapkApi {
     const deviceCode = getDeviceCode();
     const token = tokenFor(deviceCode);
     const cookie = await buildCookieHeader();
-    const url = API_HOST + path;
+    // 若已有 NEC 凭证，按服务端要求的字段拼进 query（对齐 Android 版 buildRetry）
+    const finalPath = await withProof(path);
+    const url = API_HOST + finalPath;
     const req = http.createHttp();
     try {
       hilog.info(DOMAIN, 'c001apk', 'GET %{public}s', path);
@@ -148,8 +152,13 @@ export class CoolapkApi {
 
       const r = makeResponse(res.responseCode, body);
       if (r.needCaptcha) {
-        hilog.warn(DOMAIN, 'c001apk', '命中新版风控验证码 captchaId=%{public}s', r.captchaId);
+        // 带着旧凭证仍被拦 → 凭证已失效，清掉并记住本次挑战的字段
+        await clearValidate();
+        await saveCaptchaField(r.captchaField);
+        hilog.warn(DOMAIN, 'c001apk', '命中新版风控验证码 captchaId=%{public}s field=%{public}s',
+          r.captchaId, r.captchaField);
       }
+      // 成功时不清凭证：Android 版让 validate Cookie 在整个会话内持续生效
       return r;
     } catch (e) {
       hilog.error(DOMAIN, 'c001apk', 'GET %{public}s failed: %{public}s', path, JSON.stringify(e));
