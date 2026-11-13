@@ -93,6 +93,22 @@ function makeResponse(status: number, body: string): CoolapkResponse {
 }
 
 /**
+ * 统一处理风控响应：命中时清掉失效的 NEC 凭证、记住本次挑战的 field。
+ * GET / POST / 表单 / multipart 都必须调用，否则验证成功后旧凭证会一直
+ * 被带上，导致「验证 → 再被拦」的死循环。
+ */
+async function handleChallenge(r: CoolapkResponse): Promise<CoolapkResponse> {
+  if (r.needCaptcha) {
+    await clearValidate();
+    await saveCaptchaField(r.captchaField);
+    hilog.warn(DOMAIN, 'c001apk', '命中新版风控验证码 captchaId=%{public}s field=%{public}s',
+      r.captchaId, r.captchaField);
+  }
+  // 成功时不清凭证：Android 版让 validate Cookie 在整个会话内持续生效
+  return r;
+}
+
+/**
  * v3 token 的短期缓存。
  *
  * 生成一次 token 需要一次 bcrypt(cost=10)，在手机上约数百毫秒；
@@ -146,16 +162,8 @@ export class CoolapkApi {
         }
       }
 
-      const r = makeResponse(res.responseCode, body);
-      if (r.needCaptcha) {
-        // 带着旧凭证仍被拦 → 凭证已失效，清掉并记住本次挑战的字段
-        await clearValidate();
-        await saveCaptchaField(r.captchaField);
-        hilog.warn(DOMAIN, 'c001apk', '命中新版风控验证码 captchaId=%{public}s field=%{public}s',
-          r.captchaId, r.captchaField);
-      }
       // 成功时不清凭证：Android 版让 validate Cookie 在整个会话内持续生效
-      return r;
+      return await handleChallenge(makeResponse(res.responseCode, body));
     } catch (e) {
       hilog.error(DOMAIN, 'c001apk', 'GET %{public}s failed: %{public}s', path, JSON.stringify(e));
       return makeResponse(-1, '');
@@ -169,7 +177,9 @@ export class CoolapkApi {
     const deviceCode = getDeviceCode();
     const token = tokenFor(deviceCode);
     const cookie = buildCookieHeaderSync();
-    const url = API_HOST + path;
+    // POST 命中风控后同样需要带凭证重放（对齐 Android 版 buildRetry 对 POST 的处理）
+    const replay = inReplayWindowSync();
+    const url = API_HOST + withProofSync(path, replay);
     const req = http.createHttp();
     try {
       const res = await req.request(url, {
@@ -180,7 +190,7 @@ export class CoolapkApi {
       });
       const raw = res.result;
       const body: string = typeof raw === 'string' ? raw : '';
-      return makeResponse(res.responseCode, body);
+      return await handleChallenge(makeResponse(res.responseCode, body));
     } catch (e) {
       hilog.error(DOMAIN, 'c001apk', 'POST %{public}s failed: %{public}s', path, JSON.stringify(e));
       return makeResponse(-1, '');
@@ -201,7 +211,9 @@ export class CoolapkApi {
     const deviceCode = getDeviceCode();
     const token = tokenFor(deviceCode);
     const cookie = buildCookieHeaderSync();
-    const url = API_HOST + path;
+    // 评论发送等表单 POST 也要支持风控重放
+    const replay = inReplayWindowSync();
+    const url = API_HOST + withProofSync(path, replay);
     const req = http.createHttp();
     try {
       const res = await req.request(url, {
@@ -213,7 +225,7 @@ export class CoolapkApi {
       });
       const raw = res.result;
       const text: string = typeof raw === 'string' ? raw : '';
-      return makeResponse(res.responseCode, text);
+      return await handleChallenge(makeResponse(res.responseCode, text));
     } catch (e) {
       hilog.error(DOMAIN, 'c001apk', 'postForm %{public}s failed: %{public}s', path, JSON.stringify(e));
       return makeResponse(-1, '');
@@ -324,7 +336,10 @@ export class CoolapkApi {
       }
     }
 
-    const url = API_HOST + '/v6/message/send?uid=' + encodeURIComponent(uid);
+    // multipart POST 命中风控时退化为 query 参数重放（对齐 Android 版 buildRetry）
+    const sendPath = '/v6/message/send?uid=' + encodeURIComponent(uid);
+    const replay = inReplayWindowSync();
+    const url = API_HOST + withProofSync(sendPath, replay);
     const form: Array<http.MultiFormData> = [];
     const msgPart: http.MultiFormData = {
       name: 'message',
@@ -350,7 +365,7 @@ export class CoolapkApi {
       });
       const rawResult = res.result;
       const body: string = typeof rawResult === 'string' ? rawResult : '';
-      return makeResponse(res.responseCode, body);
+      return await handleChallenge(makeResponse(res.responseCode, body));
     } catch (e) {
       hilog.error(DOMAIN, 'c001apk', 'sendMessage failed: %{public}s', JSON.stringify(e));
       return makeResponse(-1, '');
