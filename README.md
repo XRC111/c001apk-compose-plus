@@ -139,8 +139,14 @@ v3 token 端到端 24/24 逐字符一致。
 | 验证完没有重放原请求 | 验证成功写 `AppStorage.captchaDoneTick`，各页 `@StorageProp @Watch` 监听后自动重新拉取；网络层在验证后的 **8 秒窗口期**内按 `captchaField` 追加凭证 query。用时间窗口而非一次性标记，否则多页面并发重拉时只有第一个请求能拿到凭证，其余会立刻再被拦，形成「验证→再被拦」死循环 |
 | WebView UA / 混合内容 | 设置与 API 层一致的 User-Agent、`mixedMode(MixedMode.All)`，并加「重新加载」按钮 |
 
-> 注意：以上只经过编译验证，**易盾能否真正弹出需在真机确认**（依赖网络、域名绑定与
-> captchaId 有效性）。若仍不弹，优先看页面内 `#status` 的提示文字定位到哪一步失败。
+**真机已确认：易盾滑块可以正常弹出。** 踩到的是两个叠加的坑：
+
+1. **页面源必须是 `https://www.coolapk.com/`**（`loadData` 的 `baseUrl` 会赋给
+   `window.origin`），用 `$rawfile` 的 `resource://` 源时易盾拒绝渲染；
+2. **`loadData` 的 `data` 若不是 base64，内容里任何 `#` 都会被当作 fragment 分隔符
+   并截断页面**。我们的 HTML 有 CSS 选择器 `#status`/`#captcha` 和颜色 `#FFFFFF`，
+   页面会被截在第一个 `#` 处，表现就是「什么都不显示」。
+   已改为用 `util.Base64Helper` 编码后以 `'base64'` 传入，彻底规避。
 
 ### 踩坑：hvigor `00303024 项目结构需要升级`
 
