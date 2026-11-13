@@ -406,6 +406,12 @@ export interface RichSeg {
   kind: number;
 }
 
+/** 正文分段：0=普通 1=@用户 2=#话题# 3=链接。 */
+export interface RichSeg {
+  text: string;
+  kind: number;
+}
+
 /**
  * 把酷安正文切成普通文本 / @用户 / #话题# / 链接 四类片段，
  * 供 Text + Span 分段着色（用语义色，兼容深色模式）。
@@ -415,7 +421,6 @@ export function richSegments(text: string): RichSeg[] {
   if (text.length === 0) {
     return out;
   }
-  // 依次匹配 链接 | @用户 | #话题#
   const re = /(https?:\/\/[^\s]+)|(@[A-Za-z0-9_\u4e00-\u9fa5-]{1,24})|(#([^#\s]{1,30})#)/g;
   let last = 0;
   let m: RegExpExecArray | null = re.exec(text);
@@ -443,7 +448,9 @@ export function richSegments(text: string): RichSeg[] {
     out.push(tail);
   }
   return out;
+}
 
+/** 私信会话传参（模块级，避免 router 参数的类型转换问题）。 */
 let pendingChatUkey: string = '';
 let pendingChatName: string = '';
 
@@ -458,4 +465,4 @@ export function getPendingChatUkey(): string {
 
 export function getPendingChatName(): string {
   return pendingChatName;
-}}
+}

@@ -1,6 +1,7 @@
 import { router } from '@kit.ArkUI';
 import { CoolapkApi, CoolapkResponse } from '../common/CoolapkApi';
-import { getString, initSettings, KEY_UID } from '../common/SettingsStore';
+import { getString, initSettings } from '../common/SettingsStore';
+import { KEY_UID } from '../common/CookieStore';
 import { common } from '@kit.AbilityKit';
 import {
   FeedItem,
