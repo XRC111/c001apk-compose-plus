@@ -9,14 +9,14 @@ import { SettingsTab } from '../view/SettingsTab';
 @Entry
 @Component
 struct Index {
-  @State tabIndex: number = 0;
+  @State currentTab: number = 0;
 
   build() {
     Column() {
       Column() {
-        if (this.tabIndex === 0) {
+        if (this.currentTab === 0) {
           HomeTab()
-        } else if (this.tabIndex === 1) {
+        } else if (this.currentTab === 1) {
           MessageTab()
         } else {
           SettingsTab()
@@ -45,15 +45,16 @@ struct Index {
   BottomItem(label: string, idx: number) {
     Column() {
       Text(label)
-        .fontSize(this.tabIndex === idx ? 13 : 12)
-        .fontWeight(this.tabIndex === idx ? FontWeight.Bold : FontWeight.Normal)
-        .fontColor(this.tabIndex === idx ? '#FB7299' : '#8A8A8E')
+        .fontSize(this.currentTab === idx ? 13 : 12)
+        .fontWeight(this.currentTab === idx ? FontWeight.Bold : FontWeight.Normal)
+        .fontColor(this.currentTab === idx ? '#FB7299' : '#8A8A8E')
     }
     .layoutWeight(1)
     .height('100%')
     .justifyContent(FlexAlign.Center)
     .onClick(() => {
-      this.tabIndex = idx;
+      this.currentTab = idx;
     })
   }
 }
+
