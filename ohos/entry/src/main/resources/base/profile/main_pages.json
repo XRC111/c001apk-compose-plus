@@ -2,6 +2,7 @@
   "src": [
     "pages/Index",
     "pages/FeedDetail",
+    "pages/ChatPage",
     "pages/AppDetail",
     "pages/UserPage",
     "pages/SearchPage",

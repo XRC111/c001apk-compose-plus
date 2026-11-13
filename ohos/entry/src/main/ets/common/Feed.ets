@@ -25,6 +25,8 @@ export interface FeedItem {
   apksize?: string;
   downCount?: string;
   downnum?: string;
+  ukey?: string;
+  isnew?: number;
 }
 
 export interface FeedEnvelope {
@@ -441,4 +443,19 @@ export function richSegments(text: string): RichSeg[] {
     out.push(tail);
   }
   return out;
+
+let pendingChatUkey: string = '';
+let pendingChatName: string = '';
+
+export function setPendingChat(ukey: string, name: string): void {
+  pendingChatUkey = ukey;
+  pendingChatName = name;
 }
+
+export function getPendingChatUkey(): string {
+  return pendingChatUkey;
+}
+
+export function getPendingChatName(): string {
+  return pendingChatName;
+}}

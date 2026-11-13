@@ -224,4 +224,10 @@ export class CoolapkApi {
   static async fetchNotifications(path: string, page: number = 1): Promise<CoolapkResponse> {
     const sep = path.indexOf('?') >= 0 ? '&' : '?';
     return CoolapkApi.get(path + sep + 'page=' + page.toString());
+  }
+
+  /** 私信会话内容。 */
+  static async fetchChat(ukey: string, page: number = 1): Promise<CoolapkResponse> {
+    return CoolapkApi.get('/v6/message/chat?ukey=' + encodeURIComponent(ukey) +
+      '&page=' + page.toString());
   }}

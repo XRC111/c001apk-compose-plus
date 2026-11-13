@@ -1,7 +1,7 @@
 import { router } from '@kit.ArkUI';
 import { CoolapkApi, CoolapkResponse } from '../common/CoolapkApi';
 import { currentUsername, isLoggedIn } from '../common/CookieStore';
-import { FeedItem, parseFeed, ParsedFeed, str, timeAgo } from '../common/Feed';
+import { FeedItem, parseFeed, ParsedFeed, setPendingChat, str, timeAgo } from '../common/Feed';
 import { setPendingCaptchaId } from '../common/CaptchaBridge';
 
 /** 通知分类：与 Android 版 NoticeType 一致。 */
@@ -190,6 +190,12 @@ export struct MessageTab {
             ListItem() {
               this.NoticeRow(item)
             }
+            .onClick(() => {
+              if (this.selTab === 4) {
+                setPendingChat(str(item.ukey), this.nameOf(item));
+                router.pushUrl({ url: 'pages/ChatPage' });
+              }
+            })
           }, (item: FeedItem) => str(item.id))
         }
         .width('100%')
