@@ -41,27 +41,22 @@ struct SearchPage {
         .justifyContent(FlexAlign.Center)
         .onClick(() => router.back())
 
-        Row() {
-          Image($r('app.media.ic_search'))
-            .width(16)
-            .height(16)
-            .fillColor($r('app.color.text_tertiary'))
-            .margin({ left: 12, right: 6 })
-          TextInput({ placeholder: '搜索动态 / 关键词', text: this.keyword })
-            .layoutWeight(1)
-            .height(36)
-            .backgroundColor(Color.Transparent)
-            .fontSize(14)
-            .onChange((v: string) => {
-              this.keyword = v;
-            })
-            .onSubmit(() => this.doSearch())
-        }
-        .layoutWeight(1)
-        .height(36)
-        .borderRadius(18)
-        .backgroundColor($r('app.color.card_bg'))
-        .margin({ left: 10, right: 8 })
+        Search({ value: this.keyword, placeholder: '搜索动态 / 关键词' })
+          .layoutWeight(1)
+          .height(38)
+          .backgroundColor($r('app.color.card_bg'))
+          .placeholderColor($r('app.color.text_tertiary'))
+          .placeholderFont({ size: 14 })
+          .textFont({ size: 14 })
+          .fontColor($r('app.color.text_title'))
+          .margin({ left: 10, right: 8 })
+          .onChange((v: string) => {
+            this.keyword = v;
+          })
+          .onSubmit((v: string) => {
+            this.keyword = v;
+            this.doSearch();
+          })
 
         Text('搜索')
           .fontSize(14)
@@ -194,16 +189,21 @@ struct SearchPage {
           .borderRadius(10)
           .margin({ top: 10 })
       } else if (feedPics(item).length > 1) {
-        Flex({ wrap: FlexWrap.Wrap }) {
+        Grid() {
           ForEach(feedPics(item), (p: string) => {
-            Image(p)
-              .width(92)
-              .height(92)
-              .objectFit(ImageFit.Cover)
-              .borderRadius(8)
-              .margin({ right: 6, bottom: 6 })
+            GridItem() {
+              Image(p)
+                .width('100%')
+                .height(92)
+                .objectFit(ImageFit.Cover)
+                .borderRadius(8)
+            }
           }, (p: string) => p)
         }
+        .columnsTemplate('1fr 1fr 1fr')
+        .columnsGap(6)
+        .rowsGap(6)
+        .height(this.gridHeight(feedPics(item).length, 92))
         .width('100%')
         .margin({ top: 10 })
       }
@@ -258,5 +258,14 @@ struct SearchPage {
     } else {
       this.status = `HTTP ${res.status}`;
     }
+  }
+
+  /** 九宫格高度：3 列，单元格 cell 高，行间距 6。 */
+  private gridHeight(n: number, cell: number): number {
+    const rows = Math.ceil(n / 3);
+    if (rows <= 0) {
+      return 0;
+    }
+    return rows * cell + (rows - 1) * 6;
   }
 }

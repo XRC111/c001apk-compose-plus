@@ -249,16 +249,21 @@ export struct HomeTab {
           .borderRadius(10)
           .margin({ top: 10 })
       } else if (feedPics(item).length > 1) {
-        Flex({ wrap: FlexWrap.Wrap }) {
+        Grid() {
           ForEach(feedPics(item), (p: string) => {
-            Image(p)
-              .width(100)
-              .height(100)
-              .objectFit(ImageFit.Cover)
-              .borderRadius(8)
-              .margin({ right: 6, bottom: 6 })
+            GridItem() {
+              Image(p)
+                .width('100%')
+                .height(100)
+                .objectFit(ImageFit.Cover)
+                .borderRadius(8)
+            }
           }, (p: string) => p)
         }
+        .columnsTemplate('1fr 1fr 1fr')
+        .columnsGap(6)
+        .rowsGap(6)
+        .height(this.gridHeight(feedPics(item).length, 100))
         .width('100%')
         .margin({ top: 10 })
       }
@@ -387,5 +392,14 @@ export struct HomeTab {
     }
     this.pageNo = next;
     this.items = this.items.concat(parsed.items);
+  }
+
+  /** 九宫格高度：3 列，单元格 cell 高，行间距 6。 */
+  private gridHeight(n: number, cell: number): number {
+    const rows = Math.ceil(n / 3);
+    if (rows <= 0) {
+      return 0;
+    }
+    return rows * cell + (rows - 1) * 6;
   }
 }
