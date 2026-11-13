@@ -98,9 +98,9 @@ async function doLoad(url: string): Promise<image.PixelMap | null> {
     }
     const buf: ArrayBuffer = data as ArrayBuffer;
     const src: image.ImageSource = image.createImageSource(buf);
-    // ArkTS 要求 desiredSize 显式声明为 image.Size，不能用裸对象字面量
+    // desiredSize 属于 DecodingOptions（不是 InitializationOptions）
     const size: image.Size = { width: 720, height: 720 };
-    const opt: image.InitializationOptions = { desiredSize: size };
+    const opt: image.DecodingOptions = { desiredSize: size };
     const pm: image.PixelMap = await src.createPixelMap(opt);
     src.release();
     putCache(url, pm);
