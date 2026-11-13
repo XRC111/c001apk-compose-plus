@@ -149,6 +149,18 @@ v3 token 端到端 24/24 逐字符一致。
    页面会被截在第一个 `#` 处，表现就是「什么都不显示」。
    已改为用 `util.Base64Helper` 编码后以 `'base64'` 传入，彻底规避。
 
+### 列表卡顿排查（真机反馈「每个页面都一卡一卡」）
+
+定位到三个真实的开销来源，已逐一修掉：
+
+| 原因 | 修复 |
+| --- | --- |
+| **每个网络请求读 6 次 Preferences**（5 个 Cookie 字段 + 重放窗口），且 `putString` 每次 `flush()` 落盘；`saveSessid` 几乎每个响应都会触发一次磁盘写 | `SettingsStore` 增加内存缓存，初始化时一次性预载全部 key；新增 `getStringSync` / `setStringSync`，网络层改为全同步取值；SESSID 只更新内存不立即落盘；`putString` 增加 `persist` 参数，高频路径传 `false` |
+| **v3 token 缓存只有 3 秒**，`getTokenV3` 内含一次 bcrypt(cost=10)，列表连续滚动时反复重算 | 缓存延长到 60 秒（token 自带时间戳，服务端只校验新鲜度） |
+| **`build()` 里重复计算派生字段**：`feedPics(item)` 每张卡片每帧调用 6~8 次，加上 `feedSummary` / `feedAvatar` / `timeAgo` 等 | `FeedItem` 增加预计算字段，`parseFeed` 里通过 `enrichFeed` 一次性算好；页面改为读 `picsOf(item)` 与预计算字段；所有 `List` 增加 `.cachedCount(4)` 复用缓冲 |
+
+> 这批改动只经过编译验证，**流畅度需真机确认**。若仍卡，下一步是把
+> `ForEach` 换成 `LazyForEach` + `IDataSource` 做真正的按需创建。
 ### 踩坑：hvigor `00303024 项目结构需要升级`
 
 根 `oh-package.json5` 与 `hvigor/hvigor-config.json5` **都必须有 `modelVersion`，
