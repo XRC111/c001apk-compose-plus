@@ -1,7 +1,6 @@
 import { router } from '@kit.ArkUI';
 import { webview } from '@kit.ArkWeb';
 import { hilog } from '@kit.PerformanceAnalysisKit';
-import { util } from '@kit.ArkTS';
 import {
   clearValidateCallback,
   dispatchValidate,
@@ -22,24 +21,26 @@ const WEB_UA: string = 'Mozilla/5.0 (Linux; Android 16; M2012K11AC Build/a1b2c3d
 /**
  * 内嵌易盾验证页（对齐 Android 版 CaptchaActivity.buildHtml）。
  *
- * 关键：必须通过 loadData + baseUrl=https://www.coolapk.com/ 加载，
+ * 关键点一：必须通过 loadData + baseUrl=https://www.coolapk.com/ 加载，
  * 而不是 $rawfile（resource:// 源）—— 易盾会校验页面域名与 captchaId 绑定域。
+ * 官方 WebviewController.loadData 文档：baseUrl 会「由 Web 组件赋值给 window.origin」。
  *
- * 另一个官方文档明确的坑：loadData 的 data 若不是 base64，
- * 内容里的任何 "#" 都会被当作 fragment 分隔符而**截断页面**
- * （我们的 HTML 里有 CSS 选择器 #status/#captcha 和颜色值 #FFFFFF）。
- * 因此这里统一用 base64 传入，彻底规避截断。
+ * 关键点二：HTML 里**完全不出现 '#' 字符**。
+ * 官方文档的 `#` 截断限制有明确前提「baseUrl 与 historyUrl 同时为空的情况下」；
+ * 本项目两者都非空，本不该触发。但真机上曾出现过 base64 编码串被当成纯文本
+ * 渲染的情况，为彻底消除任何编码/截断歧义，这里把 CSS 选择器改成 class、
+ * 颜色值改成 rgb()、易盾 element 也改用 class，从而无需 base64，直接以 UTF-8 明文传入。
  */
 function buildHtml(): string {
   return `<!doctype html><html lang="zh-CN"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
 <style>
-  html,body{font:15px sans-serif;margin:0;padding:16px;background:#FFFFFF;color:#222}
-  #status{font-size:13px;color:#8A8A8E;margin-bottom:12px;min-height:18px}
-  #captcha{margin-top:4px}
+  html,body{font:15px sans-serif;margin:0;padding:16px;background:rgb(255,255,255);color:rgb(34,34,34)}
+  .status{font-size:13px;color:rgb(138,138,142);margin-bottom:12px;min-height:18px}
+  .captcha{margin-top:4px}
 </style></head><body>
-<div id="status">正在准备验证组件…</div>
-<div id="captcha"></div>
+<div class="status" id="status">正在准备验证组件…</div>
+<div class="captcha" id="captcha"></div>
 <script>
 var _timeout=null;
 function statusText(t){document.getElementById('status').innerHTML='<p>'+t+'</p>';}
@@ -56,7 +57,7 @@ function startCaptcha(captchaId){
     if(typeof initNECaptcha!=='function'){clearTimeout(_timeout);statusText('验证组件不可用，请重新加载');return;}
     try{
       initNECaptcha({
-        captchaId:captchaId,element:'#captcha',protocol:'https',
+        captchaId:captchaId,element:'.captcha',protocol:'https',
         mode:'embed',apiVersion:2,width:Math.min(320,window.innerWidth-32)+'px',lang:'zh-CN',
         onVerify:function(err,data){
           if(!err&&data&&data.validate){
@@ -128,10 +129,10 @@ struct CaptchaPage {
   private loadCaptcha(): void {
     this.started = false;
     try {
-      // base64 编码后再 loadData：避免 HTML 里的 "#" 被当作 fragment 截断
-      const b64 = new util.Base64Helper().encodeToStringSync(
-        new util.TextEncoder().encodeInto(buildHtml()), util.Type.BASIC);
-      this.controller.loadData(b64, 'text/html', 'base64', BASE_URL, BASE_URL);
+      // UTF-8 明文直传：baseUrl/historyUrl 均非空，官方文档的 '#' 截断限制
+      // （前提是两者同时为空）不适用；且 HTML 已消除所有 '#'，无截断风险。
+      // 不用 base64：真机验证过 ArkWeb 会把编码串当纯文本渲染，滑块反而出不来。
+      this.controller.loadData(buildHtml(), 'text/html', 'UTF-8', BASE_URL, BASE_URL);
     } catch (e) {
       hilog.error(DOMAIN, 'c001apk', 'loadData failed: %{public}s', JSON.stringify(e));
       this.status = '验证页加载失败，请点「重新加载」';
