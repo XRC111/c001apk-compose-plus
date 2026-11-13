@@ -7,6 +7,8 @@ import {
   ParsedDetail,
   ParsedReplies,
   ReplyItem,
+  richSegments,
+  RichSeg,
   setPendingUid,
   str,
   timeAgo,
@@ -29,6 +31,7 @@ struct FeedDetail {
   @State replyStatus: string = '';
   @State captchaId: string = '';
   @State authorUid: string = '';
+  @State segs: RichSeg[] = [];
 
   aboutToAppear(): void {
     this.feedId = getPendingDetailId();
@@ -51,6 +54,7 @@ struct FeedDetail {
       this.time = timeAgo(d.dateline);
       this.title = str(d.title);
       this.message = str(d.message);
+      this.segs = richSegments(this.message);
       this.authorUid = str(d.uid);
       this.likes = str(d.likes);
       const arr = d.picArr;
@@ -198,13 +202,16 @@ struct FeedDetail {
                 .margin({ top: 12 })
             }
 
-            Text(this.message)
-              .fontSize(15)
-              .fontColor($r('app.color.text_body'))
-              .width('100%')
-              .margin({ top: 10 })
-              .lineHeight(24)
-              .textAlign(TextAlign.Start)
+            Text() {
+              ForEach(this.segs, (s: RichSeg) => {
+                Span(s.text)
+                  .fontColor(s.kind === 0 ? $r('app.color.text_body') : $r('app.color.accent'))
+              }, (s: RichSeg) => s.kind.toString() + ':' + s.text)
+            }
+            .fontSize(15)
+            .width('100%')
+            .margin({ top: 10 })
+            .lineHeight(24)
 
             // 图片：单图大图，多图九宫格
             if (this.pics.length === 1) {

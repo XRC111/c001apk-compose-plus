@@ -86,6 +86,9 @@ export struct HomeTab {
           .height('100%')
           .padding({ left: 12, right: 12, top: 6 })
           .scrollBar(BarState.Off)
+          .onReachEnd(() => {
+            this.loadMore();
+          })
         }
         .layoutWeight(1)
         .onRefreshing(() => {

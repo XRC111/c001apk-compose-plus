@@ -392,3 +392,48 @@ export function feedAvatar(item: FeedItem): string {
   }
   return '';
 }
+
+/** 正文分段：0=普通 1=@用户 2=#话题# 3=链接。 */
+export interface RichSeg {
+  text: string;
+  kind: number;
+}
+
+/**
+ * 把酷安正文切成普通文本 / @用户 / #话题# / 链接 四类片段，
+ * 供 Text + Span 分段着色（用语义色，兼容深色模式）。
+ */
+export function richSegments(text: string): RichSeg[] {
+  const out: RichSeg[] = [];
+  if (text.length === 0) {
+    return out;
+  }
+  // 依次匹配 链接 | @用户 | #话题#
+  const re = /(https?:\/\/[^\s]+)|(@[A-Za-z0-9_\u4e00-\u9fa5-]{1,24})|(#([^#\s]{1,30})#)/g;
+  let last = 0;
+  let m: RegExpExecArray | null = re.exec(text);
+  while (m !== null) {
+    if (m.index > last) {
+      const plain: RichSeg = { text: text.substring(last, m.index), kind: 0 };
+      out.push(plain);
+    }
+    const hit = m[0];
+    let kind = 0;
+    if (hit.startsWith('http')) {
+      kind = 3;
+    } else if (hit.startsWith('@')) {
+      kind = 1;
+    } else {
+      kind = 2;
+    }
+    const seg: RichSeg = { text: hit, kind: kind };
+    out.push(seg);
+    last = m.index + hit.length;
+    m = re.exec(text);
+  }
+  if (last < text.length) {
+    const tail: RichSeg = { text: text.substring(last), kind: 0 };
+    out.push(tail);
+  }
+  return out;
+}
