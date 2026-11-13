@@ -136,11 +136,12 @@ v3 token 端到端 24/24 逐字符一致。
 | 用 `$rawfile('captcha.html')` 加载，页面源是 `resource://` | 改为 `controller.loadData(html, 'text/html', 'UTF-8', baseUrl, historyUrl)`，`baseUrl=https://www.coolapk.com/`（与 Android 的 `loadDataWithBaseURL` 一致）；易盾会校验页面域名与 captchaId 绑定域 |
 | `captchaId` 只从顶层正则取，取不到就是空串 | 新增 `CaptchaChallenge.ets`：从 `messageExtra` / `extra`（也可能是嵌套 JSON 字符串）解析，取不到用默认 ID `414e5c9b866a03db03f860a1a9101672`，并保留 `captchaField` |
 | `validate` 存的是裸串 | 按 Android 的 `proof()` 存成 `NEC:<captchaId前8位>:<validate>` |
-| 验证完没有重放原请求 | 验证成功写 `AppStorage.captchaDoneTick`，各页 `@StorageProp @Watch` 监听后自动重新拉取；网络层请求自动按 `captchaField` 追加凭证 query，并写入 `validate` Cookie |
+| 验证完没有重放原请求 | 验证成功写 `AppStorage.captchaDoneTick`，各页 `@StorageProp @Watch` 监听后自动重新拉取；网络层在验证后的 **8 秒窗口期**内按 `captchaField` 追加凭证 query。用时间窗口而非一次性标记，否则多页面并发重拉时只有第一个请求能拿到凭证，其余会立刻再被拦，形成「验证→再被拦」死循环 |
 | WebView UA / 混合内容 | 设置与 API 层一致的 User-Agent、`mixedMode(MixedMode.All)`，并加「重新加载」按钮 |
 
 > 注意：以上只经过编译验证，**易盾能否真正弹出需在真机确认**（依赖网络、域名绑定与
 > captchaId 有效性）。若仍不弹，优先看页面内 `#status` 的提示文字定位到哪一步失败。
+
 ### 踩坑：hvigor `00303024 项目结构需要升级`
 
 根 `oh-package.json5` 与 `hvigor/hvigor-config.json5` **都必须有 `modelVersion`，
