@@ -76,7 +76,7 @@ scripts/harmony/         # 鸿蒙 SDK 安装脚本（CI 用）
 | --- | --- |
 | `Index` | 应用外壳：底部三栏导航（图标 + 文字，选中态粉色） |
 | `view/HomeTab` | 顶部栏（搜索入口）、分类 Tab（关注/应用/动态/热榜/话题/数码/酷图）、卡片式信息流、下拉刷新、分页加载 |
-| `view/MessageTab` | 消息页（未登录引导登录） |
+| `view/MessageTab` | 消息页：@我 / 评论 / 赞 / 粉丝 四类通知，未读数徽标，未登录引导 |
 | `view/SettingsTab` | 设置页（账号 / ShuzlmID / 设备码 / 关于） |
 | `FeedDetail` | 动态详情：作者卡、正文、九宫格图片、评论列表（带头像） |
 | `AppDetail` | 应用详情：图标、版本/大小/下载量、更新日志、介绍 |
@@ -86,21 +86,25 @@ scripts/harmony/         # 鸿蒙 SDK 安装脚本（CI 用）
 | `CaptchaPage` | 内嵌易盾滑块（`cstaticdun.126.net`），通过 `javaScriptProxy` 回传 `validate` |
 | `About` | 能力清单与未实现项 |
 
-信息流卡片：圆形头像（无头像时取昵称首字）、昵称 + 类型/时间元信息、
-正文（8 行截断）、单图大图 / 多图九宫格、赞与评论计数（SVG 图标）。
-图标为自绘 SVG（`resources/base/media/ic_*.svg`），用 `fillColor` 统一着色。
+信息流卡片：圆形头像（无头像时取昵称首字）、昵称 + 类型/时间元信息、正文（8 行截断、
+`@用户` / `#话题#` / 链接 高亮）、单图大图 / 多图 `Grid` 九宫格、赞与评论计数（SVG 图标）、
+应用类条目单独渲染为应用卡片（图标 / 名称 / 版本大小 / 下载量）。
+图标为自绘 SVG（`resources/base/media/ic_*.svg`），用 `fillColor` 统一着色，深浅色自动换色。
 
 列表项按 `entityType` 分流：`product` / `apk` 进应用详情，其余进动态详情；
 动态详情里的作者名可点进用户主页。
 
-**界面尚未覆盖**：深色模式、富文本（@ / 话题 / 链接高亮）、消息列表真实内容、
-信息流内应用/商品卡片的专属样式、图片占位与失败兜底、启动页与品牌图标。
+**界面尚未覆盖**：图片占位与失败兜底、启动页与品牌图标、私信详情、消息分页。
 
 运行时细节：
 
 - 命中 `err_request_captcha_v2` 时解析 `captchaId`，页面给出「去验证」入口，
   验证成功后 `validate` 落盘，后续请求自动带上
 - 服务端下发的 `SESSID` 自动回写（风控重放必需）
+- 深色模式：`resources/base/element/color.json` 与 `resources/dark/element/color.json`
+  定义同名语义色，运行期由系统按深浅色自动切换；SVG 图标用 `fillColor` 跟随。
+  `EntryAbility` 里 `setColorMode(COLOR_MODE_NOT_SET)` 跟随系统，并把 `colorMode`
+  写入 `AppStorage`，`Index` 监听后调用 `setWindowSystemBarProperties` 调整状态栏文字色
 - v3 token 有 3 秒短期缓存：单次生成要跑 bcrypt(cost=10)，手机上约数百毫秒，
   列表连续请求时逐次重算会明显卡顿
 
