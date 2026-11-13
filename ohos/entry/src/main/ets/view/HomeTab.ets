@@ -58,6 +58,20 @@ export struct HomeTab {
 
         Refresh({ refreshing: $$this.refreshing }) {
           List({ space: 10 }) {
+            // 空状态也放进 List，保证 Refresh 只有 List 一个子组件
+            if (this.items.length === 0 && !this.loading) {
+              ListItem() {
+                Column() {
+                  Text(this.statusText.length > 0 ? this.statusText : '暂无内容')
+                    .fontSize(13)
+                    .fontColor('#9A9AA0')
+                }
+                .width('100%')
+                .height(300)
+                .justifyContent(FlexAlign.Center)
+              }
+            }
+
             ForEach(this.items, (item: FeedItem) => {
               ListItem() {
                 this.FeedCard(item)
@@ -69,20 +83,9 @@ export struct HomeTab {
             }
           }
           .width('100%')
-          .layoutWeight(1)
+          .height('100%')
           .padding({ left: 12, right: 12, top: 6 })
           .scrollBar(BarState.Off)
-
-          if (this.items.length === 0 && !this.loading) {
-            Column() {
-              Text(this.statusText.length > 0 ? this.statusText : '暂无内容')
-                .fontSize(13)
-                .fontColor('#9A9AA0')
-            }
-            .width('100%')
-            .height(320)
-            .justifyContent(FlexAlign.Center)
-          }
         }
         .layoutWeight(1)
         .onRefreshing(() => {
