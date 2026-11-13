@@ -90,19 +90,19 @@ struct FeedDetail {
           Image($r('app.media.ic_back'))
             .width(20)
             .height(20)
-            .fillColor('#222222')
+            .fillColor($r('app.color.text_body'))
         }
         .width(34)
         .height(34)
         .borderRadius(17)
-        .backgroundColor('#FFFFFF')
+        .backgroundColor($r('app.color.card_bg'))
         .justifyContent(FlexAlign.Center)
         .onClick(() => router.back())
 
         Text('动态详情')
           .fontSize(17)
           .fontWeight(FontWeight.Bold)
-          .fontColor('#111111')
+          .fontColor($r('app.color.text_title'))
           .margin({ left: 12 })
 
         Blank()
@@ -113,7 +113,7 @@ struct FeedDetail {
 
       if (this.loading) {
         Column() {
-          LoadingProgress().width(32).height(32).color('#FB7299')
+          LoadingProgress().width(32).height(32).color($r('app.color.accent'))
         }
         .width('100%')
         .height(120)
@@ -123,7 +123,7 @@ struct FeedDetail {
       if (this.status.length > 0) {
         Text(this.status)
           .fontSize(12)
-          .fontColor(this.status.indexOf('风控') >= 0 ? '#D1532F' : '#9A9AA0')
+          .fontColor(this.status.indexOf('风控') >= 0 ? $r('app.color.danger') : $r('app.color.text_secondary'))
           .width('100%')
           .padding({ left: 16, right: 16, bottom: 8 })
       }
@@ -132,12 +132,12 @@ struct FeedDetail {
         Row() {
           Text('需要人机验证才能查看')
             .fontSize(12)
-            .fontColor('#D1532F')
+            .fontColor($r('app.color.danger'))
             .layoutWeight(1)
           Button('去验证', { type: ButtonType.Capsule })
             .fontSize(12)
             .height(30)
-            .backgroundColor('#FB7299')
+            .backgroundColor($r('app.color.accent'))
             .onClick(() => {
               setPendingCaptchaId(this.captchaId);
               router.pushUrl({ url: 'pages/CaptchaPage' });
@@ -156,17 +156,17 @@ struct FeedDetail {
                 .width(40)
                 .height(40)
                 .borderRadius(20)
-                .backgroundColor('#F2E8EC')
+                .backgroundColor($r('app.color.accent_soft'))
                 .textAlign(TextAlign.Center)
                 .fontSize(16)
-                .fontColor('#FB7299')
+                .fontColor($r('app.color.accent'))
                 .margin({ right: 10 })
 
               Column() {
                 Text(this.user.length > 0 ? this.user : '匿名用户')
                   .fontSize(14)
                   .fontWeight(FontWeight.Medium)
-                  .fontColor('#FB7299')
+                  .fontColor($r('app.color.accent'))
                   .onClick(() => {
                     if (this.authorUid.length > 0) {
                       setPendingUid(this.authorUid);
@@ -175,7 +175,7 @@ struct FeedDetail {
                   })
                 Text(this.time)
                   .fontSize(11)
-                  .fontColor('#9A9AA0')
+                  .fontColor($r('app.color.text_secondary'))
                   .margin({ top: 3 })
               }
               .alignItems(HorizontalAlign.Start)
@@ -184,7 +184,7 @@ struct FeedDetail {
               if (this.likes.length > 0) {
                 Text(`赞 ${this.likes}`)
                   .fontSize(11)
-                  .fontColor('#9A9AA0')
+                  .fontColor($r('app.color.text_secondary'))
               }
             }
             .width('100%')
@@ -193,14 +193,14 @@ struct FeedDetail {
               Text(this.title)
                 .fontSize(17)
                 .fontWeight(FontWeight.Bold)
-                .fontColor('#111111')
+                .fontColor($r('app.color.text_title'))
                 .width('100%')
                 .margin({ top: 12 })
             }
 
             Text(this.message)
               .fontSize(15)
-              .fontColor('#222222')
+              .fontColor($r('app.color.text_body'))
               .width('100%')
               .margin({ top: 10 })
               .lineHeight(24)
@@ -231,10 +231,10 @@ struct FeedDetail {
           }
           .width('100%')
           .padding(14)
-          .backgroundColor('#FFFFFF')
+          .backgroundColor($r('app.color.card_bg'))
           .borderRadius(14)
           .alignItems(HorizontalAlign.Start)
-          .shadow({ radius: 10, color: '#0D000000', offsetX: 0, offsetY: 2 })
+          .shadow({ radius: 10, color: $r('app.color.shadow'), offsetX: 0, offsetY: 2 })
           .margin({ bottom: 10 })
 
           // ===== 评论区标题 =====
@@ -242,10 +242,10 @@ struct FeedDetail {
             Text('评论')
               .fontSize(15)
               .fontWeight(FontWeight.Bold)
-              .fontColor('#111111')
+              .fontColor($r('app.color.text_title'))
             Text(this.replyStatus)
               .fontSize(11)
-              .fontColor('#9A9AA0')
+              .fontColor($r('app.color.text_secondary'))
               .margin({ left: 8 })
             Blank()
           }
@@ -257,7 +257,7 @@ struct FeedDetail {
             Column() {
               Text('还没有评论')
                 .fontSize(12)
-                .fontColor('#B0B0B6')
+                .fontColor($r('app.color.text_tertiary'))
             }
             .width('100%')
             .height(100)
@@ -270,27 +270,27 @@ struct FeedDetail {
                     .width(30)
                     .height(30)
                     .borderRadius(15)
-                    .backgroundColor('#EDEDF2')
+                    .backgroundColor($r('app.color.avatar_bg'))
                     .textAlign(TextAlign.Center)
                     .fontSize(13)
-                    .fontColor('#7A8CD0')
+                    .fontColor($r('app.color.chip_blue'))
                     .margin({ right: 8 })
 
                   Column() {
                     Row() {
                       Text(str(r.username))
                         .fontSize(12)
-                        .fontColor('#7A8CD0')
+                        .fontColor($r('app.color.chip_blue'))
                       Blank()
                       Text(timeAgo(r.dateline))
                         .fontSize(10)
-                        .fontColor('#B0B0B6')
+                        .fontColor($r('app.color.text_tertiary'))
                     }
                     .width('100%')
 
                     Text(str(r.message))
                       .fontSize(14)
-                      .fontColor('#333333')
+                      .fontColor($r('app.color.text_body'))
                       .width('100%')
                       .margin({ top: 5 })
                       .lineHeight(21)
@@ -303,7 +303,7 @@ struct FeedDetail {
               }
               .width('100%')
               .padding(12)
-              .backgroundColor('#FFFFFF')
+              .backgroundColor($r('app.color.card_bg'))
               .borderRadius(12)
               .margin({ bottom: 8 })
             }, (r: ReplyItem) => str(r.id))
@@ -319,6 +319,6 @@ struct FeedDetail {
     }
     .width('100%')
     .height('100%')
-    .backgroundColor('#F2F2F6')
+    .backgroundColor($r('app.color.page_bg'))
   }
 }

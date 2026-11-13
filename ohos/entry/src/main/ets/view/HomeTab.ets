@@ -44,10 +44,10 @@ export struct HomeTab {
         Column() {
           Text('该板块待接入')
             .fontSize(14)
-            .fontColor('#9A9AA0')
+            .fontColor($r('app.color.text_secondary'))
           Text('目前「动态」板块已接通首页信息流')
             .fontSize(11)
-            .fontColor('#C0C0C6')
+            .fontColor($r('app.color.text_tertiary'))
             .margin({ top: 6 })
         }
         .layoutWeight(1)
@@ -64,7 +64,7 @@ export struct HomeTab {
                 Column() {
                   Text(this.statusText.length > 0 ? this.statusText : '暂无内容')
                     .fontSize(13)
-                    .fontColor('#9A9AA0')
+                    .fontColor($r('app.color.text_secondary'))
                 }
                 .width('100%')
                 .height(300)
@@ -95,7 +95,7 @@ export struct HomeTab {
     }
     .width('100%')
     .height('100%')
-    .backgroundColor('#F2F2F6')
+    .backgroundColor($r('app.color.page_bg'))
   }
 
   // ==================== 顶部栏 ====================
@@ -105,18 +105,18 @@ export struct HomeTab {
       Text('酷安')
         .fontSize(26)
         .fontWeight(FontWeight.Bold)
-        .fontColor('#111111')
+        .fontColor($r('app.color.text_title'))
       Blank()
       Row() {
         Image($r('app.media.ic_search'))
           .width(20)
           .height(20)
-          .fillColor('#333333')
+          .fillColor($r('app.color.text_body'))
       }
       .width(36)
       .height(36)
       .borderRadius(18)
-      .backgroundColor('#FFFFFF')
+      .backgroundColor($r('app.color.card_bg'))
       .justifyContent(FlexAlign.Center)
       .onClick(() => router.pushUrl({ url: 'pages/SearchPage' }))
     }
@@ -135,10 +135,10 @@ export struct HomeTab {
             Text(t)
               .fontSize(this.selectedTab === i ? 16 : 15)
               .fontWeight(this.selectedTab === i ? FontWeight.Bold : FontWeight.Normal)
-              .fontColor(this.selectedTab === i ? '#FB7299' : '#66666B')
+              .fontColor(this.selectedTab === i ? $r('app.color.accent') : $r('app.color.text_secondary'))
             Divider()
               .strokeWidth(3)
-              .color(this.selectedTab === i ? '#FB7299' : Color.Transparent)
+              .color(this.selectedTab === i ? $r('app.color.accent') : Color.Transparent)
               .width(18)
               .margin({ top: 5 })
           }
@@ -161,12 +161,12 @@ export struct HomeTab {
       Row() {
         Text('需要人机验证才能继续浏览')
           .fontSize(12)
-          .fontColor('#D1532F')
+          .fontColor($r('app.color.danger'))
           .layoutWeight(1)
         Button('去验证', { type: ButtonType.Capsule })
           .fontSize(12)
           .height(30)
-          .backgroundColor('#FB7299')
+          .backgroundColor($r('app.color.accent'))
           .onClick(() => {
             setPendingCaptchaId(this.captchaId);
             router.pushUrl({ url: 'pages/CaptchaPage' });
@@ -195,10 +195,10 @@ export struct HomeTab {
             .width(40)
             .height(40)
             .borderRadius(20)
-            .backgroundColor('#F2E8EC')
+            .backgroundColor($r('app.color.accent_soft'))
             .textAlign(TextAlign.Center)
             .fontSize(16)
-            .fontColor('#FB7299')
+            .fontColor($r('app.color.accent'))
             .margin({ right: 10 })
         }
 
@@ -206,19 +206,19 @@ export struct HomeTab {
           Text(str(item.username).length > 0 ? str(item.username) : '匿名用户')
             .fontSize(14)
             .fontWeight(FontWeight.Medium)
-            .fontColor('#111111')
+            .fontColor($r('app.color.text_title'))
             .maxLines(1)
             .textOverflow({ overflow: TextOverflow.Ellipsis })
           Row() {
             Text(feedTypeLabel(item))
               .fontSize(10)
-              .fontColor('#8A8A90')
+              .fontColor($r('app.color.text_secondary'))
             Text(' · ')
               .fontSize(10)
-              .fontColor('#C0C0C6')
+              .fontColor($r('app.color.text_tertiary'))
             Text(timeAgo(item.dateline))
               .fontSize(10)
-              .fontColor('#8A8A90')
+              .fontColor($r('app.color.text_secondary'))
           }
           .margin({ top: 3 })
         }
@@ -230,7 +230,7 @@ export struct HomeTab {
       // 正文
       Text(feedSummary(item))
         .fontSize(15)
-        .fontColor('#222222')
+        .fontColor($r('app.color.text_body'))
         .width('100%')
         .margin({ top: 10 })
         .maxLines(8)
@@ -266,10 +266,10 @@ export struct HomeTab {
           Image($r('app.media.ic_like'))
             .width(16)
             .height(16)
-            .fillColor('#9A9AA0')
+            .fillColor($r('app.color.text_secondary'))
           Text(str(item.likenum).length > 0 ? str(item.likenum) : '赞')
             .fontSize(12)
-            .fontColor('#9A9AA0')
+            .fontColor($r('app.color.text_secondary'))
             .margin({ left: 4 })
         }
         .margin({ right: 20 })
@@ -278,10 +278,10 @@ export struct HomeTab {
           Image($r('app.media.ic_comment'))
             .width(16)
             .height(16)
-            .fillColor('#9A9AA0')
+            .fillColor($r('app.color.text_secondary'))
           Text(str(item.commentnum).length > 0 ? str(item.commentnum) : '评论')
             .fontSize(12)
-            .fontColor('#9A9AA0')
+            .fontColor($r('app.color.text_secondary'))
             .margin({ left: 4 })
         }
 
@@ -292,10 +292,10 @@ export struct HomeTab {
     }
     .width('100%')
     .padding(14)
-    .backgroundColor('#FFFFFF')
+    .backgroundColor($r('app.color.card_bg'))
     .borderRadius(14)
     .alignItems(HorizontalAlign.Start)
-    .shadow({ radius: 10, color: '#0D000000', offsetX: 0, offsetY: 2 })
+    .shadow({ radius: 10, color: $r('app.color.shadow'), offsetX: 0, offsetY: 2 })
     .onClick(() => this.openItem(item))
   }
 
@@ -304,12 +304,12 @@ export struct HomeTab {
   Footer() {
     Row() {
       if (this.loadingMore) {
-        LoadingProgress().width(18).height(18).color('#FB7299')
-        Text('加载中…').fontSize(12).fontColor('#9A9AA0').margin({ left: 6 })
+        LoadingProgress().width(18).height(18).color($r('app.color.accent'))
+        Text('加载中…').fontSize(12).fontColor($r('app.color.text_secondary')).margin({ left: 6 })
       } else if (this.hasMore) {
-        Text('加载更多').fontSize(13).fontColor('#FB7299')
+        Text('加载更多').fontSize(13).fontColor($r('app.color.accent'))
       } else {
-        Text('没有更多了').fontSize(12).fontColor('#B0B0B6')
+        Text('没有更多了').fontSize(12).fontColor($r('app.color.text_tertiary'))
       }
     }
     .width('100%')

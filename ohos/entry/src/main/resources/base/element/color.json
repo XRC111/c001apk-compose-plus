@@ -1,6 +1,22 @@
 {
   "color": [
-    { "name": "start_window_background", "value": "#FFFFFF" },
-    { "name": "page_background", "value": "#F5F5F7" }
+    { "name": "start_window_background", "value": "#F2F2F6" },
+    { "name": "page_background", "value": "#F2F2F6" },
+    { "name": "page_bg", "value": "#F2F2F6" },
+    { "name": "card_bg", "value": "#FFFFFF" },
+    { "name": "text_title", "value": "#111111" },
+    { "name": "text_body", "value": "#222222" },
+    { "name": "text_secondary", "value": "#8A8A8E" },
+    { "name": "text_tertiary", "value": "#B0B0B6" },
+    { "name": "accent", "value": "#FB7299" },
+    { "name": "accent_soft", "value": "#F2E8EC" },
+    { "name": "chip_blue", "value": "#7A8CD0" },
+    { "name": "avatar_bg", "value": "#EDEDF2" },
+    { "name": "divider", "value": "#E6E6EA" },
+    { "name": "shadow", "value": "#0D000000" },
+    { "name": "danger", "value": "#D1532F" },
+    { "name": "danger_soft", "value": "#FFF3EF" },
+    { "name": "success", "value": "#2E7D32" },
+    { "name": "level_badge", "value": "#F0A020" }
   ]
 }

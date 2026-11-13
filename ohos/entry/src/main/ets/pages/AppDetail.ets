@@ -82,12 +82,12 @@ struct AppDetail {
           Image($r('app.media.ic_back'))
             .width(20)
             .height(20)
-            .fillColor('#222222')
+            .fillColor($r('app.color.text_body'))
         }
         .width(34)
         .height(34)
         .borderRadius(17)
-        .backgroundColor('#FFFFFF')
+        .backgroundColor($r('app.color.card_bg'))
         .justifyContent(FlexAlign.Center)
         .onClick(() => router.back())
         Text('应用详情').fontSize(18).fontWeight(FontWeight.Bold).margin({ left: 12 })
@@ -103,7 +103,7 @@ struct AppDetail {
       if (this.status.length > 0) {
         Text(this.status)
           .fontSize(12)
-          .fontColor(this.status.indexOf('风控') >= 0 ? '#E06030' : '#8A8A8E')
+          .fontColor(this.status.indexOf('风控') >= 0 ? $r('app.color.danger') : $r('app.color.text_secondary'))
           .width('100%')
           .margin({ bottom: 8 })
       }
@@ -112,7 +112,7 @@ struct AppDetail {
         Row() {
           Text('需要人机验证才能查看')
             .fontSize(12)
-            .fontColor('#E06030')
+            .fontColor($r('app.color.danger'))
             .layoutWeight(1)
           Button('去验证', { type: ButtonType.Capsule })
             .fontSize(12)
@@ -124,7 +124,7 @@ struct AppDetail {
         }
         .width('100%')
         .padding(10)
-        .backgroundColor('#FFF3EF')
+        .backgroundColor($r('app.color.danger_soft'))
         .borderRadius(10)
         .margin({ bottom: 8 })
       }
@@ -147,12 +147,12 @@ struct AppDetail {
                 .width('100%')
               Text(this.packageName)
                 .fontSize(11)
-                .fontColor('#A0A0A6')
+                .fontColor($r('app.color.text_tertiary'))
                 .width('100%')
                 .margin({ top: 4 })
               Text(this.versionName.length > 0 ? `版本 ${this.versionName}` : '')
                 .fontSize(11)
-                .fontColor('#8A8A8E')
+                .fontColor($r('app.color.text_secondary'))
                 .width('100%')
                 .margin({ top: 2 })
             }
@@ -161,7 +161,7 @@ struct AppDetail {
           }
           .width('100%')
           .padding(12)
-          .backgroundColor('#FFFFFF')
+          .backgroundColor($r('app.color.card_bg'))
           .borderRadius(12)
           .alignItems(VerticalAlign.Top)
           .margin({ bottom: 10 })
@@ -169,25 +169,25 @@ struct AppDetail {
           Row() {
             Column() {
               Text(this.downloads.length > 0 ? this.downloads : '-').fontSize(15).fontWeight(FontWeight.Medium)
-              Text('下载').fontSize(10).fontColor('#A0A0A6')
+              Text('下载').fontSize(10).fontColor($r('app.color.text_tertiary'))
             }
             .layoutWeight(1)
 
             Column() {
               Text(this.comments.length > 0 ? this.comments : '-').fontSize(15).fontWeight(FontWeight.Medium)
-              Text('评论').fontSize(10).fontColor('#A0A0A6')
+              Text('评论').fontSize(10).fontColor($r('app.color.text_tertiary'))
             }
             .layoutWeight(1)
 
             Column() {
               Text(this.apkSize.length > 0 ? this.apkSize : '-').fontSize(15).fontWeight(FontWeight.Medium)
-              Text('大小').fontSize(10).fontColor('#A0A0A6')
+              Text('大小').fontSize(10).fontColor($r('app.color.text_tertiary'))
             }
             .layoutWeight(1)
           }
           .width('100%')
           .padding(12)
-          .backgroundColor('#FFFFFF')
+          .backgroundColor($r('app.color.card_bg'))
           .borderRadius(12)
           .margin({ bottom: 10 })
 
@@ -199,14 +199,14 @@ struct AppDetail {
                 .width('100%')
               Text(this.changelog)
                 .fontSize(12)
-                .fontColor('#555555')
+                .fontColor($r('app.color.text_body'))
                 .width('100%')
                 .margin({ top: 6 })
                 .lineHeight(19)
             }
             .width('100%')
             .padding(12)
-            .backgroundColor('#FFFFFF')
+            .backgroundColor($r('app.color.card_bg'))
             .borderRadius(12)
             .alignItems(HorizontalAlign.Start)
             .margin({ bottom: 10 })
@@ -220,14 +220,14 @@ struct AppDetail {
                 .width('100%')
               Text(this.description)
                 .fontSize(12)
-                .fontColor('#555555')
+                .fontColor($r('app.color.text_body'))
                 .width('100%')
                 .margin({ top: 6 })
                 .lineHeight(19)
             }
             .width('100%')
             .padding(12)
-            .backgroundColor('#FFFFFF')
+            .backgroundColor($r('app.color.card_bg'))
             .borderRadius(12)
             .alignItems(HorizontalAlign.Start)
             .margin({ bottom: 10 })
@@ -236,7 +236,7 @@ struct AppDetail {
           if (this.updated.length > 0) {
             Text(`更新于 ${this.updated}`)
               .fontSize(11)
-              .fontColor('#A0A0A6')
+              .fontColor($r('app.color.text_tertiary'))
               .width('100%')
               .margin({ bottom: 12 })
           }
@@ -250,7 +250,7 @@ struct AppDetail {
     .width('100%')
     .height('100%')
     .padding({ left: 16, right: 16, top: 40, bottom: 12 })
-    .backgroundColor('#F2F2F6')
+    .backgroundColor($r('app.color.page_bg'))
   }
 }
 

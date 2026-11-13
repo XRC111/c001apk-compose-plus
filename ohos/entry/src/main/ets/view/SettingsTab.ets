@@ -49,7 +49,7 @@ export struct SettingsTab {
         Text('设置')
           .fontSize(24)
           .fontWeight(FontWeight.Bold)
-          .fontColor('#111111')
+          .fontColor($r('app.color.text_title'))
         Blank()
       }
       .width('100%')
@@ -63,16 +63,16 @@ export struct SettingsTab {
             Row() {
               Text('账号')
                 .fontSize(13)
-                .fontColor('#8A8A8E')
+                .fontColor($r('app.color.text_secondary'))
               Blank()
               if (this.loginName.length > 0) {
                 Text(this.loginName)
                   .fontSize(13)
-                  .fontColor('#222222')
+                  .fontColor($r('app.color.text_body'))
               } else {
                 Text('未登录')
                   .fontSize(13)
-                  .fontColor('#A0A0A6')
+                  .fontColor($r('app.color.text_tertiary'))
               }
             }
             .width('100%')
@@ -95,7 +95,7 @@ export struct SettingsTab {
           }
           .width('100%')
           .padding(14)
-          .backgroundColor('#FFFFFF')
+          .backgroundColor($r('app.color.card_bg'))
           .borderRadius(12)
           .margin({ bottom: 10 })
 
@@ -107,7 +107,7 @@ export struct SettingsTab {
               .width('100%')
             Text('导入官方设备标识可免除大部分人机验证')
               .fontSize(11)
-              .fontColor('#A0A0A6')
+              .fontColor($r('app.color.text_tertiary'))
               .width('100%')
               .margin({ top: 4, bottom: 10 })
 
@@ -129,18 +129,18 @@ export struct SettingsTab {
             if (!this.ready) {
               Text('本地存储初始化失败，本次修改仅在当前会话生效')
                 .fontSize(11)
-                .fontColor('#E06030')
+                .fontColor($r('app.color.danger'))
                 .margin({ top: 8 })
             } else if (this.saved) {
               Text('已保存到本地')
                 .fontSize(11)
-                .fontColor('#2E7D32')
+                .fontColor($r('app.color.success'))
                 .margin({ top: 8 })
             }
           }
           .width('100%')
           .padding(14)
-          .backgroundColor('#FFFFFF')
+          .backgroundColor($r('app.color.card_bg'))
           .borderRadius(12)
           .alignItems(HorizontalAlign.Start)
           .margin({ bottom: 10 })
@@ -153,13 +153,13 @@ export struct SettingsTab {
               .width('100%')
             Text(this.devicePreview)
               .fontSize(11)
-              .fontColor('#8A8A8E')
+              .fontColor($r('app.color.text_secondary'))
               .width('100%')
               .margin({ top: 6 })
           }
           .width('100%')
           .padding(14)
-          .backgroundColor('#FFFFFF')
+          .backgroundColor($r('app.color.card_bg'))
           .borderRadius(12)
           .alignItems(HorizontalAlign.Start)
           .margin({ bottom: 10 })
@@ -168,22 +168,22 @@ export struct SettingsTab {
           Row() {
             Text('关于本应用')
               .fontSize(14)
-              .fontColor('#222222')
+              .fontColor($r('app.color.text_body'))
             Blank()
             Image($r('app.media.ic_chevron'))
               .width(18)
               .height(18)
-              .fillColor('#C0C0C6')
+              .fillColor($r('app.color.text_tertiary'))
           }
           .width('100%')
           .padding(14)
-          .backgroundColor('#FFFFFF')
+          .backgroundColor($r('app.color.card_bg'))
           .borderRadius(12)
           .onClick(() => router.pushUrl({ url: 'pages/About' }))
 
           Text('非官方客户端 · AGPL-3.0')
             .fontSize(10)
-            .fontColor('#C0C0C6')
+            .fontColor($r('app.color.text_tertiary'))
             .margin({ top: 16, bottom: 12 })
         }
         .width('100%')
@@ -196,6 +196,6 @@ export struct SettingsTab {
     }
     .width('100%')
     .height('100%')
-    .backgroundColor('#F2F2F6')
+    .backgroundColor($r('app.color.page_bg'))
   }
 }

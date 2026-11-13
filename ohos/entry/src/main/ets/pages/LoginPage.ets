@@ -64,12 +64,12 @@ struct LoginPage {
           Image($r('app.media.ic_back'))
             .width(20)
             .height(20)
-            .fillColor('#222222')
+            .fillColor($r('app.color.text_body'))
         }
         .width(34)
         .height(34)
         .borderRadius(17)
-        .backgroundColor('#FFFFFF')
+        .backgroundColor($r('app.color.card_bg'))
         .justifyContent(FlexAlign.Center)
         .onClick(() => router.back())
         Text('登录').fontSize(18).fontWeight(FontWeight.Bold).margin({ left: 12 })
@@ -80,7 +80,7 @@ struct LoginPage {
 
       Text(this.status)
         .fontSize(12)
-        .fontColor(this.loggedIn ? '#2E7D32' : '#8A8A8E')
+        .fontColor(this.loggedIn ? $r('app.color.success') : $r('app.color.text_secondary'))
         .width('100%')
         .margin({ bottom: 8 })
 
@@ -101,6 +101,6 @@ struct LoginPage {
     .width('100%')
     .height('100%')
     .padding({ left: 16, right: 16, top: 40, bottom: 12 })
-    .backgroundColor('#F2F2F6')
+    .backgroundColor($r('app.color.page_bg'))
   }
 }

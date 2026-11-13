@@ -10,12 +10,12 @@ struct About {
           Image($r('app.media.ic_back'))
             .width(20)
             .height(20)
-            .fillColor('#222222')
+            .fillColor($r('app.color.text_body'))
         }
         .width(34)
         .height(34)
         .borderRadius(17)
-        .backgroundColor('#FFFFFF')
+        .backgroundColor($r('app.color.card_bg'))
         .justifyContent(FlexAlign.Center)
         .onClick(() => router.back())
         Text('关于').fontSize(20).fontWeight(FontWeight.Bold).margin({ left: 12 })
@@ -28,11 +28,11 @@ struct About {
         .fontWeight(FontWeight.Bold)
       Text('HarmonyOS 原生版 · 268-harmony')
         .fontSize(13)
-        .fontColor('#8A8A8E')
+        .fontColor($r('app.color.text_secondary'))
         .margin({ top: 8 })
       Text('ArkTS + ArkUI · Stage 模型 · HAP')
         .fontSize(13)
-        .fontColor('#8A8A8E')
+        .fontColor($r('app.color.text_secondary'))
         .margin({ top: 4 })
 
       Column() {
@@ -52,7 +52,7 @@ struct About {
           + '· ShuzlmID / 设备码本地持久化\n'
           + '· SESSID 自动回写')
           .fontSize(12)
-          .fontColor('#555555')
+          .fontColor($r('app.color.text_body'))
           .alignSelf(ItemAlign.Start)
           .lineHeight(20)
 
@@ -66,13 +66,13 @@ struct About {
           + '· 消息通知、发现页\n'
           + '· 图片缓存与预加载')
           .fontSize(12)
-          .fontColor('#555555')
+          .fontColor($r('app.color.text_body'))
           .alignSelf(ItemAlign.Start)
           .lineHeight(20)
       }
       .width('100%')
       .padding(14)
-      .backgroundColor('#FFFFFF')
+      .backgroundColor($r('app.color.card_bg'))
       .borderRadius(12)
       .margin({ top: 24 })
 
@@ -80,12 +80,12 @@ struct About {
 
       Text('非官方客户端，与酷安官方无关。AGPL-3.0。')
         .fontSize(11)
-        .fontColor('#A0A0A6')
+        .fontColor($r('app.color.text_tertiary'))
         .margin({ bottom: 16 })
     }
     .width('100%')
     .height('100%')
     .padding({ top: 48, left: 20, right: 20 })
-    .backgroundColor('#F2F2F6')
+    .backgroundColor($r('app.color.page_bg'))
   }
 }

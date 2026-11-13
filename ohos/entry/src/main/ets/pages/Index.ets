@@ -25,7 +25,7 @@ struct Index {
       .layoutWeight(1)
       .width('100%')
 
-      Divider().strokeWidth(0.5).color('#E6E6EA')
+      Divider().strokeWidth(0.5).color($r('app.color.divider'))
 
       Row() {
         this.BottomItem('首页', 0, $r('app.media.ic_home'))
@@ -34,11 +34,11 @@ struct Index {
       }
       .width('100%')
       .height(58)
-      .backgroundColor('#FFFFFF')
+      .backgroundColor($r('app.color.card_bg'))
     }
     .width('100%')
     .height('100%')
-    .backgroundColor('#F2F2F6')
+    .backgroundColor($r('app.color.page_bg'))
   }
 
   @Builder
@@ -47,10 +47,10 @@ struct Index {
       Image(icon)
         .width(23)
         .height(23)
-        .fillColor(this.currentTab === idx ? '#FB7299' : '#9A9AA0')
+        .fillColor(this.currentTab === idx ? $r('app.color.accent') : $r('app.color.text_secondary'))
       Text(label)
         .fontSize(10)
-        .fontColor(this.currentTab === idx ? '#FB7299' : '#9A9AA0')
+        .fontColor(this.currentTab === idx ? $r('app.color.accent') : $r('app.color.text_secondary'))
         .fontWeight(this.currentTab === idx ? FontWeight.Medium : FontWeight.Normal)
         .margin({ top: 3 })
     }

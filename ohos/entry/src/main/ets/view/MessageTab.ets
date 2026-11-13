@@ -24,7 +24,7 @@ export struct MessageTab {
         Text('消息')
           .fontSize(24)
           .fontWeight(FontWeight.Bold)
-          .fontColor('#111111')
+          .fontColor($r('app.color.text_title'))
         Blank()
       }
       .width('100%')
@@ -35,10 +35,10 @@ export struct MessageTab {
         Column() {
           Text('登录后查看消息')
             .fontSize(14)
-            .fontColor('#8A8A8E')
+            .fontColor($r('app.color.text_secondary'))
           Text('登录后可接收回复、@ 与私信通知')
             .fontSize(11)
-            .fontColor('#C0C0C6')
+            .fontColor($r('app.color.text_tertiary'))
             .margin({ top: 8 })
           Button('登录酷安', { type: ButtonType.Capsule })
             .fontSize(14)
@@ -58,10 +58,10 @@ export struct MessageTab {
         Column() {
           Text(`已登录：${this.loginName}`)
             .fontSize(13)
-            .fontColor('#2E7D32')
+            .fontColor($r('app.color.success'))
           Text('消息列表待接入')
             .fontSize(12)
-            .fontColor('#A0A0A6')
+            .fontColor($r('app.color.text_tertiary'))
             .margin({ top: 10 })
         }
         .layoutWeight(1)
@@ -71,6 +71,6 @@ export struct MessageTab {
     }
     .width('100%')
     .height('100%')
-    .backgroundColor('#F2F2F6')
+    .backgroundColor($r('app.color.page_bg'))
   }
 }

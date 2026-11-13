@@ -32,12 +32,12 @@ struct SearchPage {
           Image($r('app.media.ic_back'))
             .width(20)
             .height(20)
-            .fillColor('#222222')
+            .fillColor($r('app.color.text_body'))
         }
         .width(34)
         .height(34)
         .borderRadius(17)
-        .backgroundColor('#FFFFFF')
+        .backgroundColor($r('app.color.card_bg'))
         .justifyContent(FlexAlign.Center)
         .onClick(() => router.back())
 
@@ -45,7 +45,7 @@ struct SearchPage {
           Image($r('app.media.ic_search'))
             .width(16)
             .height(16)
-            .fillColor('#B0B0B6')
+            .fillColor($r('app.color.text_tertiary'))
             .margin({ left: 12, right: 6 })
           TextInput({ placeholder: '搜索动态 / 关键词', text: this.keyword })
             .layoutWeight(1)
@@ -60,12 +60,12 @@ struct SearchPage {
         .layoutWeight(1)
         .height(36)
         .borderRadius(18)
-        .backgroundColor('#FFFFFF')
+        .backgroundColor($r('app.color.card_bg'))
         .margin({ left: 10, right: 8 })
 
         Text('搜索')
           .fontSize(14)
-          .fontColor('#FB7299')
+          .fontColor($r('app.color.accent'))
           .fontWeight(FontWeight.Medium)
           .onClick(() => this.doSearch())
       }
@@ -76,7 +76,7 @@ struct SearchPage {
       if (this.status.length > 0) {
         Text(this.status)
           .fontSize(12)
-          .fontColor(this.status.indexOf('风控') >= 0 ? '#D1532F' : '#9A9AA0')
+          .fontColor(this.status.indexOf('风控') >= 0 ? $r('app.color.danger') : $r('app.color.text_secondary'))
           .width('100%')
           .padding({ left: 16, right: 16, bottom: 8 })
       }
@@ -85,12 +85,12 @@ struct SearchPage {
         Row() {
           Text('需要人机验证才能继续')
             .fontSize(12)
-            .fontColor('#D1532F')
+            .fontColor($r('app.color.danger'))
             .layoutWeight(1)
           Button('去验证', { type: ButtonType.Capsule })
             .fontSize(12)
             .height(30)
-            .backgroundColor('#FB7299')
+            .backgroundColor($r('app.color.accent'))
             .onClick(() => {
               setPendingCaptchaId(this.captchaId);
               router.pushUrl({ url: 'pages/CaptchaPage' });
@@ -102,7 +102,7 @@ struct SearchPage {
 
       if (this.loading) {
         Column() {
-          LoadingProgress().width(30).height(30).color('#FB7299')
+          LoadingProgress().width(30).height(30).color($r('app.color.accent'))
         }
         .width('100%')
         .height(90)
@@ -115,7 +115,7 @@ struct SearchPage {
             Column() {
               Text(this.status.length > 0 ? '' : '输入关键词开始搜索')
                 .fontSize(13)
-                .fontColor('#B0B0B6')
+                .fontColor($r('app.color.text_tertiary'))
             }
             .width('100%')
             .height(280)
@@ -136,7 +136,7 @@ struct SearchPage {
     }
     .width('100%')
     .height('100%')
-    .backgroundColor('#F2F2F6')
+    .backgroundColor($r('app.color.page_bg'))
   }
 
   @Builder
@@ -155,10 +155,10 @@ struct SearchPage {
             .width(34)
             .height(34)
             .borderRadius(17)
-            .backgroundColor('#F2E8EC')
+            .backgroundColor($r('app.color.accent_soft'))
             .textAlign(TextAlign.Center)
             .fontSize(14)
-            .fontColor('#FB7299')
+            .fontColor($r('app.color.accent'))
             .margin({ right: 8 })
         }
 
@@ -166,10 +166,10 @@ struct SearchPage {
           Text(str(item.username).length > 0 ? str(item.username) : '匿名用户')
             .fontSize(13)
             .fontWeight(FontWeight.Medium)
-            .fontColor('#111111')
+            .fontColor($r('app.color.text_title'))
           Text(`${feedTypeLabel(item)} · ${timeAgo(item.dateline)}`)
             .fontSize(10)
-            .fontColor('#9A9AA0')
+            .fontColor($r('app.color.text_secondary'))
             .margin({ top: 3 })
         }
         .alignItems(HorizontalAlign.Start)
@@ -179,7 +179,7 @@ struct SearchPage {
 
       Text(feedSummary(item))
         .fontSize(14)
-        .fontColor('#222222')
+        .fontColor($r('app.color.text_body'))
         .width('100%')
         .margin({ top: 9 })
         .maxLines(4)
@@ -210,10 +210,10 @@ struct SearchPage {
     }
     .width('100%')
     .padding(13)
-    .backgroundColor('#FFFFFF')
+    .backgroundColor($r('app.color.card_bg'))
     .borderRadius(14)
     .alignItems(HorizontalAlign.Start)
-    .shadow({ radius: 10, color: '#0D000000', offsetX: 0, offsetY: 2 })
+    .shadow({ radius: 10, color: $r('app.color.shadow'), offsetX: 0, offsetY: 2 })
     .onClick(() => this.openItem(item))
   }
 
