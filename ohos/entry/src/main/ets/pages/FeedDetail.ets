@@ -15,6 +15,7 @@ import {
 } from '../common/Feed';
 import { setPendingCaptchaId } from '../common/CaptchaBridge';
 import { isLoggedInSync } from '../common/CookieStore';
+import { isFavorited, toggleFavorite } from '../common/Favorites';
 import { setPendingImages } from './ImageViewer';
 
 @Entry
@@ -39,6 +40,7 @@ struct FeedDetail {
   @State liking: boolean = false;
   @State draft: string = '';
   @State posting: boolean = false;
+  @State favorited: boolean = false;
 
   aboutToAppear(): void {
     this.feedId = getPendingDetailId();
@@ -46,6 +48,7 @@ struct FeedDetail {
       this.status = '缺少动态 ID';
       return;
     }
+    this.favorited = isFavorited(this.feedId);
     this.load();
   }
 
@@ -345,6 +348,24 @@ struct FeedDetail {
               .borderRadius(14)
               .backgroundColor(this.liked ? $r('app.color.accent_soft') : $r('app.color.page_bg'))
               .onClick(() => this.toggleLike())
+
+              Row() {
+                Image($r('app.media.ic_like'))
+                  .width(16)
+                  .height(16)
+                  .fillColor(this.favorited ? $r('app.color.accent') : $r('app.color.text_secondary'))
+                Text(this.favorited ? '已收藏' : '收藏')
+                  .fontSize(12)
+                  .fontColor(this.favorited ? $r('app.color.accent') : $r('app.color.text_secondary'))
+                  .margin({ left: 5 })
+              }
+              .padding({ left: 12, right: 12, top: 6, bottom: 6 })
+              .borderRadius(14)
+              .margin({ left: 8 })
+              .backgroundColor(this.favorited ? $r('app.color.accent_soft') : $r('app.color.page_bg'))
+              .onClick(() => {
+                this.favorited = toggleFavorite(this.feedId);
+              })
             }
             .width('100%')
             .margin({ top: 12 })
