@@ -5,12 +5,13 @@ import { FeedItem, parseFeed, ParsedFeed, str, timeAgo } from '../common/Feed';
 import { setPendingCaptchaId } from '../common/CaptchaBridge';
 
 /** 通知分类：与 Android 版 NoticeType 一致。 */
-const MSG_TABS: string[] = ['@我', '评论', '赞', '粉丝'];
+const MSG_TABS: string[] = ['@我', '评论', '赞', '粉丝', '私信'];
 const MSG_PATHS: string[] = [
   '/v6/notification/atMeList',
   '/v6/notification/atCommentMeList',
   '/v6/notification/feedLikeList',
   '/v6/notification/contactsFollowList',
+  '/v6/message/list',
 ];
 
 @Component
@@ -23,6 +24,9 @@ export struct MessageTab {
   @State status: string = '';
   @State unread: number = 0;
   @State captchaId: string = '';
+  @State pageNo: number = 1;
+  @State hasMore: boolean = true;
+  @State loadingMore: boolean = false;
 
   aboutToAppear(): void {
     this.refresh();
@@ -47,6 +51,8 @@ export struct MessageTab {
 
   private async loadTab(index: number): Promise<void> {
     this.loading = true;
+    this.pageNo = 1;
+    this.hasMore = true;
     this.status = '';
     this.captchaId = '';
     const res: CoolapkResponse = await CoolapkApi.fetchNotifications(MSG_PATHS[index], 1);
@@ -191,6 +197,9 @@ export struct MessageTab {
         .padding({ left: 12, right: 12 })
         .scrollBar(BarState.Off)
         .contentEndOffset(12)
+        .onReachEnd(() => {
+          this.loadMore();
+        })
       }
     }
     .width('100%')
@@ -254,6 +263,29 @@ export struct MessageTab {
     .backgroundColor($r('app.color.card_bg'))
     .borderRadius(12)
     .alignItems(VerticalAlign.Top)
+  }
+
+  /** 触底加载下一页。 */
+  private async loadMore(): Promise<void> {
+    if (this.loadingMore || !this.hasMore) {
+      return;
+    }
+    this.loadingMore = true;
+    const next = this.pageNo + 1;
+    const res: CoolapkResponse = await CoolapkApi.fetchNotifications(MSG_PATHS[this.selTab], next);
+    const parsed: ParsedFeed = parseFeed(res.body);
+    this.loadingMore = false;
+
+    if (res.needCaptcha) {
+      this.captchaId = res.captchaId;
+      return;
+    }
+    if (parsed.items.length === 0) {
+      this.hasMore = false;
+      return;
+    }
+    this.pageNo = next;
+    this.items = this.items.concat(parsed.items);
   }
 
   private nameOf(item: FeedItem): string {
