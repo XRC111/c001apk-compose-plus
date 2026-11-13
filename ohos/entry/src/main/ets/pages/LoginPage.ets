@@ -60,7 +60,18 @@ struct LoginPage {
   build() {
     Column() {
       Row() {
-        Button('<', { type: ButtonType.Normal }).onClick(() => router.back())
+        Row() {
+          Image($r('app.media.ic_back'))
+            .width(20)
+            .height(20)
+            .fillColor('#222222')
+        }
+        .width(34)
+        .height(34)
+        .borderRadius(17)
+        .backgroundColor('#FFFFFF')
+        .justifyContent(FlexAlign.Center)
+        .onClick(() => router.back())
         Text('登录').fontSize(18).fontWeight(FontWeight.Bold).margin({ left: 12 })
         Blank()
       }
@@ -90,6 +101,6 @@ struct LoginPage {
     .width('100%')
     .height('100%')
     .padding({ left: 16, right: 16, top: 40, bottom: 12 })
-    .backgroundColor($r('app.color.page_background'))
+    .backgroundColor('#F2F2F6')
   }
 }

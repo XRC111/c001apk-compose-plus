@@ -6,7 +6,18 @@ struct About {
   build() {
     Column() {
       Row() {
-        Button('<', { type: ButtonType.Normal }).onClick(() => router.back())
+        Row() {
+          Image($r('app.media.ic_back'))
+            .width(20)
+            .height(20)
+            .fillColor('#222222')
+        }
+        .width(34)
+        .height(34)
+        .borderRadius(17)
+        .backgroundColor('#FFFFFF')
+        .justifyContent(FlexAlign.Center)
+        .onClick(() => router.back())
         Text('关于').fontSize(20).fontWeight(FontWeight.Bold).margin({ left: 12 })
       }
       .width('100%')
@@ -75,6 +86,6 @@ struct About {
     .width('100%')
     .height('100%')
     .padding({ top: 48, left: 20, right: 20 })
-    .backgroundColor($r('app.color.page_background'))
+    .backgroundColor('#F2F2F6')
   }
 }

@@ -170,9 +170,10 @@ export struct SettingsTab {
               .fontSize(14)
               .fontColor('#222222')
             Blank()
-            Text('>')
-              .fontSize(14)
-              .fontColor('#C0C0C6')
+            Image($r('app.media.ic_chevron'))
+              .width(18)
+              .height(18)
+              .fillColor('#C0C0C6')
           }
           .width('100%')
           .padding(14)
@@ -195,6 +196,6 @@ export struct SettingsTab {
     }
     .width('100%')
     .height('100%')
-    .backgroundColor('#F5F5F7')
+    .backgroundColor('#F2F2F6')
   }
 }
