@@ -67,17 +67,34 @@ scripts/harmony/         # 鸿蒙 SDK 安装脚本（CI 用）
 - `DeviceCode.ets` —— `X-App-Device` 生成（base64 反转去 `=`）
 - `CookieStore.ets` —— 登录态（uid/username/token）+ SESSID + validate
 
-功能页面：
+功能页面与界面结构：
 
-| 页面 | 说明 |
+界面按 Android 版的 `MainScreen` 结构重做：**底部三栏（首页 / 消息 / 设置）**，
+首页为「顶部栏 + 可横向滚动的分类 Tab + 卡片式信息流」。
+
+| 页面 / 视图 | 说明 |
 | --- | --- |
-| `Index` | 首页信息流、分页加载、缩略图、v3 token 摘要与耗时 |
-| `FeedDetail` | 动态正文、图片、评论列表 |
-| `SearchPage` | 关键词搜索动态 |
+| `Index` | 应用外壳：底部三栏导航（图标 + 文字，选中态粉色） |
+| `view/HomeTab` | 顶部栏（搜索入口）、分类 Tab（关注/应用/动态/热榜/话题/数码/酷图）、卡片式信息流、下拉刷新、分页加载 |
+| `view/MessageTab` | 消息页（未登录引导登录） |
+| `view/SettingsTab` | 设置页（账号 / ShuzlmID / 设备码 / 关于） |
+| `FeedDetail` | 动态详情：作者卡、正文、九宫格图片、评论列表（带头像） |
+| `AppDetail` | 应用详情：图标、版本/大小/下载量、更新日志、介绍 |
+| `UserPage` | 用户主页：头像、等级、简介、关注/粉丝/经验 |
+| `SearchPage` | 关键词搜索（统一卡片样式） |
 | `LoginPage` | 内置网页登录，页末自动提取 Cookie 并落盘 |
 | `CaptchaPage` | 内嵌易盾滑块（`cstaticdun.126.net`），通过 `javaScriptProxy` 回传 `validate` |
-| `Settings` | ShuzlmID 持久化、设备码预览 |
 | `About` | 能力清单与未实现项 |
+
+信息流卡片：圆形头像（无头像时取昵称首字）、昵称 + 类型/时间元信息、
+正文（8 行截断）、单图大图 / 多图九宫格、赞与评论计数（SVG 图标）。
+图标为自绘 SVG（`resources/base/media/ic_*.svg`），用 `fillColor` 统一着色。
+
+列表项按 `entityType` 分流：`product` / `apk` 进应用详情，其余进动态详情；
+动态详情里的作者名可点进用户主页。
+
+**界面尚未覆盖**：深色模式、富文本（@ / 话题 / 链接高亮）、消息列表真实内容、
+信息流内应用/商品卡片的专属样式、图片占位与失败兜底、启动页与品牌图标。
 
 运行时细节：
 
@@ -95,8 +112,7 @@ v3 token 端到端 24/24 逐字符一致。
 产物 `ohos/entry/build/default/outputs/default/entry-default-unsigned.hap`
 （**未签名**，真机安装需自行用 DevEco 配签名）。
 
-**尚未实现**：应用详情 / 用户主页、点赞收藏评论等写操作、消息通知与发现页、
-图片缓存与预加载。
+**尚未实现**：点赞收藏评论等写操作、消息通知与发现页、图片缓存与预加载。
 
 > 注：所有功能只经过编译验证，**未在真机上做运行时验证**；易盾滑块与登录页
 > 依赖 Web 组件与真实网络，需装机确认。
