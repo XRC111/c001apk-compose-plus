@@ -145,6 +145,8 @@ export class CoolapkApi {
     try {
       hilog.info(DOMAIN, 'c001apk', 'GET %{public}s device=%{public}s token=%{public}s',
         path, deviceCode, token.substring(0, Math.min(16, token.length)));
+      hilog.info(DOMAIN, 'c001apk', 'tokenPrefix=%{public}s tokenLen=%{public}d',
+        token.substring(0, Math.min(2, token.length)), token.length);
       const res = await req.request(url, {
         method: http.RequestMethod.GET,
         header: buildHeaders(token, deviceCode, cookie),

@@ -18,6 +18,9 @@ import {
   latin1ToUtf8Bytes,
 } from './StandardBase64';
 import { AUTH_BLOB_TEXT } from './AuthBlob';
+import { hilog } from '@kit.PerformanceAnalysisKit';
+
+const DOMAIN = 0xD0001;
 
 export const APP_ID: string = 'com.coolapk.market';
 export const APP_LABEL: string = 'token://com.coolapk.market/dcf01e569c1e3db93a3d0fcf191a622c';
@@ -90,9 +93,12 @@ export function getTokenV3(deviceCode: string): string {
     try {
       return buildTokenV3(deviceCode, ts);
     } catch (e) {
-      // 该秒的 salt 不可用，试下一秒
+      // 该秒的 salt 不可用，试下一秒（真机诊断需要知道到底抛了什么）
+      hilog.warn(DOMAIN, 'c001apk', 'buildTokenV3 fail ts=%{public}d err=%{public}s',
+        ts, JSON.stringify(e));
     }
   }
+  hilog.error(DOMAIN, 'c001apk', 'v3 全部失败，降级 v2（服务端已不接受 v2）');
   return getTokenV2(deviceCode);
 }
 
