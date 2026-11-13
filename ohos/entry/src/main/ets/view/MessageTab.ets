@@ -28,9 +28,15 @@ export struct MessageTab {
   @State hasMore: boolean = true;
   @State loadingMore: boolean = false;
 
+  @StorageProp('captchaDoneTick') @Watch('onCaptchaDone') captchaDoneTick: number = 0;
+
   aboutToAppear(): void {
     this.refresh();
   }
+  private onCaptchaDone(): void {
+    this.loadTab(this.selTab);
+  }
+
 
   private async refresh(): Promise<void> {
     this.loggedIn = await isLoggedIn();

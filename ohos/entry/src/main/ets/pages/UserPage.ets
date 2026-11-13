@@ -25,12 +25,18 @@ struct UserPage {
   @State experience: string = '';
   @State captchaId: string = '';
 
+  @StorageProp('captchaDoneTick') @Watch('onCaptchaDone') captchaDoneTick: number = 0;
+
   aboutToAppear(): void {
     this.uid = getPendingUid();
     if (this.uid.length === 0) {
       this.status = '缺少用户 ID';
       return;
     }
+  private onCaptchaDone(): void {
+    this.load();
+  }
+
     this.load();
   }
 

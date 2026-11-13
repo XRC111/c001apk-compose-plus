@@ -36,12 +36,18 @@ struct FeedDetail {
   @State likeCount: string = '';
   @State liking: boolean = false;
 
+  @StorageProp('captchaDoneTick') @Watch('onCaptchaDone') captchaDoneTick: number = 0;
+
   aboutToAppear(): void {
     this.feedId = getPendingDetailId();
     if (this.feedId.length === 0) {
       this.status = '缺少动态 ID';
       return;
     }
+  private onCaptchaDone(): void {
+    this.load();
+  }
+
     this.load();
   }
 

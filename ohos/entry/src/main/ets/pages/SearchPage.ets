@@ -24,6 +24,14 @@ struct SearchPage {
   @State items: FeedItem[] = [];
   @State captchaId: string = '';
 
+  @StorageProp('captchaDoneTick') @Watch('onCaptchaDone') captchaDoneTick: number = 0;
+
+  private onCaptchaDone(): void {
+    if (this.keyword.trim().length > 0) {
+      this.doSearch();
+    }
+  }
+
   build() {
     Column() {
       // 顶部搜索栏

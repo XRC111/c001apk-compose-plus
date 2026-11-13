@@ -29,12 +29,18 @@ struct AppDetail {
   @State description: string = '';
   @State captchaId: string = '';
 
+  @StorageProp('captchaDoneTick') @Watch('onCaptchaDone') captchaDoneTick: number = 0;
+
   aboutToAppear(): void {
     this.packageName = getPendingAppId();
     if (this.packageName.length === 0) {
       this.status = '缺少应用包名';
       return;
     }
+  private onCaptchaDone(): void {
+    this.load();
+  }
+
     this.load();
   }
 

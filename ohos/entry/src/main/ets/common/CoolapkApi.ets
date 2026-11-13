@@ -64,12 +64,6 @@ function extractMessageStatus(body: string): string {
   return m !== null ? m[1] : '';
 }
 
-/** 从风控响应里提取易盾 captchaId。 */
-function extractCaptchaId(body: string): string {
-  const m = /"captchaId"\s*:\s*"([^"]+)"/.exec(body);
-  return m !== null ? m[1] : '';
-}
-
 /** 从 Set-Cookie 串里取某个 Cookie 的值。 */
 function extractCookieValue(cookies: string, name: string): string {
   const parts = cookies.split(';');
