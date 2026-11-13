@@ -25,29 +25,34 @@ struct Index {
       .layoutWeight(1)
       .width('100%')
 
-      Divider().strokeWidth(0.5).color('#EAEAEA')
+      Divider().strokeWidth(0.5).color('#E6E6EA')
 
       Row() {
-        this.BottomItem('首页', 0)
-        this.BottomItem('消息', 1)
-        this.BottomItem('设置', 2)
+        this.BottomItem('首页', 0, $r('app.media.ic_home'))
+        this.BottomItem('消息', 1, $r('app.media.ic_message'))
+        this.BottomItem('设置', 2, $r('app.media.ic_settings'))
       }
       .width('100%')
-      .height(56)
+      .height(58)
       .backgroundColor('#FFFFFF')
     }
     .width('100%')
     .height('100%')
-    .backgroundColor('#F5F5F7')
+    .backgroundColor('#F2F2F6')
   }
 
   @Builder
-  BottomItem(label: string, idx: number) {
+  BottomItem(label: string, idx: number, icon: Resource) {
     Column() {
+      Image(icon)
+        .width(23)
+        .height(23)
+        .fillColor(this.currentTab === idx ? '#FB7299' : '#9A9AA0')
       Text(label)
-        .fontSize(this.currentTab === idx ? 13 : 12)
-        .fontWeight(this.currentTab === idx ? FontWeight.Bold : FontWeight.Normal)
-        .fontColor(this.currentTab === idx ? '#FB7299' : '#8A8A8E')
+        .fontSize(10)
+        .fontColor(this.currentTab === idx ? '#FB7299' : '#9A9AA0')
+        .fontWeight(this.currentTab === idx ? FontWeight.Medium : FontWeight.Normal)
+        .margin({ top: 3 })
     }
     .layoutWeight(1)
     .height('100%')
@@ -57,4 +62,3 @@ struct Index {
     })
   }
 }
-

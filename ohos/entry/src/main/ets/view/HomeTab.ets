@@ -10,7 +10,6 @@ import {
   ParsedFeed,
   setPendingAppId,
   setPendingDetailId,
-  setPendingUid,
   str,
   timeAgo,
 } from '../common/Feed';
@@ -25,9 +24,10 @@ export struct HomeTab {
   @State selectedTab: number = TAB_FEED_INDEX;
   @State items: FeedItem[] = [];
   @State loading: boolean = false;
+  @State refreshing: boolean = false;
   @State statusText: string = '';
   @State captchaId: string = '';
-  @State page: number = 1;
+  @State pageNo: number = 1;
   @State hasMore: boolean = true;
   @State loadingMore: boolean = false;
 
@@ -37,54 +37,14 @@ export struct HomeTab {
 
   build() {
     Column() {
-      // ===== 顶部栏 =====
-      Row() {
-        Text('酷安')
-          .fontSize(24)
-          .fontWeight(FontWeight.Bold)
-          .fontColor('#111111')
-        Blank()
-        Button('搜索', { type: ButtonType.Normal })
-          .fontSize(13)
-          .height(32)
-          .onClick(() => router.pushUrl({ url: 'pages/SearchPage' }))
-      }
-      .width('100%')
-      .height(52)
-      .padding({ left: 16, right: 12 })
+      this.TopBar()
+      this.TabStrip()
 
-      // ===== 分类 Tab（可横向滚动） =====
-      Scroll() {
-        Row() {
-          ForEach(TABS, (t: string, i: number) => {
-            Column() {
-              Text(t)
-                .fontSize(15)
-                .fontWeight(this.selectedTab === i ? FontWeight.Bold : FontWeight.Normal)
-                .fontColor(this.selectedTab === i ? '#FB7299' : '#666666')
-              Divider()
-                .strokeWidth(3)
-                .color(this.selectedTab === i ? '#FB7299' : Color.Transparent)
-                .width(18)
-                .margin({ top: 5 })
-            }
-            .margin({ right: 18 })
-            .onClick(() => this.switchTab(i))
-          }, (t: string) => t)
-        }
-        .padding({ left: 16, right: 16 })
-      }
-      .scrollable(ScrollDirection.Horizontal)
-      .scrollBar(BarState.Off)
-      .width('100%')
-      .height(42)
-
-      // ===== 内容区 =====
       if (this.selectedTab !== TAB_FEED_INDEX) {
         Column() {
           Text('该板块待接入')
-            .fontSize(13)
-            .fontColor('#A0A0A6')
+            .fontSize(14)
+            .fontColor('#9A9AA0')
           Text('目前「动态」板块已接通首页信息流')
             .fontSize(11)
             .fontColor('#C0C0C6')
@@ -94,40 +54,9 @@ export struct HomeTab {
         .width('100%')
         .justifyContent(FlexAlign.Center)
       } else {
-        if (this.statusText.length > 0 && this.items.length === 0) {
-          Text(this.statusText)
-            .fontSize(12)
-            .fontColor(this.statusText.indexOf('风控') >= 0 ? '#E06030' : '#8A8A8E')
-            .width('100%')
-            .padding({ left: 16, right: 16, bottom: 6 })
-        }
+        this.CaptchaBanner()
 
-        if (this.captchaId.length > 0) {
-          Row() {
-            Text('需要人机验证')
-              .fontSize(12)
-              .fontColor('#E06030')
-              .layoutWeight(1)
-            Button('去验证', { type: ButtonType.Capsule })
-              .fontSize(12)
-              .height(30)
-              .onClick(() => {
-                setPendingCaptchaId(this.captchaId);
-                router.pushUrl({ url: 'pages/CaptchaPage' });
-              })
-          }
-          .width('100%')
-          .padding({ left: 16, right: 16, top: 8, bottom: 8 })
-        }
-
-        if (this.loading && this.items.length === 0) {
-          Column() {
-            LoadingProgress().width(32).height(32)
-          }
-          .layoutWeight(1)
-          .width('100%')
-          .justifyContent(FlexAlign.Center)
-        } else {
+        Refresh({ refreshing: $$this.refreshing }) {
           List({ space: 10 }) {
             ForEach(this.items, (item: FeedItem) => {
               ListItem() {
@@ -135,70 +64,160 @@ export struct HomeTab {
               }
             }, (item: FeedItem) => str(item.id))
 
-            // 分页脚注
             ListItem() {
-              Row() {
-                if (this.loadingMore) {
-                  LoadingProgress().width(18).height(18)
-                  Text('加载中…').fontSize(12).fontColor('#8A8A8E').margin({ left: 6 })
-                } else if (this.hasMore) {
-                  Text('加载更多').fontSize(13).fontColor('#FB7299')
-                } else {
-                  Text('没有更多了').fontSize(12).fontColor('#A0A0A6')
-                }
-              }
-              .width('100%')
-              .justifyContent(FlexAlign.Center)
-              .padding({ top: 12, bottom: 12 })
-              .onClick(() => this.loadMore())
+              this.Footer()
             }
           }
           .width('100%')
           .layoutWeight(1)
-          .padding({ left: 12, right: 12 })
+          .padding({ left: 12, right: 12, top: 6 })
           .scrollBar(BarState.Off)
+
+          if (this.items.length === 0 && !this.loading) {
+            Column() {
+              Text(this.statusText.length > 0 ? this.statusText : '暂无内容')
+                .fontSize(13)
+                .fontColor('#9A9AA0')
+            }
+            .width('100%')
+            .height(320)
+            .justifyContent(FlexAlign.Center)
+          }
         }
+        .layoutWeight(1)
+        .onRefreshing(() => {
+          this.loadHome();
+        })
       }
     }
     .width('100%')
     .height('100%')
-    .backgroundColor('#F5F5F7')
+    .backgroundColor('#F2F2F6')
   }
 
-  /** 信息流卡片：头像 + 昵称/时间 + 正文 + 九宫格 + 互动栏。 */
+  // ==================== 顶部栏 ====================
+  @Builder
+  TopBar() {
+    Row() {
+      Text('酷安')
+        .fontSize(26)
+        .fontWeight(FontWeight.Bold)
+        .fontColor('#111111')
+      Blank()
+      Row() {
+        Image($r('app.media.ic_search'))
+          .width(20)
+          .height(20)
+          .fillColor('#333333')
+      }
+      .width(36)
+      .height(36)
+      .borderRadius(18)
+      .backgroundColor('#FFFFFF')
+      .justifyContent(FlexAlign.Center)
+      .onClick(() => router.pushUrl({ url: 'pages/SearchPage' }))
+    }
+    .width('100%')
+    .height(56)
+    .padding({ left: 16, right: 12 })
+  }
+
+  // ==================== 分类 Tab ====================
+  @Builder
+  TabStrip() {
+    Scroll() {
+      Row() {
+        ForEach(TABS, (t: string, i: number) => {
+          Column() {
+            Text(t)
+              .fontSize(this.selectedTab === i ? 16 : 15)
+              .fontWeight(this.selectedTab === i ? FontWeight.Bold : FontWeight.Normal)
+              .fontColor(this.selectedTab === i ? '#FB7299' : '#66666B')
+            Divider()
+              .strokeWidth(3)
+              .color(this.selectedTab === i ? '#FB7299' : Color.Transparent)
+              .width(18)
+              .margin({ top: 5 })
+          }
+          .margin({ right: 20 })
+          .onClick(() => this.switchTab(i))
+        }, (t: string) => t)
+      }
+      .padding({ left: 16, right: 16 })
+    }
+    .scrollable(ScrollDirection.Horizontal)
+    .scrollBar(BarState.Off)
+    .width('100%')
+    .height(44)
+  }
+
+  // ==================== 风控提示 ====================
+  @Builder
+  CaptchaBanner() {
+    if (this.captchaId.length > 0) {
+      Row() {
+        Text('需要人机验证才能继续浏览')
+          .fontSize(12)
+          .fontColor('#D1532F')
+          .layoutWeight(1)
+        Button('去验证', { type: ButtonType.Capsule })
+          .fontSize(12)
+          .height(30)
+          .backgroundColor('#FB7299')
+          .onClick(() => {
+            setPendingCaptchaId(this.captchaId);
+            router.pushUrl({ url: 'pages/CaptchaPage' });
+          })
+      }
+      .width('100%')
+      .padding({ left: 16, right: 16, top: 8, bottom: 8 })
+    }
+  }
+
+  // ==================== 信息流卡片 ====================
   @Builder
   FeedCard(item: FeedItem) {
     Column() {
-      // 头部
+      // 头部：头像 / 昵称 / 元信息
       Row() {
         if (feedAvatar(item).length > 0) {
           Image(feedAvatar(item))
-            .width(36)
-            .height(36)
-            .borderRadius(18)
+            .width(40)
+            .height(40)
+            .borderRadius(20)
             .objectFit(ImageFit.Cover)
             .margin({ right: 10 })
         } else {
           Text(str(item.username).length > 0 ? str(item.username).substring(0, 1) : '?')
-            .width(36)
-            .height(36)
-            .borderRadius(18)
-            .backgroundColor('#E8E8F0')
+            .width(40)
+            .height(40)
+            .borderRadius(20)
+            .backgroundColor('#F2E8EC')
             .textAlign(TextAlign.Center)
-            .fontSize(15)
-            .fontColor('#7A8CD0')
+            .fontSize(16)
+            .fontColor('#FB7299')
             .margin({ right: 10 })
         }
 
         Column() {
           Text(str(item.username).length > 0 ? str(item.username) : '匿名用户')
-            .fontSize(13)
+            .fontSize(14)
             .fontWeight(FontWeight.Medium)
-            .fontColor('#222222')
-          Text(`${feedTypeLabel(item)} · ${timeAgo(item.dateline)}`)
-            .fontSize(10)
-            .fontColor('#A0A0A6')
-            .margin({ top: 3 })
+            .fontColor('#111111')
+            .maxLines(1)
+            .textOverflow({ overflow: TextOverflow.Ellipsis })
+          Row() {
+            Text(feedTypeLabel(item))
+              .fontSize(10)
+              .fontColor('#8A8A90')
+            Text(' · ')
+              .fontSize(10)
+              .fontColor('#C0C0C6')
+            Text(timeAgo(item.dateline))
+              .fontSize(10)
+              .fontColor('#8A8A90')
+          }
+          .margin({ top: 3 })
         }
         .alignItems(HorizontalAlign.Start)
         .layoutWeight(1)
@@ -207,31 +226,31 @@ export struct HomeTab {
 
       // 正文
       Text(feedSummary(item))
-        .fontSize(14)
-        .fontColor('#333333')
+        .fontSize(15)
+        .fontColor('#222222')
         .width('100%')
         .margin({ top: 10 })
-        .maxLines(6)
+        .maxLines(8)
         .textOverflow({ overflow: TextOverflow.Ellipsis })
-        .lineHeight(21)
+        .lineHeight(23)
 
       // 图片
       if (feedPics(item).length === 1) {
         Image(feedPics(item)[0])
           .width('100%')
-          .constraintSize({ maxHeight: 220 })
+          .constraintSize({ maxHeight: 240 })
           .objectFit(ImageFit.Cover)
-          .borderRadius(8)
+          .borderRadius(10)
           .margin({ top: 10 })
       } else if (feedPics(item).length > 1) {
         Flex({ wrap: FlexWrap.Wrap }) {
           ForEach(feedPics(item), (p: string) => {
             Image(p)
-              .width(96)
-              .height(96)
+              .width(100)
+              .height(100)
               .objectFit(ImageFit.Cover)
               .borderRadius(8)
-              .margin({ right: 5, bottom: 5 })
+              .margin({ right: 6, bottom: 6 })
           }, (p: string) => p)
         }
         .width('100%')
@@ -240,33 +259,63 @@ export struct HomeTab {
 
       // 互动栏
       Row() {
-        Text(`赞 ${str(item.likenum).length > 0 ? str(item.likenum) : '0'}`)
-          .fontSize(11)
-          .fontColor('#8A8A8E')
-        Text(`评论 ${str(item.commentnum).length > 0 ? str(item.commentnum) : '0'}`)
-          .fontSize(11)
-          .fontColor('#8A8A8E')
-          .margin({ left: 16 })
+        Row() {
+          Image($r('app.media.ic_like'))
+            .width(16)
+            .height(16)
+            .fillColor('#9A9AA0')
+          Text(str(item.likenum).length > 0 ? str(item.likenum) : '赞')
+            .fontSize(12)
+            .fontColor('#9A9AA0')
+            .margin({ left: 4 })
+        }
+        .margin({ right: 20 })
+
+        Row() {
+          Image($r('app.media.ic_comment'))
+            .width(16)
+            .height(16)
+            .fillColor('#9A9AA0')
+          Text(str(item.commentnum).length > 0 ? str(item.commentnum) : '评论')
+            .fontSize(12)
+            .fontColor('#9A9AA0')
+            .margin({ left: 4 })
+        }
+
         Blank()
-        Text(feedTypeLabel(item))
-          .fontSize(10)
-          .fontColor('#FFFFFF')
-          .padding({ left: 6, right: 6, top: 2, bottom: 2 })
-          .backgroundColor('#7A8CD0')
-          .borderRadius(4)
       }
       .width('100%')
       .margin({ top: 12 })
     }
     .width('100%')
-    .padding(12)
+    .padding(14)
     .backgroundColor('#FFFFFF')
-    .borderRadius(12)
+    .borderRadius(14)
     .alignItems(HorizontalAlign.Start)
+    .shadow({ radius: 10, color: '#0D000000', offsetX: 0, offsetY: 2 })
     .onClick(() => this.openItem(item))
   }
 
-  /** 按实体类型分流：应用进应用详情，其余进动态详情。 */
+  // ==================== 分页脚注 ====================
+  @Builder
+  Footer() {
+    Row() {
+      if (this.loadingMore) {
+        LoadingProgress().width(18).height(18).color('#FB7299')
+        Text('加载中…').fontSize(12).fontColor('#9A9AA0').margin({ left: 6 })
+      } else if (this.hasMore) {
+        Text('加载更多').fontSize(13).fontColor('#FB7299')
+      } else {
+        Text('没有更多了').fontSize(12).fontColor('#B0B0B6')
+      }
+    }
+    .width('100%')
+    .justifyContent(FlexAlign.Center)
+    .padding({ top: 14, bottom: 18 })
+    .onClick(() => this.loadMore())
+  }
+
+  // ==================== 逻辑 ====================
   private openItem(item: FeedItem): void {
     const id = item.id;
     if (id === undefined || id.length === 0) {
@@ -292,12 +341,13 @@ export struct HomeTab {
   private async loadHome(): Promise<void> {
     this.loading = true;
     this.captchaId = '';
-    this.page = 1;
+    this.pageNo = 1;
     this.hasMore = true;
     const res: CoolapkResponse = await CoolapkApi.fetchHome(1);
     const parsed: ParsedFeed = parseFeed(res.body);
     this.items = parsed.items;
     this.loading = false;
+    this.refreshing = false;
 
     if (res.needCaptcha) {
       this.captchaId = res.captchaId;
@@ -305,7 +355,7 @@ export struct HomeTab {
     } else if (res.status === 200) {
       this.statusText = parsed.items.length > 0 ? '' : '暂无内容';
     } else if (res.status < 0) {
-      this.statusText = '网络请求失败';
+      this.statusText = '网络请求失败，下拉可重试';
     } else {
       this.statusText = `HTTP ${res.status}`;
     }
@@ -316,7 +366,7 @@ export struct HomeTab {
       return;
     }
     this.loadingMore = true;
-    const next = this.page + 1;
+    const next = this.pageNo + 1;
     const res: CoolapkResponse = await CoolapkApi.fetchHome(next);
     const parsed: ParsedFeed = parseFeed(res.body);
     this.loadingMore = false;
@@ -329,7 +379,7 @@ export struct HomeTab {
       this.hasMore = false;
       return;
     }
-    this.page = next;
+    this.pageNo = next;
     this.items = this.items.concat(parsed.items);
   }
 }
