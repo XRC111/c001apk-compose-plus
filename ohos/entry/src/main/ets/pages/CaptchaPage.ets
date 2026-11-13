@@ -1,6 +1,7 @@
 import { router } from '@kit.ArkUI';
 import { webview } from '@kit.ArkWeb';
 import { hilog } from '@kit.PerformanceAnalysisKit';
+import { util } from '@kit.ArkTS';
 import {
   clearValidateCallback,
   dispatchValidate,
@@ -23,6 +24,11 @@ const WEB_UA: string = 'Mozilla/5.0 (Linux; Android 16; M2012K11AC Build/a1b2c3d
  *
  * 关键：必须通过 loadData + baseUrl=https://www.coolapk.com/ 加载，
  * 而不是 $rawfile（resource:// 源）—— 易盾会校验页面域名与 captchaId 绑定域。
+ *
+ * 另一个官方文档明确的坑：loadData 的 data 若不是 base64，
+ * 内容里的任何 "#" 都会被当作 fragment 分隔符而**截断页面**
+ * （我们的 HTML 里有 CSS 选择器 #status/#captcha 和颜色值 #FFFFFF）。
+ * 因此这里统一用 base64 传入，彻底规避截断。
  */
 function buildHtml(): string {
   return `<!doctype html><html lang="zh-CN"><head>
@@ -121,7 +127,16 @@ struct CaptchaPage {
   /** 加载易盾页并注入 captchaId。 */
   private loadCaptcha(): void {
     this.started = false;
-    this.controller.loadData(buildHtml(), 'text/html', 'UTF-8', BASE_URL, BASE_URL);
+    try {
+      // base64 编码后再 loadData：避免 HTML 里的 "#" 被当作 fragment 截断
+      const b64 = new util.Base64Helper().encodeToStringSync(
+        new util.TextEncoder().encodeInto(buildHtml()), util.Type.BASIC);
+      this.controller.loadData(b64, 'text/html', 'base64', BASE_URL, BASE_URL);
+    } catch (e) {
+      hilog.error(DOMAIN, 'c001apk', 'loadData failed: %{public}s', JSON.stringify(e));
+      this.status = '验证页加载失败，请点「重新加载」';
+      return;
+    }
     // 双保险：onPageEnd 可能因 baseUrl 被当作真实导航而错过自定义页，
     // 这里延时再试一次；startIfNeeded 内部有 started 去重，不会重复初始化。
     setTimeout(() => {
