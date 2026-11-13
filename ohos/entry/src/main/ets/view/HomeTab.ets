@@ -74,7 +74,11 @@ export struct HomeTab {
 
             ForEach(this.items, (item: FeedItem) => {
               ListItem() {
-                this.FeedCard(item)
+                if (item.entityType === 'product' || item.entityType === 'apk') {
+                  this.AppCard(item)
+                } else {
+                  this.FeedCard(item)
+                }
               }
             }, (item: FeedItem) => str(item.id))
 
@@ -306,6 +310,116 @@ export struct HomeTab {
     .shadow({ radius: 10, color: $r('app.color.shadow'), offsetX: 0, offsetY: 2 })
     .onClick(() => this.openItem(item))
   }
+  // ==================== 应用卡片 ====================
+  @Builder
+  AppCard(item: FeedItem) {
+    Column() {
+      Row() {
+        if (feedPics(item).length > 0) {
+          Image(feedPics(item)[0])
+            .width(56)
+            .height(56)
+            .objectFit(ImageFit.Cover)
+            .borderRadius(12)
+            .margin({ right: 12 })
+        }
+
+        Column() {
+          Text(this.appTitle(item))
+            .fontSize(15)
+            .fontWeight(FontWeight.Bold)
+            .fontColor($r('app.color.text_title'))
+            .maxLines(1)
+            .textOverflow({ overflow: TextOverflow.Ellipsis })
+          Text(this.appMeta(item))
+            .fontSize(11)
+            .fontColor($r('app.color.text_secondary'))
+            .margin({ top: 4 })
+          Text(this.appDown(item))
+            .fontSize(11)
+            .fontColor($r('app.color.text_tertiary'))
+            .margin({ top: 3 })
+        }
+        .layoutWeight(1)
+        .alignItems(HorizontalAlign.Start)
+      }
+      .width('100%')
+      .alignItems(VerticalAlign.Top)
+
+      Divider()
+        .strokeWidth(0.5)
+        .color($r('app.color.divider'))
+        .margin({ top: 12, bottom: 10 })
+
+      Row() {
+        Text(this.appSummary(item))
+          .fontSize(12)
+          .fontColor($r('app.color.text_body'))
+          .layoutWeight(1)
+          .maxLines(2)
+          .textOverflow({ overflow: TextOverflow.Ellipsis })
+        Text('查看')
+          .fontSize(12)
+          .fontColor($r('app.color.accent'))
+          .margin({ left: 12 })
+      }
+      .width('100%')
+      .alignItems(VerticalAlign.Top)
+    }
+    .width('100%')
+    .padding(14)
+    .backgroundColor($r('app.color.card_bg'))
+    .borderRadius(14)
+    .alignItems(HorizontalAlign.Start)
+    .shadow({ radius: 10, color: $r('app.color.shadow'), offsetX: 0, offsetY: 2 })
+    .onClick(() => this.openItem(item))
+  }
+
+  private appTitle(item: FeedItem): string {
+    const n = item.apkname;
+    if (n !== undefined && n.length > 0) {
+      return n;
+    }
+    const t = item.title;
+    if (t !== undefined && t.length > 0) {
+      return t;
+    }
+    return '应用';
+  }
+
+  private appMeta(item: FeedItem): string {
+    const parts: string[] = [];
+    const v = item.apkversionname;
+    if (v !== undefined && v.length > 0) {
+      parts.push('版本 ' + v);
+    }
+    const s = item.apksize;
+    if (s !== undefined && s.length > 0) {
+      parts.push(s);
+    }
+    return parts.join(' · ');
+  }
+
+  private appDown(item: FeedItem): string {
+    const d = item.downCount;
+    if (d !== undefined && d.length > 0) {
+      return d + ' 次下载';
+    }
+    const n = item.downnum;
+    if (n !== undefined && n.length > 0) {
+      return n + ' 次下载';
+    }
+    return '';
+  }
+
+  private appSummary(item: FeedItem): string {
+    const m = item.message;
+    if (m !== undefined && m.length > 0) {
+      return m;
+    }
+    return '点击查看应用详情';
+  }
+
 
   // ==================== 分页脚注 ====================
   @Builder

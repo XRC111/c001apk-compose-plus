@@ -20,6 +20,11 @@ export interface FeedItem {
   commentnum?: string;
   replynum?: string;
   dateline?: number;
+  apkname?: string;
+  apkversionname?: string;
+  apksize?: string;
+  downCount?: string;
+  downnum?: string;
 }
 
 export interface FeedEnvelope {
