@@ -189,6 +189,56 @@ export class CoolapkApi {
     }
   }
 
+  /**
+   * 发起一次表单 POST（application/x-www-form-urlencoded）。
+   * 用于评论发送等需要 @FieldMap 的接口。
+   */
+  static async postForm(path: string, form: Record<string, string>): Promise<CoolapkResponse> {
+    const deviceCode = getDeviceCode();
+    const token = tokenFor(deviceCode);
+    const cookie = buildCookieHeaderSync();
+    const url = API_HOST + path;
+    const parts: string[] = [];
+    const keys = Object.keys(form);
+    for (const k of keys) {
+      parts.push(encodeURIComponent(k) + '=' + encodeURIComponent(form[k]));
+    }
+    const body: string = parts.join('&');
+    const req = http.createHttp();
+    try {
+      const res = await req.request(url, {
+        method: http.RequestMethod.POST,
+        header: buildHeaders(token, deviceCode, cookie),
+        extraData: body,
+        readTimeout: 15000,
+        connectTimeout: 15000,
+      });
+      const raw = res.result;
+      const text: string = typeof raw === 'string' ? raw : '';
+      return makeResponse(res.responseCode, text);
+    } catch (e) {
+      hilog.error(DOMAIN, 'c001apk', 'postForm %{public}s failed: %{public}s', path, JSON.stringify(e));
+      return makeResponse(-1, '');
+    } finally {
+      req.destroy();
+    }
+  }
+
+  /**
+   * 发送评论（对齐 Android 版 ReplyActivity / ApiService.postReply）。
+   *
+   * POST v6/feed/reply?id=<feedId>&type=feed
+   * 表单：message=<正文>&replyAndForward=<0|1>
+   */
+  static async postReply(feedId: string, message: string, replyAndForward: string = '0'): Promise<CoolapkResponse> {
+    const form: Record<string, string> = {
+      message: message,
+      replyAndForward: replyAndForward,
+    };
+    return CoolapkApi.postForm(
+      '/v6/feed/reply?id=' + encodeURIComponent(feedId) + '&type=feed', form);
+  }
+
   /** 首页信息流。 */
   static async fetchHome(page: number = 1): Promise<CoolapkResponse> {
     return CoolapkApi.get('/v6/main/indexV8?page=' + page.toString());

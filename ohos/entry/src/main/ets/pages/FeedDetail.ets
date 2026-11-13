@@ -14,6 +14,7 @@ import {
   timeAgo,
 } from '../common/Feed';
 import { setPendingCaptchaId } from '../common/CaptchaBridge';
+import { isLoggedInSync } from '../common/CookieStore';
 import { setPendingImages } from './ImageViewer';
 
 @Entry
@@ -36,6 +37,8 @@ struct FeedDetail {
   @State liked: boolean = false;
   @State likeCount: string = '';
   @State liking: boolean = false;
+  @State draft: string = '';
+  @State posting: boolean = false;
 
   aboutToAppear(): void {
     this.feedId = getPendingDetailId();
@@ -83,6 +86,12 @@ struct FeedDetail {
       this.status = `加载失败 HTTP ${detailRes.status}`;
     }
 
+    await this.loadReplies();
+    this.loading = false;
+  }
+
+  /** 单独刷新评论列表（发评论后复用）。 */
+  private async loadReplies(): Promise<void> {
     const replyRes: CoolapkResponse = await CoolapkApi.fetchReplies(this.feedId, 1);
     const parsedReplies: ParsedReplies = parseReplies(replyRes.body);
     this.replies = parsedReplies.replies;
@@ -91,8 +100,6 @@ struct FeedDetail {
     } else {
       this.replyStatus = `${parsedReplies.replies.length} 条评论`;
     }
-
-    this.loading = false;
   }
 
   /** 点赞 / 取消点赞。 */
@@ -127,6 +134,35 @@ struct FeedDetail {
   /** 易盾验证完成后自动重放刚才被拦的请求。 */
   private onCaptchaDone(): void {
     this.load();
+  }
+
+  /** 发送一条评论。 */
+  private async postReply(): Promise<void> {
+    const text = this.draft.trim();
+    if (text.length === 0 || this.posting) {
+      return;
+    }
+    if (!isLoggedInSync()) {
+      this.status = '请先登录后再评论';
+      return;
+    }
+    this.posting = true;
+    const res: CoolapkResponse = await CoolapkApi.postReply(this.feedId, text);
+    this.posting = false;
+
+    if (res.needCaptcha) {
+      this.captchaId = res.captchaId;
+      this.status = '评论被风控拦截，需先完成人机验证';
+      return;
+    }
+    if (res.status !== 200) {
+      this.status = res.status < 0 ? '评论失败：网络错误' : `评论失败 HTTP ${res.status}`;
+      return;
+    }
+    this.draft = '';
+    this.status = '';
+    // 重新拉取评论列表
+    await this.loadReplies();
   }
 
   build() {
@@ -401,6 +437,31 @@ struct FeedDetail {
       .width('100%')
       .scrollBar(BarState.Off)
       .align(Alignment.Top)
+
+      // ===== 评论输入栏 =====
+      Row() {
+        TextInput({ placeholder: '说点什么…', text: this.draft })
+          .layoutWeight(1)
+          .height(38)
+          .onChange((v: string) => {
+            this.draft = v;
+          })
+          .onSubmit(() => {
+            this.postReply();
+          })
+        Button(this.posting ? '发送中…' : '发送', { type: ButtonType.Capsule })
+          .fontSize(13)
+          .height(38)
+          .margin({ left: 8 })
+          .backgroundColor($r('app.color.accent'))
+          .enabled(!this.posting)
+          .onClick(() => {
+            this.postReply();
+          })
+      }
+      .width('100%')
+      .padding({ left: 12, right: 12, top: 8, bottom: 12 })
+      .backgroundColor($r('app.color.card_bg'))
     }
     .width('100%')
     .height('100%')
