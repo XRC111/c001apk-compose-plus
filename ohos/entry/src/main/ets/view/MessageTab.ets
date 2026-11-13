@@ -207,6 +207,7 @@ export struct MessageTab {
           .height(38)
           .borderRadius(19)
           .objectFit(ImageFit.Cover)
+              .alt($r('app.media.ic_image_placeholder'))
           .margin({ right: 10 })
       } else {
         Text(this.nameOf(item).length > 0 ? this.nameOf(item).substring(0, 1) : '?')

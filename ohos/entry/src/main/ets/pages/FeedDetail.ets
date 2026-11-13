@@ -219,6 +219,7 @@ struct FeedDetail {
                 .width('100%')
                 .constraintSize({ maxHeight: 360 })
                 .objectFit(ImageFit.Cover)
+              .alt($r('app.media.ic_image_placeholder'))
                 .borderRadius(10)
                 .margin({ top: 12 })
             } else if (this.pics.length > 1) {
@@ -229,6 +230,7 @@ struct FeedDetail {
                       .width('100%')
                       .height(104)
                       .objectFit(ImageFit.Cover)
+              .alt($r('app.media.ic_image_placeholder'))
                       .borderRadius(8)
                   }
                 }, (p: string) => p)

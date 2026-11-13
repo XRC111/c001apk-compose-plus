@@ -125,6 +125,7 @@ struct UserPage {
                 .width(64)
                 .height(64)
                 .objectFit(ImageFit.Cover)
+              .alt($r('app.media.ic_image_placeholder'))
                 .borderRadius(32)
                 .margin({ right: 12 })
             }

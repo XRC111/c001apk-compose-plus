@@ -145,6 +145,7 @@ struct SearchPage {
             .height(34)
             .borderRadius(17)
             .objectFit(ImageFit.Cover)
+              .alt($r('app.media.ic_image_placeholder'))
             .margin({ right: 8 })
         } else {
           Text(str(item.username).length > 0 ? str(item.username).substring(0, 1) : '?')
@@ -187,6 +188,7 @@ struct SearchPage {
           .width('100%')
           .constraintSize({ maxHeight: 200 })
           .objectFit(ImageFit.Cover)
+              .alt($r('app.media.ic_image_placeholder'))
           .borderRadius(10)
           .margin({ top: 10 })
       } else if (feedPics(item).length > 1) {
@@ -197,6 +199,7 @@ struct SearchPage {
                 .width('100%')
                 .height(92)
                 .objectFit(ImageFit.Cover)
+              .alt($r('app.media.ic_image_placeholder'))
                 .borderRadius(8)
             }
           }, (p: string) => p)

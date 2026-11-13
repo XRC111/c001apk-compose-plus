@@ -197,6 +197,7 @@ export struct HomeTab {
             .height(40)
             .borderRadius(20)
             .objectFit(ImageFit.Cover)
+              .alt($r('app.media.ic_image_placeholder'))
             .margin({ right: 10 })
         } else {
           Text(str(item.username).length > 0 ? str(item.username).substring(0, 1) : '?')
@@ -251,6 +252,7 @@ export struct HomeTab {
           .width('100%')
           .constraintSize({ maxHeight: 240 })
           .objectFit(ImageFit.Cover)
+              .alt($r('app.media.ic_image_placeholder'))
           .borderRadius(10)
           .margin({ top: 10 })
       } else if (feedPics(item).length > 1) {
@@ -261,6 +263,7 @@ export struct HomeTab {
                 .width('100%')
                 .height(100)
                 .objectFit(ImageFit.Cover)
+              .alt($r('app.media.ic_image_placeholder'))
                 .borderRadius(8)
             }
           }, (p: string) => p)
@@ -321,6 +324,7 @@ export struct HomeTab {
             .width(56)
             .height(56)
             .objectFit(ImageFit.Cover)
+              .alt($r('app.media.ic_image_placeholder'))
             .borderRadius(12)
             .margin({ right: 12 })
         }
