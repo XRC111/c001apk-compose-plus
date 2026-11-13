@@ -1,18 +1,71 @@
+import { ConfigurationConstant } from '@kit.AbilityKit';
+import { window } from '@kit.ArkUI';
+import { BusinessError } from '@kit.BasicServicesKit';
+import { hilog } from '@kit.PerformanceAnalysisKit';
 import { HomeTab } from '../view/HomeTab';
 import { MessageTab } from '../view/MessageTab';
 import { SettingsTab } from '../view/SettingsTab';
+
+const DOMAIN = 0x0000;
 
 /**
  * 应用外壳：底部三栏（首页 / 消息 / 设置）。
  *
  * 用 Tabs + 自定义 tabBar 实现（官方底部页签示例的做法），
  * 相比 if 切换内容能保留各 Tab 的状态与滚动位置。
+ *
+ * 另外承担状态栏适配：页面背景取自 base/dark 两套资源，
+ * 但状态栏文字颜色需要按当前深浅色手动设置（官方「深色模式适配」文档）。
  */
 @Entry
 @Component
 struct Index {
   @State currentTab: number = 0;
+  @StorageProp('currentColorMode')
+  @Watch('onColorModeChange')
+  currentColorMode: ConfigurationConstant.ColorMode =
+    ConfigurationConstant.ColorMode.COLOR_MODE_NOT_SET;
+
   private tabsController: TabsController = new TabsController();
+  private windowObj: window.Window | null = null;
+
+  aboutToAppear(): void {
+    try {
+      window.getLastWindow(this.getUIContext().getHostContext(),
+        (err: BusinessError, data: window.Window) => {
+          if (err.code) {
+            hilog.error(DOMAIN, 'c001apk', 'getLastWindow failed: %{public}d', err.code);
+            return;
+          }
+          this.windowObj = data;
+          this.applyStatusBar();
+        });
+    } catch (e) {
+      hilog.error(DOMAIN, 'c001apk', 'getLastWindow threw: %{public}s', JSON.stringify(e));
+    }
+  }
+
+  /** 深浅色切换时重新设置状态栏文字颜色。 */
+  onColorModeChange(): void {
+    this.applyStatusBar();
+  }
+
+  private applyStatusBar(): void {
+    const win = this.windowObj;
+    if (win === null) {
+      return;
+    }
+    try {
+      if (this.currentColorMode === ConfigurationConstant.ColorMode.COLOR_MODE_DARK) {
+        win.setWindowSystemBarProperties({ statusBarContentColor: '#FFFFFF' });
+      } else {
+        win.setWindowSystemBarProperties({ statusBarContentColor: '#000000' });
+      }
+    } catch (e) {
+      hilog.error(DOMAIN, 'c001apk', 'setWindowSystemBarProperties failed: %{public}s',
+        JSON.stringify(e));
+    }
+  }
 
   build() {
     Tabs({ barPosition: BarPosition.End, index: this.currentTab, controller: this.tabsController }) {
