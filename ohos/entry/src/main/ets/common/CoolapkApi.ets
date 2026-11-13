@@ -344,8 +344,10 @@ export class CoolapkApi {
     const empty: CoolapkResponse = {
       status: 200,
       body: '{"data":[]}',
+      messageStatus: '',
       needCaptcha: false,
       captchaId: '',
+      captchaField: '',
     };
     return empty;
   }
