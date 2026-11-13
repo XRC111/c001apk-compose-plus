@@ -10,6 +10,7 @@
  */
 import { http } from '@kit.NetworkKit';
 import { hilog } from '@kit.PerformanceAnalysisKit';
+import { fileIo } from '@kit.CoreFileKit';
 import { getTokenV3, APP_ID, VERSION_CODE, API_VERSION, CHANNEL, MODE, VERSION_NAME } from './CoolapkToken';
 import { getDeviceCode } from './DeviceCode';
 import { buildCookieHeaderSync, saveSessid, withProofSync,
@@ -30,6 +31,26 @@ export interface CoolapkResponse {
   captchaId: string;
   /** 重放请求需要携带的字段名（如 _v2_post_token）。 */
   captchaField: string;
+}
+
+/**
+ * 把诊断信息追加到应用沙箱的 diag.log。
+ *
+ * 为什么需要它：hilog 在真机上可能被限流/截断，而沙箱文件可以用
+ * `hdc file recv /data/app/el2/100/base/<pkg>/haps/entry/files/diag.log` 直接拉出来。
+ * 任何失败都不抛异常，避免影响主流程。
+ */
+function logDiag(msg: string): void {
+  try {
+    // 用应用沙箱的固定路径，不依赖 UIAbilityContext
+    const path = '/data/storage/el2/base/files/diag.log';
+    const f = fileIo.openSync(path, fileIo.OpenMode.CREATE | fileIo.OpenMode.APPEND | fileIo.OpenMode.READ_WRITE);
+    const line = '[' + new Date().toISOString() + '] ' + msg + '\n\n';
+    fileIo.writeSync(f.fd, line);
+    fileIo.closeSync(f);
+  } catch (e) {
+    // 诊断失败不影响业务
+  }
 }
 
 /** 组装与 Android 版 AddCookiesInterceptor 对齐的请求头。 */
