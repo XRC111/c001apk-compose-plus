@@ -211,4 +211,17 @@ export class CoolapkApi {
     const token = getTokenV3(getDeviceCode());
     return token.length > 24 ? token.substring(0, 24) + '…' : token;
   }
-}
+
+  /** 未读数（登录后可用）。 */
+  static async fetchCheckCount(): Promise<CoolapkResponse> {
+    return CoolapkApi.get('/v6/notification/checkCount');
+  }
+
+  /**
+   * 通知 / 私信列表。
+   * @param path /v6/notification/atMeList 等
+   */
+  static async fetchNotifications(path: string, page: number = 1): Promise<CoolapkResponse> {
+    const sep = path.indexOf('?') >= 0 ? '&' : '?';
+    return CoolapkApi.get(path + sep + 'page=' + page.toString());
+  }}
