@@ -193,17 +193,15 @@ export class CoolapkApi {
    * 发起一次表单 POST（application/x-www-form-urlencoded）。
    * 用于评论发送等需要 @FieldMap 的接口。
    */
-  static async postForm(path: string, form: Record<string, string>): Promise<CoolapkResponse> {
+  /**
+   * 发起一次表单 POST（application/x-www-form-urlencoded）。
+   * @param body 已 urlencode 的表单体，如 "message=hi&replyAndForward=0"
+   */
+  static async postForm(path: string, body: string): Promise<CoolapkResponse> {
     const deviceCode = getDeviceCode();
     const token = tokenFor(deviceCode);
     const cookie = buildCookieHeaderSync();
     const url = API_HOST + path;
-    const parts: string[] = [];
-    const keys = Object.keys(form);
-    for (const k of keys) {
-      parts.push(encodeURIComponent(k) + '=' + encodeURIComponent(form[k]));
-    }
-    const body: string = parts.join('&');
     const req = http.createHttp();
     try {
       const res = await req.request(url, {
@@ -230,13 +228,12 @@ export class CoolapkApi {
    * POST v6/feed/reply?id=<feedId>&type=feed
    * 表单：message=<正文>&replyAndForward=<0|1>
    */
+  /** 评论表单（ArkTS 不允许无类型对象字面量，需显式接口）。 */
   static async postReply(feedId: string, message: string, replyAndForward: string = '0'): Promise<CoolapkResponse> {
-    const form: Record<string, string> = {
-      message: message,
-      replyAndForward: replyAndForward,
-    };
+    const body: string = 'message=' + encodeURIComponent(message) +
+      '&replyAndForward=' + encodeURIComponent(replyAndForward);
     return CoolapkApi.postForm(
-      '/v6/feed/reply?id=' + encodeURIComponent(feedId) + '&type=feed', form);
+      '/v6/feed/reply?id=' + encodeURIComponent(feedId) + '&type=feed', body);
   }
 
   /** 首页信息流。 */
