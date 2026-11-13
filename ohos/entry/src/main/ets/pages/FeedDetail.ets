@@ -32,6 +32,9 @@ struct FeedDetail {
   @State captchaId: string = '';
   @State authorUid: string = '';
   @State segs: RichSeg[] = [];
+  @State liked: boolean = false;
+  @State likeCount: string = '';
+  @State liking: boolean = false;
 
   aboutToAppear(): void {
     this.feedId = getPendingDetailId();
@@ -57,6 +60,11 @@ struct FeedDetail {
       this.segs = richSegments(this.message);
       this.authorUid = str(d.uid);
       this.likes = str(d.likes);
+      this.likeCount = str(d.likes);
+      const ua = d.userAction;
+      if (ua !== undefined && ua !== null && ua.like === 1) {
+        this.liked = true;
+      }
       const arr = d.picArr;
       this.pics = arr !== undefined && arr !== null ? arr : [];
     }
@@ -84,6 +92,33 @@ struct FeedDetail {
     }
 
     this.loading = false;
+  }
+
+  /** 点赞 / 取消点赞。 */
+  private async toggleLike(): Promise<void> {
+    if (this.liking) {
+      return;
+    }
+    this.liking = true;
+    const action = this.liked ? 'unlike' : 'like';
+    const res: CoolapkResponse = await CoolapkApi.postLike(action, this.feedId);
+    this.liking = false;
+
+    if (res.needCaptcha) {
+      this.captchaId = res.captchaId;
+      this.status = '操作被风控拦截，需先完成人机验证';
+      return;
+    }
+    if (res.status !== 200) {
+      this.status = res.status < 0 ? '操作失败：网络错误' : `操作失败 HTTP ${res.status}`;
+      return;
+    }
+    // 服务端返回最新计数
+    const m = /"count"\s*:\s*"?(\d+)"?/.exec(res.body);
+    this.liked = !this.liked;
+    if (m !== null) {
+      this.likeCount = m[1];
+    }
   }
 
   build() {
@@ -242,6 +277,26 @@ struct FeedDetail {
               .width('100%')
               .margin({ top: 12 })
             }
+            Row() {
+              Blank()
+              Row() {
+                Image($r('app.media.ic_like'))
+                  .width(16)
+                  .height(16)
+                  .fillColor(this.liked ? $r('app.color.accent') : $r('app.color.text_secondary'))
+                Text((this.liked ? '已赞 ' : '赞 ') + this.likeCount)
+                  .fontSize(12)
+                  .fontColor(this.liked ? $r('app.color.accent') : $r('app.color.text_secondary'))
+                  .margin({ left: 5 })
+              }
+              .padding({ left: 12, right: 12, top: 6, bottom: 6 })
+              .borderRadius(14)
+              .backgroundColor(this.liked ? $r('app.color.accent_soft') : $r('app.color.page_bg'))
+              .onClick(() => this.toggleLike())
+            }
+            .width('100%')
+            .margin({ top: 12 })
+
           }
           .width('100%')
           .padding(14)

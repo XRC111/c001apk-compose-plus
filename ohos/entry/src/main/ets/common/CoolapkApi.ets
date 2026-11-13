@@ -7,9 +7,6 @@
  *  - X-App-Device 生成
  *  - 新版风控验证码（err_request_captcha_v2）的识别与 captchaId 提取
  *  - Cookie：登录态（uid/username/token）+ SESSID + validate
- *
- * 仍待完善：
- *  - 服务端下发的 SESSID 自动回写（目前由验证页/登录页显式保存）
  */
 import { http } from '@kit.NetworkKit';
 import { hilog } from '@kit.PerformanceAnalysisKit';
@@ -83,6 +80,21 @@ function extractCookieValue(cookies: string, name: string): string {
   return '';
 }
 
+/** 统一构造响应对象。 */
+function makeResponse(status: number, body: string): CoolapkResponse {
+  const messageStatus = extractMessageStatus(body);
+  const needCaptcha = messageStatus === 'err_request_captcha_v2' ||
+    body.indexOf('err_request_captcha_v2') >= 0;
+  const r: CoolapkResponse = {
+    status: status,
+    body: body,
+    messageStatus: messageStatus,
+    needCaptcha: needCaptcha,
+    captchaId: needCaptcha ? extractCaptchaId(body) : '',
+  };
+  return r;
+}
+
 /**
  * v3 token 的短期缓存。
  *
@@ -134,32 +146,39 @@ export class CoolapkApi {
         }
       }
 
-      const messageStatus = extractMessageStatus(body);
-      const needCaptcha = messageStatus === 'err_request_captcha_v2' ||
-        body.indexOf('当前访问需要验证码') >= 0 ||
-        body.indexOf('err_request_captcha_v2') >= 0;
-      const captchaId = needCaptcha ? extractCaptchaId(body) : '';
-      if (needCaptcha) {
-        hilog.warn(DOMAIN, 'c001apk', '命中新版风控验证码 captchaId=%{public}s', captchaId);
+      const r = makeResponse(res.responseCode, body);
+      if (r.needCaptcha) {
+        hilog.warn(DOMAIN, 'c001apk', '命中新版风控验证码 captchaId=%{public}s', r.captchaId);
       }
-      const r: CoolapkResponse = {
-        status: res.responseCode,
-        body: body,
-        messageStatus: messageStatus,
-        needCaptcha: needCaptcha,
-        captchaId: captchaId,
-      };
       return r;
     } catch (e) {
       hilog.error(DOMAIN, 'c001apk', 'GET %{public}s failed: %{public}s', path, JSON.stringify(e));
-      const r: CoolapkResponse = {
-        status: -1,
-        body: '',
-        messageStatus: '',
-        needCaptcha: false,
-        captchaId: '',
-      };
-      return r;
+      return makeResponse(-1, '');
+    } finally {
+      req.destroy();
+    }
+  }
+
+  /** 发起一次 POST（无 body，参数在 query 上）。 */
+  static async post(path: string): Promise<CoolapkResponse> {
+    const deviceCode = getDeviceCode();
+    const token = tokenFor(deviceCode);
+    const cookie = await buildCookieHeader();
+    const url = API_HOST + path;
+    const req = http.createHttp();
+    try {
+      const res = await req.request(url, {
+        method: http.RequestMethod.POST,
+        header: buildHeaders(token, deviceCode, cookie),
+        readTimeout: 15000,
+        connectTimeout: 15000,
+      });
+      const raw = res.result;
+      const body: string = typeof raw === 'string' ? raw : '';
+      return makeResponse(res.responseCode, body);
+    } catch (e) {
+      hilog.error(DOMAIN, 'c001apk', 'POST %{public}s failed: %{public}s', path, JSON.stringify(e));
+      return makeResponse(-1, '');
     } finally {
       req.destroy();
     }
@@ -206,12 +225,6 @@ export class CoolapkApi {
     return CoolapkApi.get('/v6/user/profile?uid=' + encodeURIComponent(uid));
   }
 
-  /** 当前 v3 token（调试用，页面可展示前若干位确认算法生效）。 */
-  static currentTokenPreview(): string {
-    const token = getTokenV3(getDeviceCode());
-    return token.length > 24 ? token.substring(0, 24) + '…' : token;
-  }
-
   /** 未读数（登录后可用）。 */
   static async fetchCheckCount(): Promise<CoolapkResponse> {
     return CoolapkApi.get('/v6/notification/checkCount');
@@ -224,6 +237,20 @@ export class CoolapkApi {
   static async fetchNotifications(path: string, page: number = 1): Promise<CoolapkResponse> {
     const sep = path.indexOf('?') >= 0 ? '&' : '?';
     return CoolapkApi.get(path + sep + 'page=' + page.toString());
+  }
+
+  /** 私信会话内容。 */
+  static async fetchChat(ukey: string, page: number = 1): Promise<CoolapkResponse> {
+    return CoolapkApi.get('/v6/message/chat?ukey=' + encodeURIComponent(ukey) +
+      '&page=' + page.toString());
+  }
+
+  /**
+   * 点赞 / 取消点赞动态。
+   * @param action like / unlike
+   */
+  static async postLike(action: string, id: string): Promise<CoolapkResponse> {
+    return CoolapkApi.post('/v6/feed/' + action + '?id=' + encodeURIComponent(id));
   }
 
   /**
@@ -271,34 +298,18 @@ export class CoolapkApi {
       });
       const rawResult = res.result;
       const body: string = typeof rawResult === 'string' ? rawResult : '';
-      const messageStatus = extractMessageStatus(body);
-      const needCaptcha = messageStatus === 'err_request_captcha_v2' ||
-        body.indexOf('err_request_captcha_v2') >= 0;
-      const r: CoolapkResponse = {
-        status: res.responseCode,
-        body: body,
-        messageStatus: messageStatus,
-        needCaptcha: needCaptcha,
-        captchaId: needCaptcha ? extractCaptchaId(body) : '',
-      };
-      return r;
+      return makeResponse(res.responseCode, body);
     } catch (e) {
       hilog.error(DOMAIN, 'c001apk', 'sendMessage failed: %{public}s', JSON.stringify(e));
-      const r: CoolapkResponse = {
-        status: -1,
-        body: '',
-        messageStatus: '',
-        needCaptcha: false,
-        captchaId: '',
-      };
-      return r;
+      return makeResponse(-1, '');
     } finally {
       req.destroy();
     }
   }
 
-  /** 私信会话内容。 */
-  static async fetchChat(ukey: string, page: number = 1): Promise<CoolapkResponse> {
-    return CoolapkApi.get('/v6/message/chat?ukey=' + encodeURIComponent(ukey) +
-      '&page=' + page.toString());
-  }}
+  /** 当前 v3 token（调试用，页面可展示前若干位确认算法生效）。 */
+  static currentTokenPreview(): string {
+    const token = getTokenV3(getDeviceCode());
+    return token.length > 24 ? token.substring(0, 24) + '…' : token;
+  }
+}

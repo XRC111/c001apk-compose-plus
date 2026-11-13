@@ -43,6 +43,12 @@ export interface FeedDetailParams {
   id?: string;
 }
 
+export interface UserAction {
+  like?: number;
+  favorite?: number;
+  follow?: number;
+}
+
 export interface FeedDetailData {
   id?: string;
   title?: string;
@@ -52,6 +58,7 @@ export interface FeedDetailData {
   likes?: string;
   dateline?: number;
   uid?: string;
+  userAction?: UserAction;
 }
 
 export interface FeedDetailEnvelope {
