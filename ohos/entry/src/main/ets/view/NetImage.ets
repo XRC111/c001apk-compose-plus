@@ -8,8 +8,8 @@
  * 而 ArkUI Image() 不能自定义请求头，只能自己下载 + 解码成 PixelMap。
  */
 import { image } from '@kit.ImageKit';
-import { loadImage, getCachedImage } from './RemoteImage';
-import { httpsUrl } from './Feed';
+import { loadImage, getCachedImage } from '../common/RemoteImage';
+import { httpsUrl } from '../common/Feed';
 
 @Component
 export struct NetImage {
@@ -24,7 +24,7 @@ export struct NetImage {
   /** 裁剪方式。 */
   fit: ImageFit = ImageFit.Cover;
 
-  @State private pixel: image.PixelMap | undefined = undefined;
+  @State private pixel: image.PixelMap | null = null;
   @State private failed: boolean = false;
 
   aboutToAppear(): void {
@@ -33,14 +33,14 @@ export struct NetImage {
 
   /** 外部 url 变化时重新加载（ForEach 复用组件会走到这里）。 */
   private resolve(): void {
-    const key = httpsUrl(this.url);
-    const cached = getCachedImage(key);
+    const key: string = httpsUrl(this.url);
+    const cached: image.PixelMap | undefined = getCachedImage(key);
     if (cached !== undefined) {
       this.pixel = cached;
       this.failed = false;
       return;
     }
-    this.pixel = undefined;
+    this.pixel = null;
     this.failed = false;
     loadImage(this.url).then((pm: image.PixelMap | null) => {
       if (pm !== null) {
@@ -54,7 +54,7 @@ export struct NetImage {
 
   build() {
     Stack() {
-      if (this.pixel !== undefined) {
+      if (this.pixel !== null) {
         Image(this.pixel)
           .width(this.imgWidth)
           .height(this.imgHeight)
