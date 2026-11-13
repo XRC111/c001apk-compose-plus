@@ -14,6 +14,7 @@ import {
   timeAgo,
 } from '../common/Feed';
 import { setPendingCaptchaId } from '../common/CaptchaBridge';
+import { setPendingImages } from '../pages/ImageViewer';
 
 /** 与 Android 版 HomeScreen 的 TabType 顺序一致。 */
 const TABS: string[] = ['关注', '应用', '动态', '热榜', '话题', '数码', '酷图'];
@@ -272,6 +273,10 @@ export struct HomeTab {
                 .objectFit(ImageFit.Cover)
               .alt($r('app.media.ic_image_placeholder'))
                 .borderRadius(8)
+              .onClick(() => {
+                setPendingImages(feedPics(item), feedPics(item).indexOf(p));
+                router.pushUrl({ url: 'pages/ImageViewer' });
+              })
             }
           }, (p: string) => p)
         }

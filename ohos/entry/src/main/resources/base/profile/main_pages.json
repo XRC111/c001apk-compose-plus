@@ -3,6 +3,7 @@
     "pages/Index",
     "pages/FeedDetail",
     "pages/ChatPage",
+    "pages/ImageViewer",
     "pages/AppDetail",
     "pages/UserPage",
     "pages/SearchPage",

@@ -14,6 +14,7 @@ import {
   timeAgo,
 } from '../common/Feed';
 import { setPendingCaptchaId } from '../common/CaptchaBridge';
+import { setPendingImages } from './ImageViewer';
 
 @Entry
 @Component
@@ -261,9 +262,13 @@ struct FeedDetail {
                 .width('100%')
                 .constraintSize({ maxHeight: 360 })
                 .objectFit(ImageFit.Cover)
-              .alt($r('app.media.ic_image_placeholder'))
+                .alt($r('app.media.ic_image_placeholder'))
                 .borderRadius(10)
                 .margin({ top: 12 })
+                .onClick(() => {
+                  setPendingImages(this.pics, 0);
+                  router.pushUrl({ url: 'pages/ImageViewer' });
+                })
             } else if (this.pics.length > 1) {
               Grid() {
                 ForEach(this.pics, (p: string) => {
@@ -272,9 +277,13 @@ struct FeedDetail {
                       .width('100%')
                       .height(104)
                       .objectFit(ImageFit.Cover)
-              .alt($r('app.media.ic_image_placeholder'))
+                      .alt($r('app.media.ic_image_placeholder'))
                       .borderRadius(8)
                   }
+                  .onClick(() => {
+                    setPendingImages(this.pics, this.pics.indexOf(p));
+                    router.pushUrl({ url: 'pages/ImageViewer' });
+                  })
                 }, (p: string) => p)
               }
               .columnsTemplate('1fr 1fr 1fr')
