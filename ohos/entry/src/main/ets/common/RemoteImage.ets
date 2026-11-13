@@ -1,0 +1,110 @@
+/**
+ * 带自定义请求头的网络图片加载。
+ *
+ * 为什么需要它：酷安图片服务（image.coolapk.com / avatar.coolapk.com）
+ * **要求同时带 User-Agent 与 Referer**，缺任一就返回 `567 Unknown Status`。
+ * 实测（本机直连）：
+ *   UA + Referer → HTTP 200 image/jpeg
+ *   只有 UA      → 567
+ *   只有 Referer → 567
+ * 而 ArkUI 的 Image() 组件不支持自定义请求头，所以必须自己下载：
+ *   1. http.request 带 UA/Referer 取回 ArrayBuffer
+ *   2. image.createImageSource 解码成 PixelMap
+ *   3. 交给 Image(pixelMap) 渲染
+ * 解码结果按 URL 缓存，避免列表滚动时重复下载与解码。
+ */
+import { http } from '@kit.NetworkKit';
+import { image } from '@kit.ImageKit';
+import { hilog } from '@kit.PerformanceAnalysisKit';
+import { httpsUrl } from './Feed';
+
+const DOMAIN = 0xD0001;
+
+const UA: string = 'Dalvik/2.1.0 (Linux; U; Android 16; M2012K11AC a1b2c3d4e5f60718) ' +
+  '(#Build; Xiaomi; M2012K11AC; a1b2c3d4e5f60718; 16) +CoolMarket/16.6.4-2609291-community';
+const REFERER: string = 'https://www.coolapk.com/';
+
+/** 解码后的图片缓存（URL -> PixelMap）。上限约 80 张，防止内存膨胀。 */
+const cache: Map<string, image.PixelMap> = new Map<string, image.PixelMap>();
+const MAX_CACHE: number = 80;
+
+/** 在途请求合并：同一 URL 并发只下载一次。 */
+const inflight: Map<string, Promise<image.PixelMap | null>> =
+  new Map<string, Promise<image.PixelMap | null>>();
+
+function putCache(url: string, pm: image.PixelMap): void {
+  if (cache.size >= MAX_CACHE) {
+    // 简单淘汰：删最早插入的一个
+    const first = cache.keys().next();
+    if (first.done !== true) {
+      const old: image.PixelMap | undefined = cache.get(first.value);
+      cache.delete(first.value);
+      // PixelMap 释放交给 GC，这里不主动 release，避免仍被 UI 引用时崩溃
+    }
+  }
+  cache.set(url, pm);
+}
+
+/** 取已缓存的 PixelMap（同步，供 build 里直接用）。 */
+export function getCachedImage(url: string): image.PixelMap | undefined {
+  return cache.get(url);
+}
+
+/**
+ * 下载并解码图片。
+ * @param rawUrl 原始 URL（内部会自动把 http 升到 https）
+ */
+export async function loadImage(rawUrl: string): Promise<image.PixelMap | null> {
+  if (rawUrl.length === 0) {
+    return null;
+  }
+  const url = httpsUrl(rawUrl);
+  const hit = cache.get(url);
+  if (hit !== undefined) {
+    return hit;
+  }
+  const running = inflight.get(url);
+  if (running !== undefined) {
+    return running;
+  }
+  const task = doLoad(url);
+  inflight.set(url, task);
+  try {
+    return await task;
+  } finally {
+    inflight.delete(url);
+  }
+}
+
+async function doLoad(url: string): Promise<image.PixelMap | null> {
+  const req = http.createHttp();
+  try {
+    const res = await req.request(url, {
+      method: http.RequestMethod.GET,
+      header: { 'User-Agent': UA, 'Referer': REFERER } as Record<string, string>,
+      expectDataType: http.HttpDataType.ARRAY_BUFFER,
+      readTimeout: 20000,
+      connectTimeout: 15000,
+    });
+    if (res.responseCode !== 200) {
+      hilog.warn(DOMAIN, 'c001apk', 'image %{public}d %{public}s',
+        res.responseCode, url.substring(url.length - 40 > 0 ? url.length - 40 : 0));
+      return null;
+    }
+    const data = res.result;
+    if (!(data instanceof ArrayBuffer)) {
+      return null;
+    }
+    const src = image.createImageSource(data);
+    // 限制解码尺寸，避免大图吃内存
+    const pm = await src.createPixelMap({ desiredSize: { width: 720, height: 720 } });
+    src.release();
+    putCache(url, pm);
+    return pm;
+  } catch (e) {
+    hilog.error(DOMAIN, 'c001apk', 'image load fail %{public}s', JSON.stringify(e));
+    return null;
+  } finally {
+    req.destroy();
+  }
+}

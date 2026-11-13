@@ -16,6 +16,7 @@ import {
 } from '../common/Feed';
 import { setPendingCaptchaId } from '../common/CaptchaBridge';
 import { setPendingImages } from '../pages/ImageViewer';
+import { NetImage } from './NetImage';
 
 /** 与 Android 版 HomeScreen 的 TabType 顺序一致。 */
 const TABS: string[] = ['关注', '应用', '动态', '热榜', '话题', '数码', '酷图'];
@@ -202,12 +203,8 @@ export struct HomeTab {
       // 头部：头像 / 昵称 / 元信息
       Row() {
         if (item.avatar !== undefined && item.avatar.length > 0) {
-          Image(str(item.avatar))
-            .width(40)
-            .height(40)
-            .borderRadius(20)
-            .objectFit(ImageFit.Cover)
-              .alt($r('app.media.ic_image_placeholder'))
+          NetImage({ url: str(item.avatar), imgWidth: 40, imgHeight: 40, radius: 20, fit: ImageFit.Cover })
+            .margin({ right: 10 })
             .margin({ right: 10 })
         } else {
           Text(str(item.initial))
@@ -258,22 +255,13 @@ export struct HomeTab {
 
       // 图片
       if (picsOf(item).length === 1) {
-        Image(picsOf(item)[0])
-          .width('100%')
-          .constraintSize({ maxHeight: 240 })
-          .objectFit(ImageFit.Cover)
-              .alt($r('app.media.ic_image_placeholder'))
-          .borderRadius(10)
+        NetImage({ url: picsOf(item)[0], imgWidth: '100%', imgHeight: 200, radius: 10, fit: ImageFit.Cover })
           .margin({ top: 10 })
       } else if (picsOf(item).length > 1) {
         Grid() {
           ForEach(picsOf(item), (p: string) => {
             GridItem() {
-              Image(p)
-                .width('100%')
-                .height(100)
-                .objectFit(ImageFit.Cover)
-              .alt($r('app.media.ic_image_placeholder'))
+              NetImage({ url: p, imgWidth: '100%', imgHeight: 100, radius: 8, fit: ImageFit.Cover })
                 .borderRadius(8)
               .onClick(() => {
                 setPendingImages(picsOf(item), picsOf(item).indexOf(p));
@@ -334,12 +322,8 @@ export struct HomeTab {
     Column() {
       Row() {
         if (picsOf(item).length > 0) {
-          Image(picsOf(item)[0])
-            .width(56)
-            .height(56)
-            .objectFit(ImageFit.Cover)
-              .alt($r('app.media.ic_image_placeholder'))
-            .borderRadius(12)
+          NetImage({ url: picsOf(item)[0], imgWidth: 56, imgHeight: 56, radius: 12, fit: ImageFit.Cover })
+            .margin({ right: 12 })
             .margin({ right: 12 })
         }
 
