@@ -12,8 +12,8 @@ import { http } from '@kit.NetworkKit';
 import { hilog } from '@kit.PerformanceAnalysisKit';
 import { getTokenV3, APP_ID, VERSION_CODE, API_VERSION, CHANNEL, MODE, VERSION_NAME } from './CoolapkToken';
 import { getDeviceCode } from './DeviceCode';
-import { buildCookieHeader, buildCookieHeaderSync, saveSessid, withProof, withProofSync,
-  clearValidate, saveCaptchaField, inReplayWindow, inReplayWindowSync } from './CookieStore';
+import { buildCookieHeaderSync, saveSessid, withProofSync,
+  clearValidate, saveCaptchaField, inReplayWindowSync } from './CookieStore';
 import { parseChallenge, DEFAULT_CAPTCHA_FIELD } from './CaptchaChallenge';
 
 const DOMAIN = 0x0000;

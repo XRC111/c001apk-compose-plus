@@ -112,25 +112,6 @@ export async function saveCaptchaField(field: string): Promise<void> {
   await putString(KEY_CAPTCHA_FIELD, field);
 }
 
-/**
- * 给「重放」请求追加凭证参数（对齐 Android 版 buildRetry）。
- * 只在调用方明确要求时才加，且取用后即清掉一次性标记，避免后续每个请求都带过期凭证。
- */
-export async function withProof(path: string, replay: boolean): Promise<string> {
-  if (!replay) {
-    return path;
-  }
-  const proof = await getString(KEY_VALIDATE, '');
-  if (proof.length === 0) {
-    return path;
-  }
-  const field = await getString(KEY_CAPTCHA_FIELD, DEFAULT_CAPTCHA_FIELD);
-  if (field.length === 0) {
-    return path;
-  }
-  const sep = path.indexOf('?') >= 0 ? '&' : '?';
-  return path + sep + encodeURIComponent(field) + '=' + encodeURIComponent(proof);
-}
 
 const DEFAULT_CAPTCHA_FIELD: string = '_v2_post_token';
 const KEY_REPLAY_AT: string = 'replayAt';
